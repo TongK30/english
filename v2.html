@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard SRS - Ultimate</title>
+    <title>Flashcard SRS - Youglish</title>
     <style>
         :root {
             --primary: #3498db;
@@ -68,7 +68,7 @@
         .open-add-btn:hover { color: var(--primary); background-color: rgba(0,0,0,0.05); }
 
         #btn-theme {
-            position: fixed; top: 15px; left: 15px; /* Góc trái */
+            position: fixed; top: 15px; left: 15px; 
             background: rgba(0,0,0,0.1); border: none; 
             font-size: 1.2rem; width: 40px; height: 40px;
             border-radius: 50%; cursor: pointer; z-index: 100;
@@ -142,6 +142,11 @@
         .btn-good { background: var(--success); color: white; }
         .btn-reveal { background: #95a5a6; color: white; margin-top: 20px; }
         
+        /* YOUGLISH STYLES */
+        .btn-youglish { background: #c0392b; color: white; margin-top: 15px; font-size: 0.9rem; width: auto; display: inline-block; padding: 8px 15px; border-radius: 20px; }
+        .btn-youglish:hover { background: #e74c3c; }
+        #youglish-container { margin-top: 15px; border-radius: 10px; overflow: hidden; display: none; border: 1px solid var(--border-color); }
+
         .tag-badge { display: inline-block; background: #9b59b6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -266,6 +271,14 @@
             <div id="a-example" style="font-weight: 500; color: #34495e;"></div>
             <div id="a-trans" style="color: #7f8c8d; margin-top: 4px; font-size: 0.9rem;"></div>
         </div>
+        
+        <div style="text-align: center;">
+             <button class="btn-youglish" onclick="toggleYouglish()">🎬 Xem ngữ cảnh (Youglish)</button>
+             <div id="youglish-container">
+                 <div id="widget-1"></div>
+             </div>
+        </div>
+
         <div id="syn-ant-area" style="margin-top:10px; font-size:0.85rem;"></div>
         
         <p id="result-status" style="text-align: center; font-weight: bold; margin-top:15px;"></p>
@@ -394,9 +407,11 @@
     </div>
 </div>
 
+<script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
+
 <script>
     // --- CẤU HÌNH API ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbyZlO2_Bpfx3oCrhE79eZeMM4xnGm34rGVI2Fn9VKFKagWXG3ewo4RgNOncTSkx--2rHA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyy-_qamv_xE6dnQExiz_JDybCsX8X8z7MDqjVqe_INre46w3mp8Eshh5sNrdORacZHmg/exec";
 
     // --- BIẾN TOÀN CỤC ---
     let allVocabularyData = [];
@@ -522,7 +537,7 @@
             }
         }
         setTimeout(() => document.getElementById('cloze-box')?.focus(), 100);
-        playAudio(currentWord.Vocabulary); // Auto play audio
+        playAudio(currentWord.Vocabulary);
     }
 
     function revealAnswer() { showFeedback(currentWord, false); }
@@ -531,6 +546,10 @@
         document.getElementById('search-results-box').style.display = 'none';
         document.getElementById('study-area').style.display = 'none';
         document.getElementById('feedback-area').style.display = 'block';
+        
+        // Ẩn Youglish khi qua từ mới
+        const ygContainer = document.getElementById('youglish-container');
+        ygContainer.style.display = 'none';
         
         const badge = document.getElementById('a-tag-badge');
         if (wordObj.Tag) {
@@ -586,6 +605,36 @@
         });
         currentIndex++;
         displayNextWord();
+    }
+
+    // --- YOUGLISH FUNCTIONALITY ---
+    let ygWidget;
+    function onYouglishAPIReady() {
+        ygWidget = new YG.Widget("widget-1", {
+            width: 320,
+            components: 72, // Ẩn bớt UI không cần thiết
+            events: {
+                'onError': (e) => console.log('Youglish Error:', e)
+            }
+        });
+    }
+
+    function toggleYouglish() {
+        const container = document.getElementById('youglish-container');
+        const vocab = document.getElementById('a-vocab').innerText;
+        
+        if (container.style.display === 'none') {
+            container.style.display = 'block';
+            // Gọi hàm tìm kiếm
+            if(ygWidget) {
+                ygWidget.fetch(vocab, "english", "us");
+            } else {
+                alert("Youglish chưa tải xong, vui lòng thử lại sau vài giây.");
+            }
+        } else {
+            container.style.display = 'none';
+            if(ygWidget) ygWidget.pause();
+        }
     }
 
     // --- TÌM KIẾM ---
@@ -768,7 +817,7 @@
         }).catch(e => { alert("Lỗi: " + e); btn.innerText = "Lưu thay đổi"; btn.disabled = false; });
     }
 
-    // --- TEXT TO SPEECH (WEB API - FIX HOSTING ERROR) ---
+    // --- TEXT TO SPEECH ---
     let preferredVoice = null;
     function loadVoices() {
         const voices = window.speechSynthesis.getVoices();
