@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard SRS - Pro Fixed</title>
+    <title>Flashcard SRS - Ultimate</title>
     <style>
         :root {
             --primary: #3498db;
@@ -52,41 +52,26 @@
             border: 1px solid var(--border-color);
         }
         
-        /* --- FIXED: Nút Add (+) --- */
+        /* --- FIXED UI: Nút Add (+) & Dark Mode --- */
         .open-add-btn { 
             position: absolute; 
             top: 15px; 
             right: 15px; 
             background: transparent; 
             color: #bdc3c7; 
-            font-size: 2.2rem; /* To hơn chút để dễ bấm */
-            width: 40px; 
-            height: 40px; 
-            padding: 0; 
-            line-height: 35px; /* Căn giữa dấu cộng */
-            cursor: pointer;
-            z-index: 50; /* Đảm bảo nổi lên trên */
-            border-radius: 50%;
-            transition: 0.2s;
+            font-size: 2.2rem; 
+            width: 40px; height: 40px; 
+            padding: 0; line-height: 35px; 
+            cursor: pointer; z-index: 50; 
+            border-radius: 50%; transition: 0.2s;
         }
-        .open-add-btn:hover { 
-            color: var(--primary); 
-            background-color: rgba(0,0,0,0.05);
-        }
+        .open-add-btn:hover { color: var(--primary); background-color: rgba(0,0,0,0.05); }
 
-        /* --- FIXED: Nút Dark Mode (Chuyển sang trái) --- */
         #btn-theme {
-            position: fixed; 
-            top: 15px; 
-            left: 15px; /* Chuyển sang trái */
-            background: rgba(0,0,0,0.1); /* Nền mờ nhẹ */
-            border: none; 
-            font-size: 1.2rem; /* Nhỏ lại */
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer; 
-            z-index: 100;
+            position: fixed; top: 15px; left: 15px; /* Góc trái */
+            background: rgba(0,0,0,0.1); border: none; 
+            font-size: 1.2rem; width: 40px; height: 40px;
+            border-radius: 50%; cursor: pointer; z-index: 100;
             display: flex; align-items: center; justify-content: center;
             backdrop-filter: blur(2px);
         }
@@ -108,15 +93,14 @@
             flex: 1; padding: 0 10px; border-radius: 20px;
             border: 1px solid var(--border-color);
             background: var(--input-bg); color: var(--text-main);
-            font-weight: bold; cursor: pointer;
-            max-width: 150px;
+            font-weight: bold; cursor: pointer; max-width: 150px;
         }
 
         .search-results {
             position: absolute; top: 110%; left: 0; width: 100%;
             background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            max-height: 250px; overflow-y: auto; z-index: 200; /* Tăng z-index để không bị che */
+            max-height: 250px; overflow-y: auto; z-index: 200; 
             display: none; text-align: left;
         }
         .search-item {
@@ -182,7 +166,7 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
 
-        /* --- MODAL ADD NEW (PRO STYLE) --- */
+        /* --- MODAL ADD NEW --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal-box-pro { background: var(--bg-card); width: 900px; max-width: 95%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid var(--border-color); overflow: hidden; display: flex; flex-direction: column; animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; }}
@@ -227,9 +211,7 @@
 </head>
 <body>
 
-<button onclick="toggleDarkMode()" id="btn-theme" title="Chế độ tối">
-    🌙
-</button>
+<button onclick="toggleDarkMode()" id="btn-theme" title="Chế độ tối">🌙</button>
 
 <div class="container">
     <button class="open-add-btn" onclick="openAddModal()" title="Thêm từ mới">+</button>
@@ -242,10 +224,9 @@
             <input type="text" class="search-box" id="main-search" placeholder="Tìm kiếm..." autocomplete="off">
             <div class="search-results" id="search-results-box"></div>
         </div>
-        
         <select id="tag-filter" class="tag-filter-select" onchange="applyFilter()" title="Lọc theo chủ đề">
             <option value="all">📚 Tất cả</option>
-            </select>
+        </select>
     </div>
 
     <div id="loading" style="color: #7f8c8d;">Đang tải dữ liệu...</div>
@@ -275,13 +256,9 @@
             <div class="word-title" id="a-vocab"></div>
             <button onclick="playAudio(document.getElementById('a-vocab').innerText)" 
                     style="width: 35px; height: 35px; border-radius: 50%; padding: 0; background: #eee; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width:auto;" 
-                    title="Nghe lại">
-                🔊
-            </button>
+                    title="Nghe lại">🔊</button>
             <button onclick="openEditModalFromView()" title="Chỉnh sửa"
-                    style="width: 35px; height: 35px; border-radius: 50%; padding: 0; background: #fff3e0; color: #e67e22; border: 1px solid #ffe0b2; cursor: pointer; width:auto;">
-                ✏️
-            </button>
+                    style="width: 35px; height: 35px; border-radius: 50%; padding: 0; background: #fff3e0; color: #e67e22; border: 1px solid #ffe0b2; cursor: pointer; width:auto;">✏️</button>
         </div>
         <span class="ipa" id="a-ipa"></span>
         <div class="meaning" id="a-meaning"></div>
@@ -312,7 +289,6 @@
             <h3>✨ Thêm thẻ mới</h3>
             <span class="close-icon" onclick="closeAddModal()">&times;</span>
         </div>
-
         <div class="modal-body-grid">
             <div class="grid-col left-col">
                 <div class="form-group">
@@ -323,7 +299,6 @@
                     </div>
                     <div id="duplicate-warning" class="warning-text">⚠️ Từ này đã có trong danh sách!</div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label>Phiên âm (IPA)</label>
@@ -335,12 +310,10 @@
                         <datalist id="tag-suggestions"></datalist>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Nghĩa Tiếng Việt <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="f-meaning" placeholder="Nghĩa của từ...">
                 </div>
-
                 <div class="form-group">
                     <label>Hình ảnh (URL)</label>
                     <div class="image-input-group">
@@ -349,18 +322,15 @@
                     </div>
                 </div>
             </div>
-
             <div class="grid-col right-col">
                 <div class="form-group">
                     <label>Câu ví dụ</label>
                     <textarea id="f-example" rows="2" placeholder="Ví dụ sử dụng từ này..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <label>Dịch ví dụ</label>
                     <textarea id="f-trans" rows="2" placeholder="Dịch nghĩa câu ví dụ..."></textarea>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label>Đồng nghĩa</label>
@@ -373,7 +343,6 @@
                 </div>
             </div>
         </div>
-
         <div class="modal-footer">
             <button class="btn-bulk" onclick="openBulkModal()" title="Nhập nhiều từ cùng lúc">📥 Import Nhanh</button>
             <button class="btn-cancel" onclick="closeAddModal()">Hủy bỏ</button>
@@ -392,9 +361,7 @@
             <div class="bulk-guide">
                 <strong>Hướng dẫn:</strong> Mỗi dòng một từ. Định dạng: 
                 <br><code>Từ vựng | Nghĩa | Tag (Tùy chọn)</code>
-                <br>Ví dụ:<br>
-                <i>Apple | Quả táo | Fruit<br>
-                Run | Chạy bộ</i> (Không có tag)
+                <br>Ví dụ:<br><i>Apple | Quả táo | Fruit<br>Run | Chạy bộ</i>
             </div>
             <div class="form-group">
                 <label>Tag mặc định (nếu không nhập trong dòng)</label>
@@ -413,7 +380,6 @@
 <div id="edit-modal" class="modal-overlay">
     <div class="modal-content" style="background: var(--bg-card); padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;">
         <h3 style="margin-top:0; color:#e67e22">Chỉnh sửa từ vựng</h3>
-        
         <input type="text" id="e-vocab" placeholder="Từ vựng">
         <input type="text" id="e-tag" placeholder="Chủ đề (Tag)">
         <input type="text" id="e-ipa" placeholder="IPA">
@@ -423,7 +389,6 @@
         <input type="text" id="e-syn" placeholder="Đồng nghĩa">
         <input type="text" id="e-ant" placeholder="Trái nghĩa">
         <input type="text" id="e-image" placeholder="Link ảnh">
-        
         <button onclick="submitEditWord()" id="btn-edit-save" style="background: #e67e22; color: white;">Lưu thay đổi</button>
         <button class="close-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="background: var(--danger); color: white; margin-top: 10px;">Hủy</button>
     </div>
@@ -431,42 +396,34 @@
 
 <script>
     // --- CẤU HÌNH API ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbx7JYoblB3rG1um8ZsOR6yWJPH1k01w32R76Ft4BpLtlzne4cChcz5e06uwKSN53v9L5Q/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyy-_qamv_xE6dnQExiz_JDybCsX8X8z7MDqjVqe_INre46w3mp8Eshh5sNrdORacZHmg/exec";
 
     // --- BIẾN TOÀN CỤC ---
-    let allVocabularyData = []; // Chứa tất cả dữ liệu gốc
-    let currentSessionWords = []; // Chứa danh sách đang học (đã lọc)
+    let allVocabularyData = [];
+    let currentSessionWords = [];
     let currentIndex = 0;
     let currentWord = null;
     let editingWord = null;
     let existingWordsSet = new Set(); 
 
-    window.onload = function() {
-        loadData();
-    };
+    window.onload = function() { loadData(); };
 
-    // 1. Tải và xử lý dữ liệu
+    // 1. Tải dữ liệu
     function loadData() {
         document.getElementById('loading').style.display = 'block';
         fetch(API_URL) 
             .then(res => res.json())
             .then(data => {
                 allVocabularyData = data;
-                
-                // Tạo Set để check trùng
                 existingWordsSet = new Set(data.map(w => {
                     const word = w.Vocabulary ? w.Vocabulary : w; 
                     return String(word).toLowerCase().trim();
                 }));
 
-                // Khởi tạo danh sách Tags cho Filter
                 initTagSystem(allVocabularyData);
-
-                // Mặc định load tất cả từ để học (hoặc có thể lọc ngày tại đây)
                 currentSessionWords = allVocabularyData.sort(() => Math.random() - 0.5);
                 
                 document.getElementById('loading').style.display = 'none';
-                
                 if (currentSessionWords.length === 0) {
                     document.getElementById('done-msg').style.display = 'block';
                 } else {
@@ -479,48 +436,35 @@
             });
     }
 
-    // --- HỆ THỐNG TAG (NEW) ---
+    // --- HỆ THỐNG TAG ---
     function initTagSystem(data) {
-        // Lấy danh sách Tag duy nhất
         const tags = new Set();
-        data.forEach(w => {
-            if(w.Tag) tags.add(w.Tag.trim());
-        });
-
-        // Đổ vào Dropdown Filter
+        data.forEach(w => { if(w.Tag) tags.add(w.Tag.trim()); });
         const filterSelect = document.getElementById('tag-filter');
         filterSelect.innerHTML = '<option value="all">📚 Tất cả</option>';
         tags.forEach(t => {
             const opt = document.createElement('option');
-            opt.value = t;
-            opt.innerText = `🏷️ ${t}`;
+            opt.value = t; opt.innerText = `🏷️ ${t}`;
             filterSelect.appendChild(opt);
         });
-
-        // Đổ vào Datalist Suggestion (khi thêm mới)
         const dataList = document.getElementById('tag-suggestions');
         dataList.innerHTML = '';
         tags.forEach(t => {
             const opt = document.createElement('option');
-            opt.value = t;
-            dataList.appendChild(opt);
+            opt.value = t; dataList.appendChild(opt);
         });
     }
 
-    // Hàm Lọc khi chọn Dropdown
     function applyFilter() {
         const selectedTag = document.getElementById('tag-filter').value;
         document.getElementById('study-area').style.display = 'none';
         document.getElementById('feedback-area').style.display = 'none';
         document.getElementById('done-msg').style.display = 'none';
-        
-        // Reset phiên học
         currentIndex = 0;
 
         if (selectedTag === 'all') {
             currentSessionWords = allVocabularyData.sort(() => Math.random() - 0.5);
         } else {
-            // Lọc các từ có Tag trùng khớp
             currentSessionWords = allVocabularyData.filter(w => w.Tag && w.Tag.trim() === selectedTag).sort(() => Math.random() - 0.5);
         }
 
@@ -531,7 +475,6 @@
             displayNextWord();
         }
     }
-
 
     // --- LOGIC HỌC TẬP (CLOZE) ---
     function displayNextWord() {
@@ -561,13 +504,10 @@
             if (i === hiddenCharIndex) {
                 let input = document.createElement("input");
                 input.className = "cloze-input";
-                input.maxLength = 1;
-                input.id = "cloze-box";
-                input.autocomplete = "off";
+                input.maxLength = 1; input.id = "cloze-box"; input.autocomplete = "off";
                 input.oninput = (e) => {
                      if (e.target.value.toLowerCase() === correctChar) {
-                        e.target.classList.add("correct");
-                        e.target.disabled = true;
+                        e.target.classList.add("correct"); e.target.disabled = true;
                         setTimeout(() => showFeedback(currentWord, true), 500); 
                     } else if (e.target.value.length > 0) {
                         e.target.classList.add("wrong");
@@ -582,7 +522,7 @@
             }
         }
         setTimeout(() => document.getElementById('cloze-box')?.focus(), 100);
-        playAudio(currentWord.Vocabulary);
+        playAudio(currentWord.Vocabulary); // Auto play audio
     }
 
     function revealAnswer() { showFeedback(currentWord, false); }
@@ -592,23 +532,19 @@
         document.getElementById('study-area').style.display = 'none';
         document.getElementById('feedback-area').style.display = 'block';
         
-        // Hiển thị Badge Tag
         const badge = document.getElementById('a-tag-badge');
         if (wordObj.Tag) {
             badge.innerHTML = `<span class="tag-badge">${wordObj.Tag}</span>`;
             badge.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
-        }
+        } else { badge.style.display = 'none'; }
 
         document.getElementById('a-vocab').innerText = wordObj.Vocabulary;
         document.getElementById('a-ipa').innerText = wordObj.IPA ? `/${wordObj.IPA}/` : "";
         document.getElementById('a-meaning').innerText = wordObj.Meaning;
         
         const imgEl = document.getElementById('a-image');
-        if (wordObj.Image) {
-            imgEl.src = wordObj.Image; imgEl.style.display = "block";
-        } else { imgEl.style.display = "none"; }
+        if (wordObj.Image) { imgEl.src = wordObj.Image; imgEl.style.display = "block"; } 
+        else { imgEl.style.display = "none"; }
 
         const exBox = document.getElementById('a-example');
         if (wordObj.Example) {
@@ -627,14 +563,10 @@
 
         const btnGroup = document.querySelector('.btn-group');
         const status = document.getElementById('result-status');
-
         if (wordObj === currentWord) {
             btnGroup.style.display = 'flex';
-            if(isCorrect) {
-                status.innerText = "CHÍNH XÁC!"; status.style.color = "var(--success)";
-            } else {
-                status.innerText = "ĐÁP ÁN: " + wordObj.Vocabulary; status.style.color = "var(--danger)";
-            }
+            if(isCorrect) { status.innerText = "CHÍNH XÁC!"; status.style.color = "var(--success)"; }
+            else { status.innerText = "ĐÁP ÁN: " + wordObj.Vocabulary; status.style.color = "var(--danger)"; }
         } else {
             btnGroup.style.display = 'none';
             status.innerText = "Chế độ xem từ điển"; status.style.color = "var(--primary)";
@@ -659,109 +591,63 @@
     // --- TÌM KIẾM ---
     const searchInput = document.getElementById('main-search');
     const searchBox = document.getElementById('search-results-box');
-
     searchInput.addEventListener('input', function() {
         const query = this.value.toLowerCase().trim();
         if (query.length < 1) { searchBox.style.display = 'none'; return; }
-
-        const results = allVocabularyData.filter(item => 
-            item.Vocabulary && item.Vocabulary.toLowerCase().includes(query)
-        ).slice(0, 10);
-
+        const results = allVocabularyData.filter(item => item.Vocabulary && item.Vocabulary.toLowerCase().includes(query)).slice(0, 10);
         if (results.length > 0) {
             searchBox.innerHTML = results.map(item => `
                 <div class="search-item" onclick="viewSearchedWord('${item.Vocabulary}')">
-                    <div>
-                        <strong>${item.Vocabulary}</strong>
-                        ${item.Tag ? `<span style="font-size:0.7em; color:var(--primary); margin-left:5px">[${item.Tag}]</span>` : ''}
-                    </div>
+                    <div><strong>${item.Vocabulary}</strong>${item.Tag ? `<span style="font-size:0.7em; color:var(--primary); margin-left:5px">[${item.Tag}]</span>` : ''}</div>
                     <small>${item.Meaning}</small>
                 </div>
             `).join('');
             searchBox.style.display = 'block';
-        } else {
-            searchBox.innerHTML = '<div style="padding:10px; color:#999">Không tìm thấy</div>';
-            searchBox.style.display = 'block';
-        }
+        } else { searchBox.innerHTML = '<div style="padding:10px; color:#999">Không tìm thấy</div>'; searchBox.style.display = 'block'; }
     });
-
     document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchBox.contains(e.target)) {
-            searchBox.style.display = 'none';
-        }
+        if (!searchInput.contains(e.target) && !searchBox.contains(e.target)) { searchBox.style.display = 'none'; }
     });
-
     function viewSearchedWord(vocab) {
         const wordObj = allVocabularyData.find(w => w.Vocabulary === vocab);
-        if (wordObj) {
-            showFeedback(wordObj, true); 
-            searchInput.value = "";
-            searchBox.style.display = 'none';
-        }
+        if (wordObj) { showFeedback(wordObj, true); searchInput.value = ""; searchBox.style.display = 'none'; }
     }
 
-    // --- BULK IMPORT (WITH TAG SUPPORT) ---
-    function openBulkModal() {
-        document.getElementById('add-modal').style.display = 'none';
-        document.getElementById('bulk-modal').style.display = 'flex';
-    }
-
+    // --- BULK IMPORT ---
+    function openBulkModal() { document.getElementById('add-modal').style.display = 'none'; document.getElementById('bulk-modal').style.display = 'flex'; }
     async function processBulkImport() {
         const text = document.getElementById('bulk-textarea').value;
         const defaultTag = document.getElementById('bulk-default-tag').value.trim();
-        
         if (!text.trim()) return alert("Vui lòng nhập danh sách từ!");
-
         const lines = text.split('\n');
         const btn = document.querySelector('#bulk-modal .btn-submit');
         const statusDiv = document.getElementById('bulk-status');
-        
-        btn.disabled = true;
-        let count = 0; let errors = 0;
-
+        btn.disabled = true; let count = 0; let errors = 0;
         for (let line of lines) {
             if (!line.trim()) continue;
-            
-            // Format: Vocab | Meaning | Tag
             const parts = line.split('|').map(p => p.trim());
-            const vocab = parts[0];
-            const meaning = parts[1];
-            // Nếu dòng có tag thì lấy, không thì dùng default tag
-            const tag = parts[2] || defaultTag;
-
+            const vocab = parts[0]; const meaning = parts[1]; const tag = parts[2] || defaultTag;
             if (!vocab || !meaning) { errors++; continue; }
             if (existingWordsSet.has(vocab.toLowerCase())) { statusDiv.innerText = `Bỏ qua trùng: ${vocab}...`; continue; }
-
             statusDiv.innerText = `Đang lưu: ${vocab}... (${count + 1})`;
-
             try {
                  await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({
-                        action: "add",
-                        Vocabulary: vocab, Meaning: meaning, Tag: tag, // Send Tag
-                        IPA: "", Example: "", ExampleTrans: "", Synonyms: "", Antonyms: "", Image: ""
-                    })
+                    body: JSON.stringify({ action: "add", Vocabulary: vocab, Meaning: meaning, Tag: tag, IPA: "", Example: "", ExampleTrans: "", Synonyms: "", Antonyms: "", Image: "" })
                 });
-                
                 existingWordsSet.add(vocab.toLowerCase());
                 allVocabularyData.push({ Vocabulary: vocab, Meaning: meaning, Tag: tag });
-                count++;
-                await new Promise(r => setTimeout(r, 800));
-
+                count++; await new Promise(r => setTimeout(r, 800));
             } catch (e) { console.error(e); errors++; }
         }
-
         statusDiv.innerText = `✅ Hoàn tất! Đã thêm ${count} từ.`;
         btn.disabled = false; btn.innerText = "Import xong";
-        document.getElementById('bulk-textarea').value = "";
-        setTimeout(() => location.reload(), 2000); 
+        document.getElementById('bulk-textarea').value = ""; setTimeout(() => location.reload(), 2000); 
     }
 
-    // --- ADD NEW WORD (WITH TAG) ---
+    // --- ADD NEW WORD ---
     function openAddModal() { document.getElementById('add-modal').style.display = 'flex'; document.getElementById('f-vocab').focus(); }
     function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
-
     let typingTimer; const inputVocab = document.getElementById('f-vocab');
     inputVocab.addEventListener('input', () => {
         const val = inputVocab.value.trim().toLowerCase();
@@ -778,12 +664,10 @@
         clearTimeout(typingTimer);
         if (val.length > 1) { typingTimer = setTimeout(autoFillWord, 800); }
     });
-
     function showLoading(isLoading) {
         const btn = document.getElementById('btn-lookup');
         btn.innerText = isLoading ? "⏳" : "🔍"; btn.disabled = isLoading;
     }
-
     async function autoFillWord() {
         const word = document.getElementById('f-vocab').value.trim();
         if (!word) return;
@@ -802,7 +686,6 @@
                     return json[0].map(x => x[0]).join("");
                 } catch (e) { return ""; }
             };
-
             let ipa = "", example = "", synonyms = "", antonyms = "";
             if (dataDict) {
                 ipa = dataDict.phonetic || (dataDict.phonetics.find(p => p.text)?.text) || "";
@@ -824,48 +707,37 @@
             document.getElementById('preview-img').src = imgUrl; document.getElementById('preview-img').style.display = "block";
         } catch (err) { console.error(err); } finally { showLoading(false); }
     }
-
     function submitNewWord() {
         const vocab = document.getElementById('f-vocab').value;
         const meaning = document.getElementById('f-meaning').value;
-        const tag = document.getElementById('f-tag').value; // Get Tag
-
+        const tag = document.getElementById('f-tag').value;
         if(!vocab || !meaning) return alert("Cần nhập Từ vựng và Nghĩa!");
-        const btn = document.getElementById('btn-save');
-        btn.innerText = "Đang lưu..."; btn.disabled = true;
-
+        const btn = document.getElementById('btn-save'); btn.innerText = "Đang lưu..."; btn.disabled = true;
         const newWord = {
-            action: "add",
-            Vocabulary: vocab, IPA: document.getElementById('f-ipa').value,
-            Meaning: meaning, Tag: tag, // Send Tag
-            Example: document.getElementById('f-example').value, ExampleTrans: document.getElementById('f-trans').value,
-            Synonyms: document.getElementById('f-syn').value, Antonyms: document.getElementById('f-ant').value,
-            Image: document.getElementById('f-image').value
+            action: "add", Vocabulary: vocab, IPA: document.getElementById('f-ipa').value,
+            Meaning: meaning, Tag: tag, Example: document.getElementById('f-example').value, ExampleTrans: document.getElementById('f-trans').value,
+            Synonyms: document.getElementById('f-syn').value, Antonyms: document.getElementById('f-ant').value, Image: document.getElementById('f-image').value
         };
-
         fetch(API_URL, {
             method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
             body: JSON.stringify(newWord)
         }).then(() => {
             alert("Đã thêm thành công!");
             allVocabularyData.push(newWord); existingWordsSet.add(vocab.toLowerCase().trim());
-            initTagSystem(allVocabularyData); // Refresh tags
-            closeAddModal();
+            initTagSystem(allVocabularyData); closeAddModal();
             document.querySelectorAll('#add-modal input, #add-modal textarea').forEach(i => i.value = '');
-            document.getElementById('preview-img').style.display = 'none';
-            btn.innerText = "Lưu thẻ này"; btn.disabled = false;
+            document.getElementById('preview-img').style.display = 'none'; btn.innerText = "Lưu thẻ này"; btn.disabled = false;
         }).catch(e => { alert("Lỗi lưu: " + e); btn.innerText = "Lưu thẻ này"; btn.disabled = false; });
     }
 
-    // --- EDIT WORD (WITH TAG) ---
+    // --- EDIT WORD ---
     function openEditModalFromView() {
         const currentVocab = document.getElementById('a-vocab').innerText;
         const wordObj = allVocabularyData.find(w => w.Vocabulary === currentVocab);
-        
         if (wordObj) {
             editingWord = wordObj;
             document.getElementById('e-vocab').value = wordObj.Vocabulary;
-            document.getElementById('e-tag').value = wordObj.Tag || ""; // Load tag
+            document.getElementById('e-tag').value = wordObj.Tag || "";
             document.getElementById('e-ipa').value = wordObj.IPA;
             document.getElementById('e-meaning').value = wordObj.Meaning;
             document.getElementById('e-example').value = wordObj.Example;
@@ -876,45 +748,46 @@
             document.getElementById('edit-modal').style.display = 'flex';
         }
     }
-
     function submitEditWord() {
         if (!editingWord) return;
-        const btn = document.getElementById('btn-edit-save');
-        btn.innerText = "Đang lưu..."; btn.disabled = true;
-
+        const btn = document.getElementById('btn-edit-save'); btn.innerText = "Đang lưu..."; btn.disabled = true;
         const updatedData = {
-            action: "edit_content",
-            rowIndex: editingWord.rowIndex,
-            Vocabulary: document.getElementById('e-vocab').value,
-            Tag: document.getElementById('e-tag').value, // Send updated tag
-            IPA: document.getElementById('e-ipa').value,
-            Meaning: document.getElementById('e-meaning').value,
-            Example: document.getElementById('e-example').value,
-            ExampleTrans: document.getElementById('e-trans').value,
-            Synonyms: document.getElementById('e-syn').value,
-            Antonyms: document.getElementById('e-ant').value,
-            Image: document.getElementById('e-image').value
+            action: "edit_content", rowIndex: editingWord.rowIndex,
+            Vocabulary: document.getElementById('e-vocab').value, Tag: document.getElementById('e-tag').value,
+            IPA: document.getElementById('e-ipa').value, Meaning: document.getElementById('e-meaning').value,
+            Example: document.getElementById('e-example').value, ExampleTrans: document.getElementById('e-trans').value,
+            Synonyms: document.getElementById('e-syn').value, Antonyms: document.getElementById('e-ant').value, Image: document.getElementById('e-image').value
         };
-
         fetch(API_URL, {
             method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
             body: JSON.stringify(updatedData)
         }).then(() => {
-            alert("Đã cập nhật!");
-            document.getElementById('edit-modal').style.display = 'none';
+            alert("Đã cập nhật!"); document.getElementById('edit-modal').style.display = 'none';
             btn.innerText = "Lưu thay đổi"; btn.disabled = false;
-            
-            Object.assign(editingWord, updatedData); 
-            initTagSystem(allVocabularyData); // Refresh tag list if new tag added
-            showFeedback(editingWord, true); 
+            Object.assign(editingWord, updatedData); initTagSystem(allVocabularyData); showFeedback(editingWord, true); 
         }).catch(e => { alert("Lỗi: " + e); btn.innerText = "Lưu thay đổi"; btn.disabled = false; });
     }
 
-    // --- UTILS: AUDIO & VOICE ---
+    // --- TEXT TO SPEECH (WEB API - FIX HOSTING ERROR) ---
+    let preferredVoice = null;
+    function loadVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        preferredVoice = voices.find(v => v.name.includes("Google US English")) || voices.find(v => v.lang === "en-US") || voices[0];
+    }
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
     function playAudio(text) {
         if (!text) return;
-        new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(text)}`).play().catch(e=>{});
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US'; utterance.rate = 0.9;
+        if (!preferredVoice) loadVoices();
+        if (preferredVoice) utterance.voice = preferredVoice;
+        window.speechSynthesis.speak(utterance);
     }
+
+    // --- SPEECH TO TEXT ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition; 
     if (SpeechRecognition) {
@@ -943,6 +816,5 @@
         document.getElementById('btn-theme').innerText = isDark ? '☀️' : '🌙';
     }
 </script>
-
 </body>
 </html>
