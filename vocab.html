@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard SRS</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --text: #2c3e50;
+            --bg: #f4f6f7;
+            --card-bg: #ffffff;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: var(--card-bg); border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 30px; text-align: center; position: relative; }
+        
+        /* Cloze Styles */
+        #cloze-container { display: flex; justify-content: center; gap: 5px; margin: 30px 0; flex-wrap: wrap; font-size: 2.2rem; font-weight: bold; }
+        .cloze-input { width: 45px; height: 55px; font-size: 2rem; text-align: center; border: none; border-bottom: 4px solid var(--primary); background: #f0f8ff; color: var(--primary); outline: none; border-radius: 4px; font-weight: bold; text-transform: lowercase; }
+        .cloze-input:focus { border-bottom-color: #2980b9; background: #eaf2f8; }
+        .cloze-input.correct { border-bottom-color: var(--success); color: var(--success); background: #e8f8f5; }
+        .cloze-input.wrong { border-bottom-color: var(--danger); color: var(--danger); background: #fdedec; }
+
+        /* Modal Styles */
+        #add-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        .input-group input { margin-bottom: 0; flex: 1; }
+        
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%; transition: 0.2s; }
+        .btn-autofill { width: auto; background: var(--primary); color: white; padding: 0 15px; font-size: 1.2rem; }
+        .btn-save { background: var(--success); color: white; margin-top: 10px; }
+        .close-btn { background: #e74c3c; color: white; margin-top: 10px; }
+        .open-add-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: #bdc3c7; font-size: 2rem; width: auto; padding: 0; line-height: 1; }
+        .open-add-btn:hover { color: var(--primary); }
+
+        /* Feedback Area */
+        #feedback-area { display: none; text-align: left; animation: fadeIn 0.5s; }
+        .word-title { font-size: 2rem; color: var(--primary); font-weight: bold; }
+        .ipa { color: #7f8c8d; font-style: italic; display: block; margin-bottom: 10px; }
+        .meaning { font-size: 1.2rem; font-weight: bold; border-left: 4px solid var(--success); padding-left: 10px; margin-bottom: 10px; }
+        .example-box { background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.95rem; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-again { background: var(--danger); color: white; }
+        .btn-good { background: var(--success); color: white; }
+        .btn-reveal { background: #95a5a6; color: white; margin-top: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* --- Style cho Đồng nghĩa / Trái nghĩa (Chips) --- */
+.voc-group {
+    margin-top: 12px;
+    text-align: left;
+}
+.voc-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #95a5a6;
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+    letter-spacing: 0.5px;
+}
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px; /* Khoảng cách giữa các từ */
+}
+.chip {
+    padding: 4px 10px;
+    border-radius: 15px; /* Bo tròn như viên thuốc */
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: default;
+    transition: transform 0.1s;
+}
+.chip:hover { transform: scale(1.05); }
+
+/* Màu Xanh cho Đồng nghĩa (Synonyms) */
+.chip-syn {
+    background-color: #e8f5e9; /* Nền xanh nhạt */
+    color: #27ae60;           /* Chữ xanh đậm */
+    border: 1px solid #c8e6c9;
+}
+
+/* Màu Đỏ/Cam cho Trái nghĩa (Antonyms) */
+.chip-ant {
+    background-color: #fdedec; /* Nền đỏ nhạt */
+    color: #c0392b;           /* Chữ đỏ đậm */
+    border: 1px solid #fadbd8;
+}
+/* Thêm vào cuối phần style */
+.card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: none; /* Mặc định ẩn, có ảnh mới hiện */
+    border: 1px solid #eee;
+}
+/* Nút Micro */
+#btn-mic {
+    background-color: #f1c40f; /* Màu vàng cam */
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 0 15px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#btn-mic:hover {
+    background-color: #f39c12;
+}
+
+/* Hiệu ứng khi đang thu âm (Class này sẽ được JS thêm vào khi bấm) */
+.listening {
+    background-color: #e74c3c !important; /* Chuyển màu đỏ */
+    animation: pulse 1.5s infinite;
+}
+/* Khung hiển thị kết quả giọng nói */
+#voice-box {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #fff3cd; /* Màu vàng nhạt */
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    animation: slideUp 0.3s ease-out;
+}
+
+#voice-result-text {
+    font-size: 1.4rem; /* Chữ to rõ */
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+/* --- CẤU HÌNH DARK MODE --- */
+
+/* 1. Định nghĩa màu mặc định (Sáng) */
+:root {
+    --bg-body: #f4f7f6;       /* Nền trang */
+    --bg-card: #ffffff;       /* Nền thẻ học */
+    --text-main: #333333;     /* Chữ chính */
+    --text-sub: #7f8c8d;      /* Chữ phụ */
+    --input-bg: #ffffff;      /* Nền ô nhập liệu */
+    --border-color: #bdc3c7;  /* Viền */
+    --voice-bg: #fff3cd;      /* Nền hộp thoại voice */
+    --voice-text: #856404;    /* Chữ hộp thoại voice */
+}
+
+/* 2. Định nghĩa màu khi bật Dark Mode (Tối) */
+body.dark-mode {
+    --bg-body: #121212;       /* Đen sâu */
+    --bg-card: #1e1e1e;       /* Xám đen */
+    --text-main: #e0e0e0;     /* Trắng xám */
+    --text-sub: #b0b3b8;      /* Xám nhạt */
+    --input-bg: #2d2d2d;      /* Xám đậm */
+    --border-color: #404040;  /* Viền tối */
+    --voice-bg: #2c3e50;      /* Xanh đen (cho box voice) */
+    --voice-text: #f1c40f;    /* Vàng (cho chữ voice) */
+}
+
+/* 3. Áp dụng biến màu vào các thành phần */
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển màu mượt */
+}
+
+.container, .modal-content {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5); /* Bóng đổ đậm hơn cho nổi */
+}
+
+/* Chỉnh màu ô nhập liệu */
+input, .cloze-input {
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+}
+
+/* Chỉnh màu chữ tiêu đề */
+h1, h2, h3, .word-title {
+    color: var(--text-main) !important;
+}
+
+/* Chỉnh riêng cho cái Voice Box (mới làm lúc nãy) */
+#voice-box {
+    background-color: var(--voice-bg) !important;
+    border-color: var(--border-color) !important;
+}
+#voice-result-text {
+    color: var(--text-main) !important; 
+}
+/* Riêng chữ trong voice box nếu đúng/sai thì giữ nguyên màu xanh/đỏ cũ */
+
+/* Chỉnh modal thêm/sửa */
+#add-modal input, #edit-modal input {
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+    </style>
+</head>
+<body>
+<button onclick="toggleDarkMode()" id="btn-theme" title="Chế độ tối"
+    style="position: fixed; top: 20px; right: 20px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; z-index: 100;">
+    🌙
+</button>
+<div class="container">
+    <button class="open-add-btn" onclick="openAddModal()" title="Thêm từ mới">+</button>
+    
+    <h2 style="color:var(--primary); margin-top:0;">Flashcard SRS</h2>
+    <div id="loading" style="color: #7f8c8d;">Đang tải dữ liệu...</div>
+
+    <div id="study-area" style="display: none;">
+        <div id="progress-text" style="font-size:0.9rem; color:#999; margin-bottom:10px;"></div>
+        <div id="cloze-container"></div>
+        <p style="font-size: 0.9rem; color:#999;">Điền ký tự còn thiếu</p>
+       <button class="btn-reveal" onclick="revealAnswer()">Xem đáp án</button>
+    <button id="btn-mic" onclick="startListening()" title="Luyện nói">🎙️</button>
+    <div id="voice-box" style="display: none;">
+        <div style="font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase;">Máy nghe được:</div>
+        <div id="voice-result-text">...</div>
+    </div>
+    
+    <div id="mic-status" style="height: 20px; font-size: 0.85rem; color: #e67e22; margin-top: 5px;"></div>
+   
+    </div>
+
+    <div id="feedback-area">
+<img id="a-image" class="card-image" src="" alt="Minh họa">
+        <div style="display: flex; align-items: center; gap: 10px;">
+    <div class="word-title" id="a-vocab"></div>
+    <button onclick="playAudio(document.getElementById('a-vocab').innerText)" 
+            style="width: 35px; height: 35px; border-radius: 50%; padding: 0; background: #eee; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;" 
+            title="Nghe lại">
+        🔊
+    </button>
+<button onclick="openEditModal()" title="Chỉnh sửa"
+            style="width: 35px; height: 35px; border-radius: 50%; padding: 0; background: #fff3e0; color: #e67e22; border: 1px solid #ffe0b2; cursor: pointer;">
+        ✏️
+    </button>
+</div>
+        <span class="ipa" id="a-ipa"></span>
+        <div class="meaning" id="a-meaning"></div>
+        <div class="example-box">
+            <div id="a-example" style="font-weight: 500; color: #34495e;"></div>
+            <div id="a-trans" style="color: #7f8c8d; margin-top: 4px; font-size: 0.9rem;"></div>
+        </div>
+        <div id="syn-ant-area" style="margin-top:10px; font-size:0.85rem;"></div>
+        
+        <p id="result-status" style="text-align: center; font-weight: bold; margin-top:15px;"></p>
+        
+        <div class="btn-group">
+            <button class="btn-again" onclick="rateWord('again')">Quên (Học lại)</button>
+            <button class="btn-good" onclick="rateWord('good')">Đã nhớ</button>
+        </div>
+    </div>
+
+    <div id="done-msg" style="display: none;">
+        <h3 style="color: var(--success);">🎉 Hoàn thành!</h3>
+        <p>Hết bài hôm nay.</p>
+        <button onclick="location.reload()" style="background:var(--primary); color:white;">Tải lại</button>
+    </div>
+</div>
+<div id="duplicate-warning" style="color: #e74c3c; font-size: 0.9rem; margin-top: -8px; margin-bottom: 10px; display: none; font-weight: bold;">
+    ⚠️ Từ này đã có trong danh sách!
+</div>
+
+<div id="add-modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:var(--primary)">Thêm từ mới</h3>
+        
+     <div class="input-group">
+    <input type="text" id="f-vocab" placeholder="Nhập hoặc dán từ vào đây..." autocomplete="off">
+    <button class="btn-autofill" id="btn-lookup" onclick="autoFillWord()" title="Tự động tìm">🔍</button>
+</div>
+
+<div id="duplicate-warning" style="color: #e74c3c; font-size: 0.9rem; margin-top: -8px; margin-bottom: 10px; display: none; font-weight: bold;">
+    ⚠️ Từ này đã có trong danh sách!
+</div>
+        <p style="font-size: 0.8rem; color: #7f8c8d; margin-top:-5px; text-align: left;">Bấm kính lúp để tự điền.</p>
+
+        <input type="text" id="f-ipa" placeholder="IPA (Phiên âm)">
+        <input type="text" id="f-meaning" placeholder="Nghĩa (Tiếng Việt) *">
+        <input type="text" id="f-example" placeholder="Ví dụ (Tiếng Anh)">
+        <input type="text" id="f-trans" placeholder="Dịch ví dụ">
+        <input type="text" id="f-syn" placeholder="Đồng nghĩa">
+        <input type="text" id="f-ant" placeholder="Trái nghĩa">
+        
+        <button onclick="submitNewWord()" id="btn-save" class="btn-save">Lưu từ vựng</button>
+        <button class="close-btn" onclick="closeAddModal()">Đóng</button>
+    </div>
+</div>
+<div id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center;">
+    <div class="modal-content" style="border: 2px solid #f39c12;">
+        <h3 style="margin-top:0; color:#e67e22">Chỉnh sửa từ vựng</h3>
+        
+        <input type="text" id="e-vocab" placeholder="Từ vựng">
+        <input type="text" id="e-ipa" placeholder="IPA">
+        <input type="text" id="e-meaning" placeholder="Nghĩa">
+        <input type="text" id="e-example" placeholder="Ví dụ">
+        <input type="text" id="e-trans" placeholder="Dịch ví dụ">
+        <input type="text" id="e-syn" placeholder="Đồng nghĩa">
+        <input type="text" id="e-ant" placeholder="Trái nghĩa">
+        <input type="text" id="e-image" placeholder="Link ảnh">
+        
+        <button onclick="submitEditWord()" id="btn-edit-save" style="background: #e67e22; color: white;">Lưu thay đổi</button>
+        <button class="close-btn" onclick="document.getElementById('edit-modal').style.display='none'">Hủy</button>
+    </div>
+</div>
+<script>
+// --- BIẾN LƯU DANH SÁCH TỪ ĐÃ CÓ ---
+    let existingWordsSet = new Set(); // Dùng Set để tìm kiếm siêu nhanh
+
+    // Gọi hàm này ngay khi window.onload hoặc cùng lúc với loadDueWords
+    function loadExistingVocab() {
+        fetch(API_URL + "?action=getAllVocab")
+            .then(res => res.json())
+            .then(data => {
+                // Chuyển hết về chữ thường để so sánh chính xác
+                existingWordsSet = new Set(data.map(w => String(w).toLowerCase().trim()));
+                console.log("Đã tải danh sách kiểm tra trùng:", existingWordsSet.size, "từ");
+            })
+            .catch(e => console.error("Lỗi tải danh sách trùng:", e));
+    }
+    
+    // Sửa lại window.onload để gọi thêm hàm này
+    window.onload = function() {
+        loadDueWords();
+        loadExistingVocab(); // <--- Gọi thêm ở đây
+    };
+    // --- CẤU HÌNH API ---
+    // Thay URL bên dưới bằng Link App Script của bạn
+    const API_URL = "https://script.google.com/macros/s/AKfycbyy-_qamv_xE6dnQExiz_JDybCsX8X8z7MDqjVqe_INre46w3mp8Eshh5sNrdORacZHmg/exec";
+
+    let dueWords = [];
+    let currentIndex = 0;
+    let currentWord = null;
+    let hiddenCharIndex = -1;
+    let correctChar = "";
+// Hàm được gọi khi bấm nút Micro
+    function startListening() {
+        if (!recognition) {
+            alert("Trình duyệt không hỗ trợ (Hãy dùng Chrome/Edge).");
+            return;
+        }
+        // Reset trạng thái
+        document.getElementById('mic-status').innerText = "Đang nghe..."; 
+        recognition.start();
+    }
+    // --- LOGIC HỌC TẬP (CLOZE) ---
+    window.onload = loadDueWords;
+
+    function loadDueWords() {
+        document.getElementById('loading').style.display = 'block';
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                // Sắp xếp ngẫu nhiên
+                dueWords = data.sort(() => Math.random() - 0.5);
+                document.getElementById('loading').style.display = 'none';
+                if (dueWords.length === 0) {
+                    document.getElementById('done-msg').style.display = 'block';
+                } else {
+                    displayNextWord();
+                }
+            })
+            .catch(e => {
+                document.getElementById('loading').innerText = "Lỗi kết nối!";
+                console.error(e);
+            });
+    }
+
+    function displayNextWord() {
+        if (currentIndex >= dueWords.length) {
+            document.getElementById('study-area').style.display = 'none';
+            document.getElementById('feedback-area').style.display = 'none';
+            document.getElementById('done-msg').style.display = 'block';
+            return;
+        }
+        currentWord = dueWords[currentIndex];
+        document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${dueWords.length}`;
+        document.getElementById('study-area').style.display = 'block';
+        document.getElementById('feedback-area').style.display = 'none';
+
+        const container = document.getElementById('cloze-container');
+        container.innerHTML = "";
+        
+        let vocab = currentWord.Vocabulary;
+        // Tìm vị trí để ẩn (ưu tiên ẩn nguyên âm hoặc random)
+        let validIndices = [];
+        for (let i = 0; i < vocab.length; i++) {
+            if (/[a-zA-Z]/.test(vocab[i])) validIndices.push(i);
+        }
+        hiddenCharIndex = validIndices.length > 0 ? validIndices[Math.floor(Math.random() * validIndices.length)] : 0;
+        correctChar = vocab[hiddenCharIndex].toLowerCase();
+
+        for (let i = 0; i < vocab.length; i++) {
+            if (i === hiddenCharIndex) {
+                let input = document.createElement("input");
+                input.className = "cloze-input";
+                input.maxLength = 1;
+                input.id = "cloze-box";
+                input.autocomplete = "off";
+                input.oninput = (e) => checkAnswer(e.target);
+                container.appendChild(input);
+            } else {
+                let span = document.createElement("span");
+                span.innerText = vocab[i];
+                container.appendChild(span);
+            }
+        }
+        setTimeout(() => document.getElementById('cloze-box')?.focus(), 100);
+playAudio(currentWord.Vocabulary);
+    }
+
+    function checkAnswer(input) {
+        if (input.value.toLowerCase() === correctChar) {
+            input.classList.add("correct");
+            input.disabled = true;
+            setTimeout(() => showFeedback(true), 500);
+        } else if (input.value.length > 0) {
+            input.classList.add("wrong");
+            setTimeout(() => { input.classList.remove("wrong"); input.value = ""; }, 500);
+        }
+    }
+
+    function revealAnswer() { showFeedback(false); }
+
+    function showFeedback(isCorrect) {
+        document.getElementById('study-area').style.display = 'none';
+        document.getElementById('feedback-area').style.display = 'block';
+        
+        // Điền dữ liệu
+        document.getElementById('a-vocab').innerText = currentWord.Vocabulary;
+        document.getElementById('a-ipa').innerText = currentWord.IPA ? `/${currentWord.IPA}/` : "";
+        document.getElementById('a-meaning').innerText = currentWord.Meaning;
+const imgEl = document.getElementById('a-image');
+    if (currentWord.Image) {
+        imgEl.src = currentWord.Image;
+        imgEl.style.display = "block";
+    } else {
+        imgEl.style.display = "none";
+    }
+       // --- SỬA ĐOẠN HIỂN THỊ VÍ DỤ ĐỂ CÓ LOA ---
+        const exBox = document.getElementById('a-example');
+        if (currentWord.Example) {
+            // Dùng Flexbox để xếp cái loa nằm ngang hàng với câu ví dụ
+            exBox.style.display = "flex";
+            exBox.style.justifyContent = "space-between";
+            exBox.style.alignItems = "flex-start";
+            exBox.style.gap = "10px";
+
+            exBox.innerHTML = `
+                <span style="width:100%">${currentWord.Example}</span>
+                <button onclick="playAudio(currentWord.Example)" 
+                        title="Nghe ví dụ"
+                        style="background:none; border:none; cursor:pointer; font-size:1.2rem; min-width:30px; padding:0; color: var(--primary);">
+                    🔊
+                </button>
+            `;
+        } else {
+            exBox.innerHTML = "";
+            exBox.style.display = "block";
+        }
+        // -------------------------------------------
+        document.getElementById('a-trans').innerText = currentWord.ExampleTrans;
+        
+       // --- ĐOẠN CODE MỚI ĐỂ TẠO CHIPS MÀU SẮC ---
+        const createChips = (str, type) => {
+            if (!str) return "";
+            // Tách chuỗi bằng dấu phẩy và tạo từng thẻ span
+            const chipsHtml = str.split(',').map(s => 
+                `<span class="chip ${type}">${s.trim()}</span>`
+            ).join('');
+            
+            const label = type === 'chip-syn' ? 'Đồng nghĩa (Synonyms)' : 'Trái nghĩa (Antonyms)';
+            
+            return `
+                <div class="voc-group">
+                    <span class="voc-label">${label}</span>
+                    <div class="chip-container">${chipsHtml}</div>
+                </div>
+            `;
+        };
+
+        let finalHtml = "";
+        // Tạo khối Đồng nghĩa (Xanh)
+        if (currentWord.Synonyms) {
+            finalHtml += createChips(currentWord.Synonyms, 'chip-syn');
+        }
+        // Tạo khối Trái nghĩa (Đỏ)
+        if (currentWord.Antonyms) {
+            finalHtml += createChips(currentWord.Antonyms, 'chip-ant');
+        }
+
+        document.getElementById('syn-ant-area').innerHTML = finalHtml;
+        // ---------------------------------------------
+
+        const status = document.getElementById('result-status');
+        if(isCorrect) {
+            status.innerText = "CHÍNH XÁC!"; status.style.color = "var(--success)";
+        } else {
+            status.innerText = "ĐÁP ÁN: " + currentWord.Vocabulary; status.style.color = "var(--danger)";
+        }
+    }
+
+    function rateWord(rating) {
+        // Gửi cập nhật về server (Fire and forget)
+        fetch(API_URL, {
+            method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                action: "update",
+                rowIndex: currentWord.rowIndex,
+                rating: rating,
+                currentInterval: currentWord.Interval
+            })
+        });
+        currentIndex++;
+        displayNextWord();
+    }
+
+    // --- LOGIC THÊM TỪ (FRONTEND AUTOFILL) ---
+    
+    function openAddModal() { document.getElementById('add-modal').style.display = 'flex'; document.getElementById('f-vocab').focus(); }
+    function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
+
+    // Helper hiển thị trạng thái loading
+    function showLoading(isLoading) {
+        const btn = document.getElementById('btn-lookup');
+        if(isLoading) {
+            btn.innerText = "⏳";
+            btn.disabled = true;
+        } else {
+            btn.innerText = "🔍";
+            btn.disabled = false;
+        }
+    }
+
+    // --- HÀM TRA TỪ CỦA BẠN ---
+    async function autoFillWord() {
+        const word = document.getElementById('f-vocab').value.trim();
+        if (!word) { alert("Hãy nhập từ vựng!"); return; }
+
+        showLoading(true);
+
+        try {
+            // 1. Dictionary API
+            let dataDict = null;
+            try {
+                const resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                if (resDict.ok) {
+                    const json = await resDict.json();
+                    dataDict = json[0];
+                }
+            } catch (e) { console.log("Dict API error", e); }
+
+            // 2. Google Translate Helper
+            const translate = async (text) => {
+                if(!text) return "";
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
+                    const json = await res.json();
+                    return json[0].map(x => x[0]).join("");
+                } catch (e) { return ""; }
+            };
+
+            // --- Xử lý dữ liệu ---
+            let ipa = "";
+            let example = "";
+            let synonyms = "";
+            let antonyms = "";
+
+            if (dataDict) {
+                // IPA
+                ipa = dataDict.phonetic || (dataDict.phonetics.find(p => p.text)?.text) || "";
+                
+                // Example & Syn/Ant (Tìm sâu trong mảng)
+                for (let m of dataDict.meanings) {
+                    // Syn/Ant
+                    if(!synonyms && m.synonyms && m.synonyms.length > 0) synonyms = m.synonyms.slice(0,5).join(", ");
+                    if(!antonyms && m.antonyms && m.antonyms.length > 0) antonyms = m.antonyms.slice(0,5).join(", ");
+
+                    // Example
+                    for (let d of m.definitions) {
+                        if (d.example) { example = d.example; break; }
+                    }
+                    if (example) break; 
+                }
+            }
+const imageUrl = `https://loremflickr.com/400/300/${encodeURIComponent(word)}`;
+
+            // Dịch
+            const meaningVal = await translate(word);
+            const exampleTransVal = await translate(example);
+
+            // Điền form (Lưu ý ID đã được đổi sang f-...)
+            document.getElementById('f-ipa').value = ipa;
+            document.getElementById('f-meaning').value = meaningVal;
+            document.getElementById('f-example').value = example;
+            document.getElementById('f-trans').value = exampleTransVal;
+            document.getElementById('f-syn').value = synonyms;
+            document.getElementById('f-ant').value = antonyms;
+document.getElementById('f-image').value = imageUrl;
+        // Hiện preview nhỏ bên cạnh (Optional)
+        const preview = document.getElementById('preview-img');
+        preview.src = imageUrl;
+        preview.style.display = "block";
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi khi tìm kiếm.");
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function submitNewWord() {
+        const vocab = document.getElementById('f-vocab').value;
+        const meaning = document.getElementById('f-meaning').value;
+
+        if(!vocab || !meaning) return alert("Cần nhập Từ vựng và Nghĩa!");
+
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "Đang lưu..."; btn.disabled = true;
+
+        const newWord = {
+            action: "add",
+            Vocabulary: vocab,
+            IPA: document.getElementById('f-ipa').value,
+            Meaning: meaning,
+            Example: document.getElementById('f-example').value,
+            ExampleTrans: document.getElementById('f-trans').value,
+            Synonyms: document.getElementById('f-syn').value,
+            Antonyms: document.getElementById('f-ant').value,
+Image: document.getElementById('f-image').value
+        };
+
+        fetch(API_URL, {
+            method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(newWord)
+        }).then(() => {
+            alert("Đã thêm thành công!");
+existingWordsSet.add(vocab.toLowerCase().trim());
+            closeAddModal();
+            // Reset form
+            document.querySelectorAll('#add-modal input').forEach(i => i.value = '');
+            btn.innerText = "Lưu từ vựng"; btn.disabled = false;
+        }).catch(e => {
+            alert("Lỗi lưu: " + e);
+            btn.innerText = "Lưu từ vựng"; btn.disabled = false;
+        });
+    }
+// --- TỰ ĐỘNG TÌM KHI NHẬP TỪ (AUTO TRIGGER) ---
+    let typingTimer;                // Biến đếm thời gian
+    const doneTypingInterval = 800; // Thời gian chờ (0.8 giây)
+    const inputVocab = document.getElementById('f-vocab');
+
+    // 1. Khi người dùng gõ phím
+   // --- SỬA LẠI ĐOẠN SỰ KIỆN INPUT ---
+    inputVocab.addEventListener('input', () => {
+        const val = inputVocab.value.trim().toLowerCase();
+        const warning = document.getElementById('duplicate-warning');
+        const btnSave = document.getElementById('btn-save');
+
+        // 1. Kiểm tra trùng
+        if (existingWordsSet.has(val)) {
+            warning.style.display = 'block'; // Hiện cảnh báo
+            btnSave.disabled = true;         // Khóa nút lưu
+            btnSave.style.opacity = "0.5";
+            clearTimeout(typingTimer);       // Nếu trùng thì không cần tự động tìm làm gì
+            return; 
+        } else {
+            warning.style.display = 'none';  // Ẩn cảnh báo
+            btnSave.disabled = false;        // Mở nút lưu
+            btnSave.style.opacity = "1";
+        }
+
+        // 2. Logic Debounce cũ (Tự động tìm kiếm)
+        clearTimeout(typingTimer);
+        if (inputVocab.value.trim()) {
+            typingTimer = setTimeout(autoFillWord, doneTypingInterval);
+        }
+    });
+
+    // 2. Khi người dùng Paste (dán) từ vào -> Tìm ngay lập tức
+    inputVocab.addEventListener('paste', () => {
+        clearTimeout(typingTimer);
+        // Chờ 1 xíu (100ms) để dữ liệu kịp dán vào ô input rồi tìm luôn
+        setTimeout(autoFillWord, 100);
+    });
+// --- HÀM PHÁT ÂM THANH ---
+    function playAudio(text) {
+        if (!text) return;
+        // Sử dụng API đọc của Google Translate
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(text)}`;
+        const audio = new Audio(url);
+        audio.play().catch(e => console.log("Chặn tự động phát: cần tương tác người dùng"));
+    }
+// --- CHỨC NĂNG LUYỆN NÓI (SPEECH TO TEXT) - ĐÃ SỬA LỖI ---
+    
+    // 1. Khai báo biến TOÀN CỤC (để hàm nào cũng gọi được)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition; 
+
+    // 2. Thiết lập cấu hình ngay khi chạy web
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; 
+        recognition.interimResults = false; 
+        recognition.maxAlternatives = 1;
+
+       
+        // Khi bắt đầu nói thì ẩn kết quả cũ đi cho gọn
+        recognition.onstart = () => {
+            document.getElementById('btn-mic').classList.add('listening');
+            document.getElementById('mic-status').innerText = "Đang nghe...";
+            document.getElementById('voice-box').style.display = 'none'; // Ẩn kết quả cũ
+        };
+
+        // Khi kết thúc
+        recognition.onend = () => {
+            const btn = document.getElementById('btn-mic');
+            if(btn) btn.classList.remove('listening');
+            
+            const status = document.getElementById('mic-status');
+            if(status) status.innerText = "";
+        };
+
+        // Xử lý kết quả trả về
+        // KHI CÓ KẾT QUẢ TRẢ VỀ (Đã sửa lỗi checkAnswer)
+       // KHI CÓ KẾT QUẢ TRẢ VỀ (Phiên bản tách riêng hiển thị)
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase().trim();
+            const correctWord = currentWord.Vocabulary.toLowerCase().trim();
+            
+            // 1. Hiển thị khung kết quả giọng nói ra
+            const voiceBox = document.getElementById('voice-box');
+            const voiceText = document.getElementById('voice-result-text');
+            const statusEl = document.getElementById('mic-status');
+            
+            voiceBox.style.display = 'block'; // Hiện khung
+            voiceText.innerText = transcript; // In từ bạn nói ra
+
+            // 2. So sánh logic
+            const cleanTranscript = transcript.replace(/[^a-z0-9]/g, "");
+            const cleanCorrect = correctWord.replace(/[^a-z0-9]/g, "");
+
+            if (cleanTranscript === cleanCorrect && cleanCorrect.length > 0) {
+                // --- NẾU ĐÚNG ---
+                voiceText.style.color = "#27ae60"; // Chữ màu xanh lá
+                statusEl.innerText = "Chính xác! 🎉";
+                
+                // Tự động điền vào các ô trống ở trên (Feedback hình ảnh)
+                const inputs = document.querySelectorAll('.cloze-input');
+                const originalWord = currentWord.Vocabulary;
+                inputs.forEach((input, index) => {
+                    if(originalWord[index]) input.value = originalWord[index];
+                    input.classList.add('correct');
+                    input.disabled = true;
+                });
+
+                // Chuyển bài sau 1 giây
+                setTimeout(() => showFeedback(true), 1000);
+
+            } else {
+                // --- NẾU SAI ---
+                voiceText.style.color = "#c0392b"; // Chữ màu đỏ
+                statusEl.innerText = "Chưa đúng, thử lại nhé!";
+                
+                // Rung lắc khung giọng nói
+                voiceBox.classList.add('shake');
+                setTimeout(() => voiceBox.classList.remove('shake'), 500);
+            }
+        };
+
+       
+        
+        recognition.onerror = (event) => {
+            const status = document.getElementById('mic-status');
+            if(status) status.innerText = "Lỗi: " + event.error;
+            const btn = document.getElementById('btn-mic');
+            if(btn) btn.classList.remove('listening');
+        };
+
+    } else {
+        console.log("Trình duyệt không hỗ trợ Web Speech API");
+        const btn = document.getElementById('btn-mic');
+        if(btn) btn.style.display = 'none';
+    }
+
+    // 3. Hàm kích hoạt (gắn vào nút bấm)
+    function startListening() {
+        if (!recognition) {
+            alert("Trình duyệt của bạn không hỗ trợ chức năng này. Hãy dùng Google Chrome hoặc Edge.");
+            return;
+        }
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error(e);
+            // Nếu lỗi do đang chạy rồi mà bấm tiếp thì tắt đi bật lại
+            recognition.stop();
+        }
+    }
+// --- CHỨC NĂNG CHỈNH SỬA TỪ ---
+
+    function openEditModal() {
+        if (!currentWord) return;
+
+        // 1. Điền dữ liệu cũ vào form
+        document.getElementById('e-vocab').value = currentWord.Vocabulary;
+        document.getElementById('e-ipa').value = currentWord.IPA;
+        document.getElementById('e-meaning').value = currentWord.Meaning;
+        document.getElementById('e-example').value = currentWord.Example;
+        document.getElementById('e-trans').value = currentWord.ExampleTrans;
+        document.getElementById('e-syn').value = currentWord.Synonyms;
+        document.getElementById('e-ant').value = currentWord.Antonyms;
+        document.getElementById('e-image').value = currentWord.Image;
+
+        // 2. Hiện Modal
+        document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function submitEditWord() {
+        const btn = document.getElementById('btn-edit-save');
+        btn.innerText = "Đang lưu..."; btn.disabled = true;
+
+        // Lấy dữ liệu mới từ form
+        const updatedData = {
+            action: "edit_content",
+            rowIndex: currentWord.rowIndex, // Rất quan trọng: Gửi số dòng để biết sửa dòng nào
+            Vocabulary: document.getElementById('e-vocab').value,
+            IPA: document.getElementById('e-ipa').value,
+            Meaning: document.getElementById('e-meaning').value,
+            Example: document.getElementById('e-example').value,
+            ExampleTrans: document.getElementById('e-trans').value,
+            Synonyms: document.getElementById('e-syn').value,
+            Antonyms: document.getElementById('e-ant').value,
+            Image: document.getElementById('e-image').value
+        };
+
+        fetch(API_URL, {
+            method: "POST", mode: "no-cors", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(updatedData)
+        }).then(() => {
+            alert("Đã cập nhật thành công!");
+            document.getElementById('edit-modal').style.display = 'none';
+            btn.innerText = "Lưu thay đổi"; btn.disabled = false;
+
+            // --- CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC (KHÔNG CẦN F5) ---
+            // Gán dữ liệu mới vào biến currentWord
+            currentWord.Vocabulary = updatedData.Vocabulary;
+            currentWord.IPA = updatedData.IPA;
+            currentWord.Meaning = updatedData.Meaning;
+            currentWord.Example = updatedData.Example;
+            currentWord.ExampleTrans = updatedData.ExampleTrans;
+            currentWord.Synonyms = updatedData.Synonyms;
+            currentWord.Antonyms = updatedData.Antonyms;
+            currentWord.Image = updatedData.Image;
+
+            // Vẽ lại giao diện kết quả
+            showFeedback(true); 
+
+        }).catch(e => {
+            alert("Lỗi: " + e);
+            btn.innerText = "Lưu thay đổi"; btn.disabled = false;
+        });
+    }
+// --- CHỨC NĂNG DARK MODE ---
+
+    // 1. Kiểm tra xem người dùng đã chọn Dark Mode trước đó chưa
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('btn-theme').innerText = '☀️'; // Đổi icon thành mặt trời
+    }
+
+    // 2. Hàm chuyển đổi
+    function toggleDarkMode() {
+        const body = document.body;
+        const btn = document.getElementById('btn-theme');
+        
+        // Bật/tắt class
+        body.classList.toggle('dark-mode');
+
+        // Kiểm tra xem hiện tại đang là mode nào để lưu và đổi icon
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark'); // Lưu lại "đây là dark"
+            btn.innerText = '☀️'; // Hiện mặt trời (để bấm vào thì sáng lại)
+        } else {
+            localStorage.setItem('theme', 'light'); // Lưu lại "đây là light"
+            btn.innerText = '🌙'; // Hiện mặt trăng
+        }
+    }
+</script>
+
+</body>
+</html>
