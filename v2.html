@@ -33,7 +33,35 @@
             --border-color: #404040;
             --voice-bg: #2c3e50;
         }
+/* --- CSS CHO PHÍM TẮT --- */
+.kbd-hint {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    line-height: 1;
+    color: #555;
+    vertical-align: middle;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    margin-left: 8px;
+    font-family: monospace;
+    font-weight: bold;
+    opacity: 0.8;
+}
 
+body.dark-mode .kbd-hint {
+    background-color: #333;
+    border-color: #555;
+    color: #ddd;
+}
+
+/* Hiệu ứng khi bấm phím */
+.btn-active-key {
+    transform: scale(0.95);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background-color: var(--bg-body); 
@@ -212,6 +240,95 @@
             .modal-box-pro { height: 90vh; overflow-y: auto; }
             .form-row { flex-direction: column; gap: 0; }
         }
+/* --- CSS CHO BẢNG PHÍM TẮT NỔI --- */
+.shortcut-container {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 900;
+    display: flex;
+    align-items: flex-start;
+    transition: transform 0.3s ease;
+}
+
+/* Nút toggle hình bàn phím */
+.shortcut-toggle {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    box-shadow: -2px 2px 5px rgba(0,0,0,0.2);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nội dung bảng (Mặc định ẩn sang phải) */
+.shortcut-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-right: none;
+    padding: 15px;
+    border-radius: 0 0 0 8px;
+    width: 220px;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
+    display: none; /* Ẩn mặc định */
+    text-align: left;
+}
+
+/* Các dòng phím */
+.shortcut-content h3 { margin-top: 0; font-size: 1rem; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+.key-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-main); }
+.key {
+    background: #f4f6f7;
+    border: 1px solid #bdc3c7;
+    color: #333;
+    font-family: monospace;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 #bdc3c7;
+    font-size: 0.75rem;
+    min-width: 25px;
+    text-align: center;
+}
+
+/* Dark mode cho bảng phím tắt */
+body.dark-mode .shortcut-content { background: #2c3e50; border-color: #404040; }
+body.dark-mode .shortcut-content h3 { border-bottom-color: #404040; }
+body.dark-mode .key { background: #404040; border-color: #555; color: #eee; box-shadow: 0 2px 0 #222; }
+
+/* Responsive: Ẩn trên mobile cho đỡ vướng */
+@media (max-width: 768px) {
+    .shortcut-container { display: none; }
+}
+/* --- STYLE CHO PHÍM TẮT & BẢNG PANEL (Mới) --- */
+/* Style cho gợi ý phím tắt nhỏ [A], [Enter] */
+.kbd-hint { display: inline-block; padding: 2px 6px; font-size: 0.7rem; line-height: 1; color: #555; vertical-align: middle; background-color: #f7f7f7; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 1px 0 rgba(0,0,0,0.2); margin-left: 8px; font-family: monospace; font-weight: bold; opacity: 0.8; }
+body.dark-mode .kbd-hint { background-color: #333; border-color: #555; color: #ddd; }
+.btn-active-key { transform: scale(0.95); box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+
+/* Style cho bảng bên phải */
+.shortcut-container { position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 900; display: flex; align-items: flex-start; transition: transform 0.3s ease; }
+.shortcut-toggle { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px 0 0 8px; cursor: pointer; font-size: 1.5rem; box-shadow: -2px 2px 5px rgba(0,0,0,0.2); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+.shortcut-content { background: var(--bg-card); border: 1px solid var(--border-color); border-right: none; padding: 15px; border-radius: 0 0 0 8px; width: 230px; box-shadow: -5px 5px 15px rgba(0,0,0,0.1); display: none; text-align: left; }
+.shortcut-content h3 { margin-top: 0; font-size: 1rem; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+.key-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-main); }
+.key { background: #f4f6f7; border: 1px solid #bdc3c7; color: #333; font-family: monospace; font-weight: bold; padding: 2px 6px; border-radius: 4px; box-shadow: 0 2px 0 #bdc3c7; font-size: 0.75rem; min-width: 25px; text-align: center; }
+
+/* Dark mode cho bảng */
+body.dark-mode .shortcut-content { background: #2c3e50; border-color: #404040; }
+body.dark-mode .shortcut-content h3 { border-bottom-color: #404040; }
+body.dark-mode .key { background: #404040; border-color: #555; color: #eee; box-shadow: 0 2px 0 #222; }
+
+/* Ẩn trên điện thoại */
+@media (max-width: 768px) { .shortcut-container { display: none; } }
     </style>
 </head>
 <body>
@@ -404,6 +521,21 @@
         <input type="text" id="e-image" placeholder="Link ảnh">
         <button onclick="submitEditWord()" id="btn-edit-save" style="background: #e67e22; color: white;">Lưu thay đổi</button>
         <button class="close-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="background: var(--danger); color: white; margin-top: 10px;">Hủy</button>
+    </div>
+</div>
+<div id="shortcut-panel" class="shortcut-container">
+    <button class="shortcut-toggle" onclick="toggleShortcutPanel()" title="Phím tắt [?]">⌨️</button>
+    <div class="shortcut-content">
+        <h3>Phím tắt (Shortcuts)</h3>
+        <div class="key-row"><span class="key">Enter</span> <span>Xem / Tiếp (Đã nhớ)</span></div>
+        <div class="key-row"><span class="key">A</span> <span>➕ Thêm từ mới</span></div>
+        <div class="key-row"><span class="key">?</span> <span>Bật/Tắt bảng này</span></div>
+        <div class="key-row"><span class="key">Bksp</span> <span>🔴 Quên (Học lại)</span></div>
+        <div class="key-row"><span class="key">Space</span> <span>🔊 Nghe phát âm</span></div>
+        <div class="key-row"><span class="key">M</span> <span>🎙️ Bật Micro</span></div>
+        <div class="key-row"><span class="key">1,2,3</span> <span>🤖 AI Hỗ trợ</span></div>
+        <div class="key-row"><span class="key">/</span> <span>🔍 Tìm kiếm</span></div>
+        <div class="key-row"><span class="key">Esc</span> <span>❌ Đóng Modal</span></div>
     </div>
 </div>
 
@@ -864,6 +996,240 @@
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         document.getElementById('btn-theme').innerText = isDark ? '☀️' : '🌙';
     }
+
+    // --- HỆ THỐNG PHÍM TẮT (SHORTCUTS) ---
+
+    // 1. Tự động thêm nhãn phím tắt vào giao diện
+    function initShortcutsUI() {
+        const addHint = (id, key) => {
+            const el = document.getElementById(id) || document.querySelector(id);
+            if(el) el.innerHTML += ` <span class="kbd-hint">${key}</span>`;
+        };
+        
+        // Thêm label vào các nút
+        addHint('.btn-reveal', 'Enter');      // Nút Xem đáp án
+        addHint('.btn-good', 'Enter');        // Nút Đã nhớ
+        addHint('.btn-again', 'Bksp');        // Nút Quên (Backspace)
+        addHint('#btn-mic', 'M');             // Mic
+        
+        // Thêm label vào nút AI (Dùng querySelectorAll vì class giống nhau)
+        const aiBtns = document.querySelectorAll('.btn-ai');
+        if(aiBtns.length >= 3) {
+            aiBtns[0].innerHTML += ` <span class="kbd-hint">1</span>`;
+            aiBtns[1].innerHTML += ` <span class="kbd-hint">2</span>`;
+            aiBtns[2].innerHTML += ` <span class="kbd-hint">3</span>`;
+        }
+    }
+
+    // Gọi hàm khởi tạo UI ngay
+    initShortcutsUI();
+
+    // 2. Bắt sự kiện bàn phím
+    document.addEventListener('keydown', function(e) {
+        // Bỏ qua nếu đang gõ trong ô Input (trừ phím Enter/Esc)
+        const activeTag = document.activeElement.tagName.toLowerCase();
+        const isInput = (activeTag === 'input' || activeTag === 'textarea');
+
+        // --- GLOBAL: Phím ESC (Đóng Modal / Blur Input) ---
+        if (e.key === 'Escape') {
+            document.getElementById('add-modal').style.display = 'none';
+            document.getElementById('edit-modal').style.display = 'none';
+            document.getElementById('bulk-modal').style.display = 'none';
+            document.getElementById('search-results-box').style.display = 'none';
+            if(isInput) document.activeElement.blur();
+            return;
+        }
+
+        // --- GLOBAL: Phím / (Tìm kiếm) ---
+        if (e.key === '/' && !isInput) {
+            e.preventDefault(); // Chặn gõ dấu / vào ô nào đó
+            document.getElementById('main-search').focus();
+            return;
+        }
+
+        // --- LOGIC KHI ĐANG HỌC (STUDY AREA) ---
+        const studyArea = document.getElementById('study-area');
+        const feedbackArea = document.getElementById('feedback-area');
+
+        // Trường hợp 1: Đang điền từ (Study Mode)
+        if (studyArea.style.display !== 'none') {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // Nếu đang focus ô input, check đáp án. Nếu không, bấm nút xem.
+                const focused = document.activeElement;
+                if (focused.classList.contains('cloze-input')) {
+                    // Trigger sự kiện input để check (giả lập)
+                    focused.blur(); 
+                    revealAnswer(); 
+                } else {
+                    revealAnswer();
+                }
+            }
+            if (e.key.toLowerCase() === 'm' && !isInput) {
+                e.preventDefault();
+                startListening();
+            }
+        }
+
+        // Trường hợp 2: Đang xem kết quả (Feedback Mode)
+        else if (feedbackArea.style.display !== 'none') {
+            
+            // ENTER: Next (Đã nhớ)
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                simulateClick('.btn-good');
+            }
+            
+            // BACKSPACE: Quên
+            if (e.key === 'Backspace') {
+                e.preventDefault(); // Chặn quay lại trang trước
+                simulateClick('.btn-again');
+            }
+
+            // SPACE: Nghe loa
+            if (e.key === ' ' && !isInput) { // Space
+                e.preventDefault(); // Chặn cuộn trang
+                const vocab = document.getElementById('a-vocab').innerText;
+                playAudio(vocab);
+            }
+
+            // Phím tắt AI (1, 2, 3)
+            if (!isInput) {
+                if (e.key === '1') askAI('explain');
+                if (e.key === '2') askAI('story');
+                if (e.key === '3') askAI('example');
+            }
+        }
+    });
+
+    // Hàm giả lập click có hiệu ứng
+    function simulateClick(selector) {
+        const btn = document.querySelector(selector);
+        if (btn) {
+            btn.classList.add('btn-active-key');
+            btn.click();
+            setTimeout(() => btn.classList.remove('btn-active-key'), 150);
+        }
+    }
+// --- SCRIPT BẢNG PHÍM TẮT ---
+// --- LOGIC PHÍM TẮT MỚI (Cập nhật) ---
+
+// 1. Hàm bật/tắt bảng
+function toggleShortcutPanel() {
+    const content = document.querySelector('.shortcut-content');
+    const toggleBtn = document.querySelector('.shortcut-toggle');
+    if (content.style.display === 'block') {
+        content.style.display = 'none';
+        toggleBtn.style.borderRadius = "8px 0 0 8px";
+    } else {
+        content.style.display = 'block';
+        toggleBtn.style.borderRadius = "8px 0 0 0";
+    }
+}
+
+// 2. Hàm thêm chữ gợi ý [A], [Enter] vào nút
+function initShortcutsUI() {
+    const addHint = (id, key) => { const el = document.getElementById(id) || document.querySelector(id); if(el) el.innerHTML += ` <span class="kbd-hint">${key}</span>`; };
+    // Thêm gợi ý vào các nút quan trọng
+    addHint('.btn-reveal', 'Enter'); 
+    addHint('.btn-good', 'Enter'); 
+    addHint('.btn-again', 'Bksp'); 
+    addHint('#btn-mic', 'M'); 
+    addHint('.open-add-btn', 'A'); // Mới: Thêm chữ [A] vào nút cộng
+    addHint('.shortcut-toggle', '?'); // Mới: Thêm chữ [?] vào nút bảng
+    
+    // Thêm gợi ý cho 3 nút AI
+    const aiBtns = document.querySelectorAll('.btn-ai');
+    if(aiBtns.length >= 3) { aiBtns[0].innerHTML+=` <span class="kbd-hint">1</span>`; aiBtns[1].innerHTML+=` <span class="kbd-hint">2</span>`; aiBtns[2].innerHTML+=` <span class="kbd-hint">3</span>`; }
+}
+// Chạy ngay khi tải trang
+initShortcutsUI();
+
+// 3. Bắt sự kiện bàn phím (Đã cập nhật phím A và ?)
+document.addEventListener('keydown', function(e) {
+    const activeTag = document.activeElement.tagName.toLowerCase();
+    const isInput = (activeTag==='input'||activeTag==='textarea');
+    
+    // --- PHÍM TẮT TOÀN CỤC (GLOBAL) ---
+    // ESC: Đóng mọi thứ
+    if(e.key==='Escape'){
+        document.querySelectorAll('.modal-overlay, .search-results').forEach(el=>el.style.display='none');
+        if(isInput) document.activeElement.blur();
+        return;
+    }
+    // / (Chéo): Tìm kiếm
+    if(e.key==='/' && !isInput){
+        e.preventDefault();
+        document.getElementById('main-search').focus();
+        return;
+    }
+    // ? (Hỏi chấm): Bật tắt bảng phím tắt
+    if(e.key==='?' && !isInput){
+        toggleShortcutPanel();
+        return;
+    }
+    // A: Mở form thêm mới
+    if(e.key.toLowerCase()==='a' && !isInput){
+        e.preventDefault();
+        openAddModal();
+        return;
+    }
+
+    // --- PHÍM TẮT KHI ĐANG HỌC ---
+    const study = document.getElementById('study-area');
+    const feed = document.getElementById('feedback-area');
+
+    if(study.style.display!=='none'){
+        // Enter: Xem đáp án
+        if(e.key==='Enter'){
+            e.preventDefault();
+            if(document.activeElement.classList.contains('cloze-input')) document.activeElement.blur();
+            revealAnswer();
+        }
+        // M: Bật Mic
+        if(e.key.toLowerCase()==='m' && !isInput){
+            e.preventDefault();
+            startListening();
+        }
+    }
+    else if(feed.style.display!=='none'){
+        // Enter: Đã nhớ (Next)
+        if(e.key==='Enter'){
+            e.preventDefault();
+            simulateClick('.btn-good');
+        }
+        // Backspace: Quên
+        if(e.key==='Backspace'){
+            e.preventDefault();
+            simulateClick('.btn-again');
+        }
+        // Space: Nghe loa
+        if(e.key===' ' && !isInput){
+            e.preventDefault();
+            playAudio(document.getElementById('a-vocab').innerText);
+        }
+        // 1, 2, 3: Gọi AI
+        if(!isInput){
+            if(e.key==='1') askAI('explain');
+            if(e.key==='2') askAI('story');
+            if(e.key==='3') askAI('example');
+        }
+    }
+});
+
+// Hàm tạo hiệu ứng bấm nút
+function simulateClick(sel){
+    const btn=document.querySelector(sel);
+    if(btn){
+        btn.classList.add('btn-active-key');
+        btn.click();
+        setTimeout(()=>btn.classList.remove('btn-active-key'),150);
+    }
+}
+
+// Tùy chọn: Tự động mở bảng hướng dẫn khi mới vào trang lần đầu (nếu muốn)
+// setTimeout(toggleShortcutPanel, 1000);
+
 </script>
 </body>
 </html>
