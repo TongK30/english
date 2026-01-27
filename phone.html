@@ -3,68 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V29: Mobile Fix</title>
+    <title>Luyện Nói V30: Mobile Stable</title>
     <style>
-        /* --- CẤU HÌNH GIAO DIỆN (THEME) --- */
         :root {
             --bg-body: #f0f2f5; --bg-card: #ffffff; --text-main: #333333; --text-sub: #666666;
-            --border: #ddd; --shadow: rgba(0,0,0,0.08); --modal-bg: rgba(0,0,0,0.5);
-            --input-bg: #fff; --input-border: #ccc; --highlight: #2980b9;
+            --border: #ddd; --highlight: #2980b9; --input-bg: #fff;
         }
         body.dark-mode {
             --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0; --text-sub: #b0b3b8;
-            --border: #333; --shadow: rgba(0,0,0,0.5); --modal-bg: rgba(255,255,255,0.1);
-            --input-bg: #2c2c2c; --input-border: #444; --highlight: #5dade2;
+            --border: #333; --highlight: #5dade2; --input-bg: #2c2c2c;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); transition: background 0.3s; -webkit-tap-highlight-color: transparent; }
-        
-        /* --- NÚT ĐỔI THEME & MENU --- */
-        .theme-btn { position: fixed; top: 15px; right: 15px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 18px; box-shadow: 0 2px 5px var(--shadow); z-index: 1001; }
+
+        /* Nút Theme & Menu */
+        .theme-btn { position: fixed; top: 15px; right: 15px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 18px; z-index: 1001; }
         .fab-btn { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: var(--highlight); color: white; border-radius: 50%; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; z-index: 1000; display: flex; align-items: center; justify-content: center; }
 
-        /* --- MODAL --- */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-bg); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background-color: var(--bg-card); width: 95%; max-width: 500px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
-        .modal-header { padding: 15px; background: var(--bg-body); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-card); width: 95%; max-width: 500px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 15px; overflow-y: auto; }
         .close-btn { font-size: 28px; padding: 0 10px; cursor: pointer; color: var(--text-sub); }
 
-        /* --- FORM & LIST --- */
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-size: 16px; }
-        .form-group textarea { height: 80px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 16px; color: white; }
+        /* Form */
+        input, textarea { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-size: 16px; font-family: inherit; }
+        textarea { height: 80px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 16px; color: white; cursor: pointer; }
         .btn-add { background: #27ae60; } .btn-save { background: #f39c12; display: none; } .btn-cancel { background: #95a5a6; display: none; }
-        
+
         .list-item { background: var(--bg-body); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
         .item-title { font-weight: 600; font-size: 16px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 200px; }
         .btn-sm { padding: 6px 12px; border-radius: 6px; border: none; color: white; margin-left: 5px; font-size: 14px; }
         .btn-edit { background: #f39c12; } .btn-del { background: #e74c3c; }
 
-        /* --- MAIN SCREEN --- */
-        .main-container { max-width: 800px; margin: 0 auto; padding: 60px 15px 100px 15px; } /* Padding top để tránh nút theme */
-        .lesson-title-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
-        .voice-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 16px; }
+        /* Main Screen */
+        .main-container { max-width: 800px; margin: 0 auto; padding: 60px 15px 100px 15px; }
+        .lesson-title-bar { margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        
+        .sentence-row { background: var(--bg-card); padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .text-display { font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: pointer; user-select: none; }
+        .text-display:active { color: var(--highlight); opacity: 0.7; }
 
-        .sentence-row { background: var(--bg-card); padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px var(--shadow); border: 1px solid var(--border); }
-        .text-display { font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: pointer; -webkit-user-select: none; user-select: none; } /* Chặn bôi đen khi chạm trên mobile */
-        .text-display:active { color: var(--highlight); transform: scale(0.99); } /* Hiệu ứng khi chạm */
-
-        .action-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; flex-wrap: wrap; }
-        .btn-action { padding: 10px 20px; border-radius: 30px; border: none; font-size: 16px; display: flex; align-items: center; gap: 8px; font-weight: 600; flex: 1; justify-content: center; }
+        .action-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; }
+        .btn-action { padding: 10px; border-radius: 30px; border: none; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; flex: 1; cursor: pointer; }
         
         .btn-speak { background: #e3f2fd; color: #007bff; } 
-        body.dark-mode .btn-speak { background: #0d47a1; color: #fff; }
-        
-        .btn-mic { background: #fce4ec; color: #d81b60; } 
-        body.dark-mode .btn-mic { background: #880e4f; color: #ff80ab; }
+        .btn-mic { background: #fce4ec; color: #d81b60; }
         .btn-mic.recording { background: #ff1744; color: white; animation: pulse 1s infinite; }
 
-        .feedback-box { margin-top: 15px; padding: 15px; background: var(--bg-body); border-radius: 8px; display: none; border-left: 4px solid #ccc; font-size: 17px; }
-        .audio-player { width: 100%; margin-top: 10px; height: 40px; }
-        
+        body.dark-mode .btn-speak { background: #0d47a1; color: #fff; }
+        body.dark-mode .btn-mic { background: #880e4f; color: #ff80ab; }
+
+        .feedback-box { margin-top: 15px; padding: 15px; background: var(--bg-body); border-radius: 8px; display: none; border-left: 4px solid #ccc; }
+        /* Style Audio player chuẩn mobile */
+        .audio-player { width: 100%; margin-top: 10px; height: 40px; outline: none; }
+
         .correct { color: #27ae60; font-weight: bold; }
         .wrong { color: #c0392b; text-decoration: line-through; opacity: 0.8; margin-right: 4px; }
-        .fix { color: #8e44ad; font-weight: bold; background: #f3e5f5; padding: 2px 5px; border-radius: 4px; font-size: 0.9em; }
+        .fix { color: #8e44ad; font-weight: bold; background: #f3e5f5; padding: 2px 5px; border-radius: 4px; }
         body.dark-mode .fix { background: #4a148c; color: #e1bee7; }
 
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } }
@@ -98,20 +95,16 @@
     <div class="main-container">
         <div class="lesson-title-bar">
             <h2 id="lesson-header" style="margin:0">👈 Chọn bài học</h2>
-            <select id="voice-select" class="voice-control" onchange="testVoice()">
-                <option value="">Đang tìm giọng đọc...</option>
-            </select>
         </div>
         <div id="display-area">
             <div style="text-align:center; color:var(--text-sub); margin-top:80px; font-size:18px;">
-                Bấm nút 📂 để chọn bài.<br><br>
-                <small>(Trên iPhone nhớ gạt cần rung sang chế độ Chuông)</small>
+                Bấm nút 📂 góc phải dưới để chọn bài.
             </div>
         </div>
     </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw9LrqxG5_JlnFqa7ftIgBX-yTtNMKvxME3Dqaq-5RcofyUqYIopq5WVJgWeUDq8IyP/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycby7_80cwv1OvpzdHPmWS4DD0aM9zeOP6aTQlcl15WUXmDop_ryoLlwekFfNS6qdP--Y/exec"; 
     
     // --- THEME ---
     if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
@@ -127,6 +120,9 @@
     let recognition;
     let allLessons = [];
     let isRecording = false;
+    
+    // ⚠️ QUAN TRỌNG: Biến này giữ giọng đọc không bị Garbage Collection xóa
+    let currentUtterance = null; 
 
     // --- MODAL ---
     const modal = document.getElementById("managerModal");
@@ -134,74 +130,47 @@
     function closeModal() { modal.style.display = "none"; }
     window.onclick = function(e) { if (e.target == modal) closeModal(); }
 
-    // --- XỬ LÝ GIỌNG ĐỌC (QUAN TRỌNG CHO MOBILE) ---
+    // --- XỬ LÝ TEXT-TO-SPEECH (FIX LỖI NGHE 1 LẦN) ---
     const synth = window.speechSynthesis;
-    let voices = [];
-
-    function populateVoices() {
-        voices = synth.getVoices();
-        const sel = document.getElementById('voice-select');
-        sel.innerHTML = '';
-
-        // Lọc giọng tiếng Anh, ưu tiên giọng chuẩn
-        const enVoices = voices.filter(v => v.lang.includes('en'));
-        
-        if (enVoices.length > 0) {
-            enVoices.forEach(v => {
-                const opt = document.createElement('option');
-                opt.value = v.name;
-                // Làm ngắn tên giọng cho dễ nhìn trên điện thoại
-                let shortName = v.name.replace('Microsoft','').replace('Google','').replace('English','').replace('United States','US');
-                opt.text = shortName + (v.default ? ' (Mặc định)' : '');
-                sel.appendChild(opt);
-            });
-        } else {
-            // Trường hợp điện thoại chưa load kịp hoặc không có danh sách
-            const opt = document.createElement('option');
-            opt.value = "default";
-            opt.text = "Giọng Mặc Định (System)";
-            sel.appendChild(opt);
-        }
-    }
-
-    // Mobile cần gọi hàm này nhiều lần để đảm bảo load được
-    populateVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = populateVoices;
-    }
 
     function speak(txt) {
-        // Hủy các lệnh đọc cũ để tránh bị chồng chéo
-        synth.cancel();
-
-        const u = new SpeechSynthesisUtterance(txt);
-        // Thiết lập ngôn ngữ cứng để đảm bảo mobile hiểu kể cả khi không chọn giọng
-        u.lang = 'en-US'; 
-        u.rate = 0.9; // Đọc chậm một chút cho dễ nghe
-
-        const selectedName = document.getElementById('voice-select').value;
-        
-        // Nếu chọn một giọng cụ thể thì dùng, không thì để trình duyệt tự chọn
-        if (selectedName && selectedName !== "default") {
-            const v = voices.find(val => val.name === selectedName);
-            if(v) u.voice = v;
+        // 1. Hủy mọi lệnh cũ ngay lập tức
+        if (synth.speaking || synth.pending) {
+            synth.cancel();
         }
 
-        synth.speak(u);
-    }
-    
-    function testVoice() {
-        speak("Voice changed.");
+        // 2. Tạo Utterance mới
+        currentUtterance = new SpeechSynthesisUtterance(txt);
+        currentUtterance.lang = 'en-US';
+        currentUtterance.rate = 0.9;
+
+        // 3. Xử lý sự kiện để giải phóng biến khi đọc xong
+        currentUtterance.onend = function() {
+            currentUtterance = null; 
+        };
+        
+        currentUtterance.onerror = function(e) {
+            console.error("Lỗi đọc:", e);
+            currentUtterance = null;
+        };
+
+        // 4. Chọn giọng (nếu có)
+        const voices = synth.getVoices();
+        const enVoice = voices.find(v => v.lang.includes('en-US') && !v.name.includes('Google')); // Ưu tiên giọng tự nhiên hơn nếu có
+        if (enVoice) currentUtterance.voice = enVoice;
+
+        // 5. Đọc
+        synth.speak(currentUtterance);
     }
 
-    // --- MIC SETUP ---
+    // --- MIC SETUP (FIX LỖI GHI ÂM KHÔNG PHÁT) ---
     async function initMicrophone() {
         if (globalStream) return globalStream;
         try {
             globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             return globalStream;
         } catch (err) {
-            alert("Không thể truy cập Micro. Hãy kiểm tra cài đặt quyền trong trình duyệt.");
+            alert("Lỗi Micro: " + err.message);
             return null;
         }
     }
@@ -214,7 +183,7 @@
         recognition.interimResults = false;
     }
 
-    // --- DATA & LOGIC ---
+    // --- DATA & UI ---
     async function loadLessons() {
         const container = document.getElementById('list-container');
         container.innerHTML = '<div class="loader" style="display:block"></div>';
@@ -228,14 +197,11 @@
     function renderList(data) {
         const container = document.getElementById('list-container');
         container.innerHTML = '';
-        if(!data || data.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-sub)">Chưa có bài.</div>'; return; }
+        if(!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;">Trống.</div>'; return; }
         data.forEach(item => {
             const div = document.createElement('div');
             div.className = 'list-item';
-            div.innerHTML = `
-                <div class="item-title" onclick="selectLesson('${item.id}')">${item.title}</div>
-                <div><button class="btn-sm btn-edit" onclick="startEdit('${item.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${item.id}')">🗑️</button></div>
-            `;
+            div.innerHTML = `<div class="item-title" onclick="selectLesson('${item.id}')">${item.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${item.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${item.id}')">🗑️</button></div>`;
             container.appendChild(div);
         });
     }
@@ -249,7 +215,6 @@
         const area = document.getElementById('display-area');
         area.innerHTML = '';
         
-        // Tách câu thông minh hơn
         let rawSentences = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
 
         rawSentences.forEach((s, i) => {
@@ -265,18 +230,20 @@
                 </div>
                 <div class="feedback-box" id="fb-${i}">
                     <div id="result-text-${i}"></div>
-                    <audio id="audio-${i}" class="audio-player" controls style="display:none"></audio>
+                    <audio id="audio-${i}" class="audio-player" controls playsinline style="display:none"></audio>
                 </div>`;
             area.appendChild(div);
         });
     }
 
+    // --- LOGIC GHI ÂM (FIX ĐỊNH DẠNG FILE) ---
     async function toggleRecording(target, fbId, btnId, audioId) {
         const btn = document.getElementById(btnId);
         const fb = document.getElementById(fbId);
         const audioPlayer = document.getElementById(audioId);
         const resultDiv = document.getElementById(fbId.replace('fb', 'result-text'));
 
+        // DỪNG
         if (btn.classList.contains('recording')) {
             if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
             try { recognition.stop(); } catch(e){}
@@ -286,7 +253,8 @@
             return;
         }
 
-        if(isRecording) return alert("Hãy tắt câu đang ghi âm trước!");
+        // BẮT ĐẦU
+        if(isRecording) return alert("Vui lòng dừng câu đang nói trước!");
         const stream = await initMicrophone();
         if(!stream) return;
 
@@ -299,23 +267,43 @@
         audioChunks = []; 
 
         try {
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                audioPlayer.src = URL.createObjectURL(audioBlob);
-                audioPlayer.style.display = 'block'; 
+            // ⚠️ QUAN TRỌNG: Kiểm tra trình duyệt hỗ trợ định dạng nào
+            let options = {};
+            if (MediaRecorder.isTypeSupported('audio/webm')) {
+                options = { mimeType: 'audio/webm' }; // Android/Chrome
+            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                options = { mimeType: 'audio/mp4' }; // iOS Safari 14.5+
+            } 
+            // Nếu không hỗ trợ cả 2 thì để trình duyệt tự chọn mặc định (options rỗng)
+
+            mediaRecorder = new MediaRecorder(stream, options);
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) audioChunks.push(event.data);
             };
-            mediaRecorder.start();
+
+            mediaRecorder.onstop = () => {
+                // Tạo Blob với đúng định dạng đã ghi
+                const blobType = mediaRecorder.mimeType || 'audio/webm'; 
+                const audioBlob = new Blob(audioChunks, { type: blobType });
+                
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = 'block'; 
+                
+                // Fix lỗi Safari không load
+                audioPlayer.load(); 
+            };
             
+            mediaRecorder.start();
             recognition.start();
+
             recognition.onresult = (e) => {
                 const userSaid = e.results[0][0].transcript;
                 grade(target, userSaid, resultDiv); 
             };
             recognition.onerror = (e) => { 
-                console.error(e); 
-                if(e.error !== 'aborted' && e.error !== 'no-speech') resultDiv.innerHTML = `<span style="color:red">Lỗi: ${e.error}</span>`; 
+                 if(e.error !== 'aborted' && e.error !== 'no-speech') resultDiv.innerHTML = `<span style="color:red">Lỗi: ${e.error}</span>`; 
             };
             recognition.onend = () => {
                 if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
@@ -343,7 +331,7 @@
         const percent = Math.round((score / t.length) * 100);
         let color = percent > 80 ? '#27ae60' : (percent > 50 ? '#f39c12' : '#c0392b');
         container.parentElement.style.borderLeftColor = color;
-        container.innerHTML = `<div style="font-weight:bold; color:${color}">🎯 ${percent}% - Bạn nói: "${userSaid}"</div><div style="font-size:1.1em; margin-top:5px; color:var(--text-main)">${html}</div>`;
+        container.innerHTML = `<div style="font-weight:bold; color:${color}">🎯 ${percent}% - Bạn: "${userSaid}"</div><div style="font-size:1.1em; margin-top:5px; color:var(--text-main)">${html}</div>`;
     }
 
     async function saveLesson(action) {
@@ -351,7 +339,7 @@
         const content = document.getElementById('inp-content').value;
         const id = document.getElementById('edit-id').value;
         const loader = document.getElementById('loader');
-        if(!title || !content) return alert("Nhập đủ thông tin!");
+        if(!title || !content) return alert("Thiếu thông tin!");
         loader.style.display = 'block';
         try {
             await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action, id, title, content }) });
@@ -359,7 +347,7 @@
         } catch(e) { alert("Lỗi: " + e); } finally { loader.style.display = 'none'; }
     }
     async function deleteLesson(id) {
-        if(!confirm("Xóa bài này?")) return;
+        if(!confirm("Xóa?")) return;
         try { await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'delete', id: id }) }); setTimeout(loadLessons, 1000); } catch(e) { alert(e); }
     }
     function startEdit(id) {
