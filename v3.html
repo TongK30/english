@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Luyện Nói V34: Ultimate Dict</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-body: #f0f2f5; --bg-card: #ffffff; --text-main: #333333; --text-sub: #666666;
+            --border: #ddd; --highlight: #2980b9; --input-bg: #fff; --success: #27ae60; --warning: #f39c12;
+        }
+        body.dark-mode {
+            --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0; --text-sub: #b0b3b8;
+            --border: #333; --highlight: #5dade2; --input-bg: #2c2c2c;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); transition: background 0.3s; -webkit-tap-highlight-color: transparent; }
+
+        /* Nút điều hướng */
+        .theme-btn { position: fixed; top: 15px; right: 15px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 18px; z-index: 1001; }
+        .stats-btn { position: fixed; top: 15px; right: 70px; background: var(--bg-card); color: var(--highlight); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 18px; z-index: 1001; }
+        .fab-btn { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: var(--highlight); color: white; border-radius: 50%; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+
+        /* Modal chung */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-card); width: 95%; max-width: 500px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 15px; overflow-y: auto; }
+        .close-btn { font-size: 28px; padding: 0 10px; cursor: pointer; color: var(--text-sub); }
+
+        /* --- DICTIONARY MODAL STYLE (V34 NEW) --- */
+        .dict-word { font-size: 28px; font-weight: bold; color: var(--highlight); margin-bottom: 5px; }
+        .dict-phonetic { color: var(--text-sub); font-style: italic; margin-bottom: 10px; font-family: 'Times New Roman', serif; font-size: 18px; }
+        
+        .dict-meaning-vi { font-size: 18px; font-weight: bold; color: var(--success); margin-bottom: 5px; }
+        .dict-meaning-en { font-size: 14px; color: var(--text-sub); margin-bottom: 15px; font-style: italic; }
+
+        .example-box { background: var(--bg-body); padding: 12px; border-radius: 8px; border-left: 4px solid var(--warning); margin-top: 10px; }
+        .ex-en { font-weight: 500; margin-bottom: 5px; color: var(--text-main); }
+        .ex-vi { color: var(--text-sub); font-size: 14px; }
+        
+        .dict-audio-btn { background: #eee; border: none; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; margin-left: 10px;}
+        .dict-audio-btn:hover { background: #ddd; }
+
+        /* Form & List */
+        input, textarea { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-size: 16px; font-family: inherit; }
+        textarea { height: 100px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 16px; color: white; cursor: pointer; }
+        .btn-add { background: var(--success); } .btn-save { background: #f39c12; display: none; } .btn-cancel { background: #95a5a6; display: none; }
+        .btn-auto-split { background: var(--highlight); color: white; margin-bottom: 15px; font-size: 14px; padding: 8px; width: auto; display: inline-block; }
+
+        /* Main UI */
+        .main-container { max-width: 800px; margin: 0 auto; padding: 70px 15px 100px 15px; }
+        .control-bar { margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+        .speed-control { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: var(--bg-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        .speed-slider { flex: 1; accent-color: var(--highlight); }
+
+        .sentence-row { background: var(--bg-card); padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; }
+        .text-display { font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: text; padding-right: 30px; user-select: text; -webkit-user-select: text; }
+        
+        .action-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; }
+        .btn-action { padding: 10px; border-radius: 30px; border: none; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; flex: 1; cursor: pointer; }
+        .btn-speak { background: #e3f2fd; color: #007bff; } 
+        .btn-mic { background: #fce4ec; color: #d81b60; }
+        .btn-mic.recording { background: #ff1744; color: white; animation: pulse 1s infinite; }
+        body.dark-mode .btn-speak { background: #0d47a1; color: #fff; }
+        body.dark-mode .btn-mic { background: #880e4f; color: #ff80ab; }
+
+        .feedback-box { margin-top: 15px; padding: 15px; background: var(--bg-body); border-radius: 8px; display: none; border-left: 4px solid #ccc; }
+        .audio-player { width: 100%; margin-top: 10px; height: 40px; outline: none; }
+        .correct { color: var(--success); font-weight: bold; }
+        .wrong { color: #c0392b; text-decoration: line-through; opacity: 0.8; margin-right: 4px; }
+        .fix { color: #8e44ad; font-weight: bold; background: #f3e5f5; padding: 2px 5px; border-radius: 4px; }
+        body.dark-mode .fix { background: #4a148c; color: #e1bee7; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 100% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } }
+        .loader { border: 3px solid var(--border); border-top: 3px solid var(--highlight); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .list-item { background: var(--bg-body); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .item-title { font-weight: 600; font-size: 16px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 200px; }
+        .btn-sm { padding: 6px 12px; border-radius: 6px; border: none; color: white; margin-left: 5px; font-size: 14px; }
+        .btn-edit { background: #f39c12; } .btn-del { background: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <button class="theme-btn" onclick="toggleTheme()">🌗</button>
+    <button class="stats-btn" onclick="openStats()">📊</button>
+    <button class="fab-btn" onclick="openModal()">📂</button>
+
+    <div id="dictModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>📖 Từ điển thông minh</h3><span class="close-btn" onclick="closeDict()">&times;</span></div>
+            <div class="modal-body" id="dict-body">
+                <div style="text-align:center;">Đang tra từ...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="managerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Quản lý bài tập</h3><span class="close-btn" onclick="closeModal()">&times;</span></div>
+            <div class="modal-body">
+                <div style="background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom:15px;">
+                    <input type="hidden" id="edit-id"> 
+                    <div class="form-group"><input type="text" id="inp-title" placeholder="Tiêu đề bài học..."></div>
+                    <div class="form-group"><textarea id="inp-content" placeholder="Dán nội dung tiếng Anh vào đây..."></textarea></div>
+                    <button class="btn btn-auto-split" onclick="autoSplitSentences()">⚡ Tách câu tự động</button>
+                    <button class="btn btn-add" id="btn-add" onclick="saveLesson('add')">💾 Thêm</button>
+                    <button class="btn btn-save" id="btn-save" onclick="saveLesson('edit')">✅ Lưu</button>
+                    <button class="btn btn-cancel" id="btn-cancel" onclick="resetForm()">❌ Hủy</button>
+                    <div id="loader" class="loader"></div>
+                </div>
+                <div id="list-container"><div style="text-align:center; color:var(--text-sub)">Đang tải...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Tiến bộ của bạn</h3><span class="close-btn" onclick="closeStats()">&times;</span></div>
+            <div class="modal-body" style="height:400px">
+                <canvas id="progressChart"></canvas>
+                <div style="text-align:center; margin-top:15px; color:var(--text-sub); font-size:14px;">Biểu đồ hiển thị điểm trung bình theo ngày.</div>
+                <button class="btn" style="background:#e74c3c; margin-top:20px;" onclick="clearStats()">🗑️ Xóa lịch sử</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="control-bar">
+            <h2 id="lesson-header" style="margin:0 0 10px 0">👈 Chọn bài học</h2>
+            <div class="speed-control">
+                <span>🐢 Tốc độ:</span>
+                <input type="range" id="speed-slider" class="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedDisplay()">
+                <span id="speed-val" style="font-weight:bold; color:var(--highlight); width: 40px; text-align:right;">0.9x</span>
+            </div>
+        </div>
+        <div id="display-area">
+            <div style="text-align:center; color:var(--text-sub); margin-top:80px; font-size:18px;">Bấm nút 📂 để chọn bài.<br>Double click vào từ để tra nghĩa & ví dụ.</div>
+        </div>
+    </div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw9LrqxG5_JlnFqa7ftIgBX-yTtNMKvxME3Dqaq-5RcofyUqYIopq5WVJgWeUDq8IyP/exec"; 
+    
+    // --- UTILS ---
+    if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+
+    let globalStream = null, mediaRecorder, audioChunks = [], recognition, allLessons = [], isRecording = false, currentUtterance = null, currentSentencesData = [], clickTimeout = null;
+
+    // --- MODAL MNG ---
+    const modal = document.getElementById("managerModal");
+    const statsModal = document.getElementById("statsModal");
+    const dictModal = document.getElementById("dictModal");
+
+    function openModal() { modal.style.display = "flex"; }
+    function closeModal() { modal.style.display = "none"; }
+    function openStats() { statsModal.style.display = "flex"; renderChart(); }
+    function closeStats() { statsModal.style.display = "none"; }
+    function closeDict() { dictModal.style.display = "none"; }
+    window.onclick = function(e) { if (e.target == modal) closeModal(); if (e.target == statsModal) closeStats(); if (e.target == dictModal) closeDict(); }
+
+    // --- GOOGLE TRANSLATE HELPER (UNOFFICIAL API) ---
+    async function googleTranslate(text) {
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            // Kết quả trả về là mảng các đoạn, cần nối lại
+            return json[0].map(x => x[0]).join(''); 
+        } catch (e) {
+            return "Lỗi dịch (Thử lại sau)";
+        }
+    }
+
+    // --- TÍNH NĂNG TRA TỪ V34 (NÂNG CẤP) ---
+    async function lookupWord(word) {
+        if(!word) return;
+        word = word.trim().replace(/[^a-zA-Z]/g, ""); 
+        if(word.length < 2) return;
+
+        dictModal.style.display = "flex";
+        const body = document.getElementById("dict-body");
+        body.innerHTML = '<div style="text-align:center;"><div class="loader" style="display:block"></div>Đang phân tích: '+word+'...</div>';
+
+        try {
+            // 1. Gọi Dictionary API lấy định nghĩa + ví dụ
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+            
+            // Xử lý dữ liệu từ điển
+            let data = null;
+            let definitionEn = "No definition found.";
+            let exampleEn = "";
+            let phonetic = "";
+            let audioUrl = "";
+
+            if(res.ok) {
+                const json = await res.json();
+                data = json[0];
+                phonetic = data.phonetic || (data.phonetics.find(p => p.text) ? data.phonetics.find(p => p.text).text : "");
+                audioUrl = data.phonetics.find(p => p.audio)?.audio || "";
+                
+                // Tìm định nghĩa và ví dụ đầu tiên
+                const meaning = data.meanings[0];
+                if(meaning && meaning.definitions.length > 0) {
+                    definitionEn = meaning.definitions[0].definition;
+                    // Cố gắng tìm câu ví dụ nào đó
+                    for (let m of data.meanings) {
+                        for (let d of m.definitions) {
+                            if (d.example) {
+                                exampleEn = d.example;
+                                break;
+                            }
+                        }
+                        if (exampleEn) break;
+                    }
+                }
+            }
+
+            // 2. Dịch từ chính sang Tiếng Việt
+            const translatedWord = await googleTranslate(word);
+            
+            // 3. Dịch câu ví dụ (nếu có)
+            let exampleVi = "";
+            if (exampleEn) {
+                exampleVi = await googleTranslate(exampleEn);
+            } else {
+                exampleEn = "Chưa có câu ví dụ cho từ này.";
+            }
+
+            // 4. Render UI
+            let audioBtn = audioUrl ? `<button class="dict-audio-btn" onclick="new Audio('${audioUrl}').play()">🔊 Nghe</button>` : "";
+            
+            body.innerHTML = `
+                <div>
+                    <span class="dict-word">${data ? data.word : word}</span>
+                    ${audioBtn}
+                </div>
+                <div class="dict-phonetic">${phonetic}</div>
+                
+                <div style="margin-top:15px;">
+                    <div class="dict-meaning-vi">👉 ${translatedWord}</div>
+                    <div class="dict-meaning-en">Def: ${definitionEn}</div>
+                </div>
+
+                <div class="example-box">
+                    <div class="ex-en">📝 ${exampleEn}</div>
+                    ${exampleVi ? `<div class="ex-vi">➥ ${exampleVi}</div>` : ''}
+                </div>
+            `;
+
+        } catch (e) {
+            body.innerHTML = `<div style="text-align:center; color:red">Lỗi kết nối. Vui lòng kiểm tra mạng.</div>`;
+        }
+    }
+
+    function handleTextClick(index) {
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        if (selectedText.length > 0) {
+            lookupWord(selectedText);
+            selection.removeAllRanges(); 
+        } else {
+            if (clickTimeout) { clearTimeout(clickTimeout); clickTimeout = null; } 
+            else { clickTimeout = setTimeout(() => { speakByIndex(index); clickTimeout = null; }, 250); }
+        }
+    }
+    
+    // --- LOGIC CŨ (GIỮ NGUYÊN) ---
+    let currentSpeed = 0.9;
+    function updateSpeedDisplay() { currentSpeed = document.getElementById('speed-slider').value; document.getElementById('speed-val').innerText = currentSpeed + 'x'; }
+    function autoSplitSentences() { const ta = document.getElementById('inp-content'); if (!ta.value) return alert("Trống!"); ta.value = ta.value.replace(/([.?!])\s*(?=[A-Z])/g, "$1\n"); }
+
+    const synth = window.speechSynthesis;
+    function speakByIndex(index) { if (currentSentencesData[index]) speak(currentSentencesData[index]); }
+    function speak(txt) {
+        if (synth.speaking || synth.pending) synth.cancel();
+        currentUtterance = new SpeechSynthesisUtterance(txt); currentUtterance.lang = 'en-US'; currentUtterance.rate = parseFloat(currentSpeed);
+        const voices = synth.getVoices();
+        const preferredVoice = voices.find(v => (v.name.includes('Samantha') || v.name.includes('Google US') || v.name.includes('Zira')) && v.lang.includes('en'));
+        if (preferredVoice) currentUtterance.voice = preferredVoice;
+        currentUtterance.onend = function() { currentUtterance = null; }; synth.speak(currentUtterance);
+    }
+
+    function saveScoreToHistory(score) {
+        const dateKey = new Date().toLocaleDateString('vi-VN');
+        let history = JSON.parse(localStorage.getItem('voice_history')) || [];
+        history.push({ date: dateKey, score: score }); localStorage.setItem('voice_history', JSON.stringify(history));
+    }
+    function renderChart() {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        let history = JSON.parse(localStorage.getItem('voice_history')) || [];
+        let stats = {}; history.forEach(h => { if (!stats[h.date]) stats[h.date] = { total: 0, count: 0 }; stats[h.date].total += h.score; stats[h.date].count += 1; });
+        let labels = Object.keys(stats).slice(-7); let dataPoints = labels.map(date => Math.round(stats[date].total / stats[date].count));
+        if (window.myChart) window.myChart.destroy();
+        window.myChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Điểm trung bình (%)', data: dataPoints, borderColor: '#2980b9', backgroundColor: 'rgba(41, 128, 185, 0.2)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } } });
+    }
+    function clearStats() { if(confirm("Xóa lịch sử?")) { localStorage.removeItem('voice_history'); renderChart(); } }
+
+    async function initMicrophone() { if (globalStream) return globalStream; try { globalStream = await navigator.mediaDevices.getUserMedia({ audio: true }); return globalStream; } catch (err) { alert("Lỗi Micro: " + err.message); return null; } }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) { recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = false; recognition.interimResults = false; }
+
+    async function loadLessons() {
+        const container = document.getElementById('list-container'); container.innerHTML = '<div class="loader" style="display:block"></div>';
+        try { const res = await fetch(API_URL); const json = await res.json(); if (json.status === 'success') { allLessons = json.data; renderList(allLessons); } } catch (e) { container.innerHTML = `<div style="color:red; text-align:center;">Lỗi kết nối!</div>`; }
+    }
+    function renderList(data) {
+        const container = document.getElementById('list-container'); container.innerHTML = '';
+        if(!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;">Trống.</div>'; return; }
+        data.forEach(item => { const div = document.createElement('div'); div.className = 'list-item'; div.innerHTML = `<div class="item-title" onclick="selectLesson('${item.id}')">${item.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${item.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${item.id}')">🗑️</button></div>`; container.appendChild(div); });
+    }
+    function selectLesson(id) {
+        const item = allLessons.find(x => x.id == id); if(!item) return;
+        document.getElementById('lesson-header').innerText = item.title; closeModal();
+        const area = document.getElementById('display-area'); area.innerHTML = '';
+        let rawSentences = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
+        currentSentencesData = [];
+        rawSentences.forEach((s, i) => {
+            s = s.trim(); if(s.length === 0) return; currentSentencesData.push(s);
+            const div = document.createElement('div'); div.className = 'sentence-row';
+            div.innerHTML = `<div class="text-display" onclick="handleTextClick(${i})">${s}</div><div class="action-area"><button class="btn-action btn-speak" onclick="speakByIndex(${i})">🔊 Nghe</button><button class="btn-action btn-mic" id="btn-${i}" onclick="toggleRecording(${i}, 'fb-${i}', 'btn-${i}', 'audio-${i}')">🎙️ Nói</button></div><div class="feedback-box" id="fb-${i}"><div id="result-text-${i}"></div><audio id="audio-${i}" class="audio-player" controls playsinline style="display:none"></audio></div>`;
+            area.appendChild(div);
+        });
+    }
+
+    async function toggleRecording(index, fbId, btnId, audioId) {
+        const targetText = currentSentencesData[index]; const btn = document.getElementById(btnId); const fb = document.getElementById(fbId); const audioPlayer = document.getElementById(audioId); const resultDiv = document.getElementById(fbId.replace('fb', 'result-text'));
+        if (btn.classList.contains('recording')) { if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop(); try { recognition.stop(); } catch(e){} btn.classList.remove('recording'); btn.innerHTML = '🎙️ Nói lại'; isRecording = false; return; }
+        if(isRecording) return alert("Dừng câu trước đã!");
+        const stream = await initMicrophone(); if(!stream) return;
+        isRecording = true; btn.classList.add('recording'); btn.innerHTML = '🔴 Dừng'; fb.style.display = 'block'; resultDiv.innerHTML = '...'; audioPlayer.style.display = 'none'; audioChunks = []; 
+        try {
+            let options = MediaRecorder.isTypeSupported('audio/webm') ? { mimeType: 'audio/webm' } : (MediaRecorder.isTypeSupported('audio/mp4') ? { mimeType: 'audio/mp4' } : {});
+            mediaRecorder = new MediaRecorder(stream, options);
+            mediaRecorder.ondataavailable = event => { if (event.data.size > 0) audioChunks.push(event.data); };
+            mediaRecorder.onstop = () => { const blobType = mediaRecorder.mimeType || 'audio/webm'; audioPlayer.src = URL.createObjectURL(new Blob(audioChunks, { type: blobType })); audioPlayer.style.display = 'block'; audioPlayer.load(); };
+            mediaRecorder.start(); recognition.start();
+            recognition.onresult = (e) => { grade(targetText, e.results[0][0].transcript, resultDiv); };
+            recognition.onerror = (e) => { if(e.error!=='no-speech') resultDiv.innerHTML = "Lỗi: "+e.error; };
+            recognition.onend = () => { if(mediaRecorder.state!=="inactive") mediaRecorder.stop(); btn.classList.remove('recording'); btn.innerHTML = '🎙️ Nói lại'; isRecording = false; };
+        } catch (err) { btn.classList.remove('recording'); isRecording = false; }
+    }
+
+    function grade(target, userSaid, container) {
+        const clean = (str) => str.toLowerCase().replace(/[^\w\s]/g,'').trim();
+        const t = clean(target).split(/\s+/); const u = clean(userSaid).split(/\s+/);
+        let html = ''; let score = 0;
+        t.forEach((w, i) => { if(u[i] === w) { html += `<span class="correct">${w}</span> `; score++; } else { html += `<span class="wrong">${u[i]||"..."}</span><span class="fix" onclick="speak('${w}')">${w}</span> `; } });
+        const percent = Math.round((score / t.length) * 100); saveScoreToHistory(percent);
+        let color = percent > 80 ? '#27ae60' : (percent > 50 ? '#f39c12' : '#c0392b');
+        container.parentElement.style.borderLeftColor = color; container.innerHTML = `<div style="font-weight:bold; color:${color}">🎯 ${percent}% - Bạn: "${userSaid}"</div><div style="font-size:1.1em; margin-top:5px; color:var(--text-main)">${html}</div>`;
+    }
+
+    async function saveLesson(action) {
+        const title = document.getElementById('inp-title').value; const content = document.getElementById('inp-content').value; const id = document.getElementById('edit-id').value; const loader = document.getElementById('loader');
+        if(!title || !content) return alert("Thiếu thông tin!"); loader.style.display = 'block';
+        try { await fetch(API_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action, id, title, content }) }); resetForm(); setTimeout(loadLessons, 1000); } catch(e) { alert("Lỗi: " + e); } finally { loader.style.display = 'none'; }
+    }
+    async function deleteLesson(id) { if(confirm("Xóa?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) }); setTimeout(loadLessons, 1000); } }
+    function startEdit(id) { const item = allLessons.find(x => x.id == id); if(!item) return; document.getElementById('inp-title').value = item.title; document.getElementById('inp-content').value = item.content; document.getElementById('edit-id').value = item.id; document.getElementById('btn-add').style.display = 'none'; document.getElementById('btn-save').style.display = 'block'; document.getElementById('btn-cancel').style.display = 'block'; }
+    function resetForm() { document.getElementById('inp-title').value = ''; document.getElementById('inp-content').value = ''; document.getElementById('edit-id').value = ''; document.getElementById('btn-add').style.display = 'block'; document.getElementById('btn-save').style.display = 'none'; document.getElementById('btn-cancel').style.display = 'none'; }
+    window.onload = loadLessons;
+</script>
+</body>
+</html>
