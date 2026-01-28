@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V37: Mobile Perfect Read</title>
+    <title>Luyện Nói V38: Multi-Voice Support</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -38,7 +38,7 @@
         .example-box { background: var(--bg-body); padding: 12px; border-radius: 8px; border-left: 4px solid var(--warning); margin-top: 10px; }
         
         /* FORM */
-        input, textarea { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-size: 16px; font-family: inherit; }
+        input, textarea, select { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; font-size: 16px; font-family: inherit; }
         textarea { height: 100px; }
         .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; width: 100%; margin-bottom: 8px; font-size: 16px; color: white; cursor: pointer; }
         .btn-add { background: var(--success); } .btn-save { background: #f39c12; display: none; } .btn-cancel { background: #95a5a6; display: none; }
@@ -47,10 +47,16 @@
         /* MAIN SCREEN */
         .main-container { max-width: 800px; margin: 0 auto; padding: 70px 15px 100px 15px; }
         .control-bar { margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
-        .tools-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
-        .speed-control { flex: 1; display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        .speed-slider { flex: 1; accent-color: var(--highlight); }
-        .toggle-btn { padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text-main); white-space: nowrap; }
+        
+        .tools-row { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+        
+        /* Speed & Voice Controls */
+        .control-group { flex: 1; min-width: 200px; display: flex; gap: 5px; flex-direction: column; }
+        .speed-control { display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
+        .speed-slider { flex: 1; accent-color: var(--highlight); margin: 0; }
+        .voice-select { padding: 8px; font-size: 14px; background: var(--bg-card); }
+
+        .toggle-btn { padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text-main); white-space: nowrap; height: fit-content; align-self: center;}
         .toggle-btn.active { background: var(--highlight); color: white; border-color: var(--highlight); }
         
         #btn-activate-voice { display: none; width: 100%; background: var(--warning); color: white; padding: 12px; margin-bottom: 15px; border-radius: 8px; border:none; font-weight:bold; cursor:pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: bounce 2s infinite; }
@@ -58,7 +64,12 @@
 
         /* Sentence Row */
         .sentence-row { background: var(--bg-card); padding: 20px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; }
-        .text-display { font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: pointer; padding: 10px; border-radius: 8px; transition: background 0.2s; -webkit-user-select: none; user-select: none; /* Quan trọng: Chặn bôi đen */ }
+        
+        /* FIX MOBILE GHOST READ */
+        .text-display { 
+            font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: pointer; padding: 10px; border-radius: 8px; transition: background 0.2s; 
+            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+        }
         .text-display:active { background: rgba(0,0,0,0.05); }
         .text-display.blurred { filter: blur(6px); pointer-events: none; opacity: 0.5; }
 
@@ -122,7 +133,16 @@
             <h2 id="lesson-header" style="margin:0 0 10px 0">👈 Chọn bài học</h2>
             <button id="btn-activate-voice" onclick="activateVoice()">🔊 Kích hoạt Âm Thanh (Bấm 1 lần)</button>
             <div class="tools-row">
-                <div class="speed-control"><span>🐢 Tốc độ:</span><input type="range" id="speed-slider" class="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedDisplay()"><span id="speed-val" style="font-weight:bold; color:var(--highlight); width: 40px; text-align:right;">0.9x</span></div>
+                <div class="control-group">
+                    <select id="voice-select" class="voice-select" onchange="saveVoicePreference()">
+                        <option value="">Đang tải giọng...</option>
+                    </select>
+                    <div class="speed-control">
+                        <span>🐢 Tốc độ:</span>
+                        <input type="range" id="speed-slider" class="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedDisplay()">
+                        <span id="speed-val" style="font-weight:bold; color:var(--highlight); width: 35px; text-align:right;">0.9x</span>
+                    </div>
+                </div>
                 <button class="toggle-btn" id="btn-dictation" onclick="toggleDictationMode()">📝 Chép chính tả</button>
             </div>
         </div>
@@ -137,18 +157,56 @@
     
     // --- VARIABLES ---
     let globalStream=null, mediaRecorder, audioChunks=[], recognition, allLessons=[], isRecording=false, currentUtterance=null, currentSentencesData=[];
-    let isDictationMode=false; const synth=window.speechSynthesis; let voices=[];
+    let isDictationMode=false; const synth=window.speechSynthesis; 
+    let availableVoices=[]; // Changed from 'voices' to avoid confusion
 
-    // --- VOICE HANDLING (FIXED) ---
-    function loadVoices() { voices=synth.getVoices(); if(voices.length>0) { document.getElementById('btn-activate-voice').style.display='none'; } else setTimeout(loadVoices,500); }
-    loadVoices(); if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=loadVoices;
+    // --- VOICE HANDLING (UPDATED) ---
+    function loadVoices() { 
+        // Lấy danh sách và lọc chỉ lấy tiếng Anh (en)
+        let rawVoices = synth.getVoices();
+        availableVoices = rawVoices.filter(v => v.lang.startsWith('en'));
+        
+        const select = document.getElementById('voice-select');
+        select.innerHTML = ''; // Clear cũ
+
+        if(availableVoices.length === 0) {
+            const op = document.createElement('option'); op.text = "Không tìm thấy giọng Anh"; select.add(op);
+        } else {
+            // Đổ dữ liệu vào Select Box
+            availableVoices.forEach((v, index) => {
+                const op = document.createElement('option');
+                op.value = index; // Lưu index của mảng availableVoices
+                op.text = `${v.name} (${v.lang})`;
+                select.add(op);
+            });
+
+            // Khôi phục giọng đã chọn từ LocalStorage
+            const savedVoiceName = localStorage.getItem('selected_voice_name');
+            if(savedVoiceName){
+                const idx = availableVoices.findIndex(v => v.name === savedVoiceName);
+                if(idx !== -1) select.value = idx;
+            }
+            
+            document.getElementById('btn-activate-voice').style.display='none'; 
+        }
+    }
     
+    // Gọi loadVoices khi trình duyệt sẵn sàng
+    loadVoices(); 
+    if(synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+    
+    function saveVoicePreference() {
+        const select = document.getElementById('voice-select');
+        const idx = select.value;
+        if(availableVoices[idx]) {
+            localStorage.setItem('selected_voice_name', availableVoices[idx].name);
+        }
+    }
+
     function activateVoice() {
         if(synth.speaking) synth.cancel();
-        // Phát một âm thanh rỗng để đánh thức trình duyệt
         const u = new SpeechSynthesisUtterance(" ");
-        u.volume = 0; 
-        synth.speak(u);
+        u.volume = 0; synth.speak(u);
         document.getElementById('btn-activate-voice').style.display='none';
     }
 
@@ -162,11 +220,7 @@
 
     // --- TRANSLATE & DICTIONARY ---
     async function googleTranslate(text) { try{const u=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;const r=await fetch(u);const j=await r.json();return j[0].map(x=>x[0]).join('')}catch(e){return "Lỗi dịch."} }
-    
-    async function manualLookup() {
-        const w = document.getElementById('dict-search-input').value; lookupWord(w);
-    }
-    
+    async function manualLookup() { const w = document.getElementById('dict-search-input').value; lookupWord(w); }
     async function lookupWord(w){
         if(!w)return; w=w.trim().replace(/[^a-zA-Z]/g,""); if(w.length<2)return;
         const b=document.getElementById("dict-result"); b.innerHTML='<div class="loader" style="display:block"></div>';
@@ -179,13 +233,12 @@
         }catch(e){b.innerHTML="Lỗi kết nối."}
     }
 
-    // --- SPEAKING LOGIC (CORE FIX) ---
+    // --- SPEAKING LOGIC (UPDATED WITH VOICE SELECTION) ---
     let currentSpeed=0.9; function updateSpeedDisplay(){currentSpeed=document.getElementById('speed-slider').value;document.getElementById('speed-val').innerText=currentSpeed+'x'}
     
-    // Hàm này loại bỏ logic bôi đen, chỉ nhận index
-    function handleTextClick(idx){
+    function handleTextClick(idx, event){
+        if(event) { event.preventDefault(); event.stopPropagation(); }
         if(isDictationMode) return;
-        // MOBILE FIX: Không dùng window.getSelection() nữa để tránh đọc rác
         speakByIndex(idx);
     }
 
@@ -194,53 +247,43 @@
     }
 
     function speak(txt){
-        if(synth.speaking || synth.pending) synth.cancel(); // Dừng ngay lập tức các cái cũ
-        
-        // CLEAN TEXT: Loại bỏ tag HTML và ký tự xuống dòng
-        const cleanTxt = txt.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+        if(synth.speaking || synth.pending) synth.cancel();
+        let cleanTxt = txt.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
         if(!cleanTxt) return;
 
         const u = new SpeechSynthesisUtterance(cleanTxt); 
         u.lang = 'en-US'; 
         u.rate = parseFloat(currentSpeed);
         
-        const v = voices.find(v=>(v.name.includes('Samantha')||v.name.includes('Google US')||v.name.includes('Zira')||v.lang==='en-US'));
-        if(v) u.voice = v;
+        // LẤY GIỌNG TỪ DROPDOWN
+        const voiceSelect = document.getElementById('voice-select');
+        const selectedIdx = voiceSelect.value;
+        if (availableVoices && availableVoices[selectedIdx]) {
+            u.voice = availableVoices[selectedIdx];
+        }
         
         synth.speak(u);
     }
 
-    // --- OTHER LOGIC (Lesson, Record, Chart) ---
+    // --- OTHER LOGIC ---
     function autoSplitSentences(){const t=document.getElementById('inp-content');if(!t.value)return alert("Trống!");t.value=t.value.replace(/([.?!])\s*(?=[A-Z])/g,"$1\n")}
-    
-    // Select Lesson Logic - Fixed Indexing
     function selectLesson(id) {
         const item = allLessons.find(x => x.id == id); if(!item) return;
         document.getElementById('lesson-header').innerText = item.title; closeModal();
         const area = document.getElementById('display-area'); area.innerHTML = '';
-        
         let raw = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
         currentSentencesData = raw.map(s => s.trim()).filter(s => s.length > 0);
-
         currentSentencesData.forEach((s, i) => {
             const div = document.createElement('div'); div.className = 'sentence-row';
-            // Lưu ý: class text-display giờ có user-select: none để chặn bôi đen rác
             div.innerHTML = `
-                <div class="text-display" onclick="handleTextClick(${i})">${s}</div>
-                <div class="dictation-area">
-                    <textarea id="dict-input-${i}" class="dictation-input" placeholder="Nghe và gõ lại..."></textarea>
-                    <button class="btn btn-check" onclick="checkDictation(${i})" style="width:auto;margin-top:5px;padding:6px 12px">Kiểm tra</button>
-                    <div id="dict-result-${i}" class="dictation-result"></div>
-                </div>
-                <div class="action-area">
-                    <button class="btn-action btn-speak" onclick="speakByIndex(${i})">🔊 Nghe</button>
-                    <button class="btn-action btn-mic" id="btn-${i}" onclick="toggleRecording(${i}, 'fb-${i}', 'btn-${i}', 'audio-${i}')">🎙️ Nói</button>
-                </div>
+                <div class="text-display" onclick="handleTextClick(${i}, event)">${s}</div>
+                <div class="dictation-area"><textarea id="dict-input-${i}" class="dictation-input" placeholder="Nghe và gõ lại..."></textarea><button class="btn btn-check" onclick="checkDictation(${i})" style="width:auto;margin-top:5px;padding:6px 12px">Kiểm tra</button><div id="dict-result-${i}" class="dictation-result"></div></div>
+                <div class="action-area"><button class="btn-action btn-speak" onclick="speakByIndex(${i})">🔊 Nghe</button><button class="btn-action btn-mic" id="btn-${i}" onclick="toggleRecording(${i}, 'fb-${i}', 'btn-${i}', 'audio-${i}')">🎙️ Nói</button></div>
                 <div class="feedback-box" id="fb-${i}"><div id="result-text-${i}"></div><audio id="audio-${i}" class="audio-player" controls playsinline style="display:none"></audio></div>`;
             area.appendChild(div);
         });
         isDictationMode = false; document.getElementById('btn-dictation').classList.remove('active');
-        if(voices.length === 0) document.getElementById('btn-activate-voice').style.display = 'block';
+        if(availableVoices.length === 0) document.getElementById('btn-activate-voice').style.display = 'block';
     }
 
     // Vocab & History
