@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V36: API New & Voice Fix</title>
+    <title>Luyện Nói V36.1: Fix Wrong Line Reading</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -53,7 +53,6 @@
         .toggle-btn { padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; color: var(--text-main); white-space: nowrap; }
         .toggle-btn.active { background: var(--highlight); color: white; border-color: var(--highlight); }
         
-        /* Activate Voice Button (Hidden by default) */
         #btn-activate-voice { display: none; width: 100%; background: var(--warning); color: white; padding: 10px; margin-bottom: 15px; border-radius: 8px; border:none; font-weight:bold; cursor:pointer; }
 
         /* Lesson Item */
@@ -61,7 +60,6 @@
         .text-display { font-size: 20px; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; cursor: text; padding-right: 30px; transition: all 0.3s; }
         .text-display.blurred { filter: blur(6px); user-select: none; pointer-events: none; opacity: 0.5; }
 
-        /* Dictation */
         .dictation-area { display: none; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
         .dictation-input { width: 100%; border: 1px solid var(--highlight); outline: none; background: var(--input-bg); min-height: 60px; font-family: inherit; padding: 10px;}
         .dictation-result { margin-top: 10px; font-size: 18px; line-height: 1.6; padding: 10px; background: var(--bg-body); border-radius: 8px; display: none;}
@@ -102,249 +100,124 @@
     <button class="header-btn theme-btn" onclick="toggleTheme()">🌗</button>
     <button class="header-btn stats-btn" onclick="openStats()">📊</button>
     <button class="header-btn vocab-btn" onclick="openVocab()">📒</button>
-    
     <button class="fab-btn" onclick="openModal()">📂</button>
 
     <div id="dictModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>📖 Từ điển</h3><span class="close-btn" onclick="closeDict()">&times;</span></div>
-            <div class="modal-body" id="dict-body"><div style="text-align:center;">Đang tra từ...</div></div>
-        </div>
+        <div class="modal-content"><div class="modal-header"><h3>📖 Từ điển</h3><span class="close-btn" onclick="closeDict()">&times;</span></div><div class="modal-body" id="dict-body"><div style="text-align:center;">Đang tra từ...</div></div></div>
     </div>
     <div id="vocabModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>📒 Sổ tay</h3><span class="close-btn" onclick="closeVocab()">&times;</span></div>
-            <div class="modal-body" id="vocab-list"><div style="text-align:center; color:var(--text-sub)">Trống.</div></div>
-        </div>
+        <div class="modal-content"><div class="modal-header"><h3>📒 Sổ tay</h3><span class="close-btn" onclick="closeVocab()">&times;</span></div><div class="modal-body" id="vocab-list"><div style="text-align:center; color:var(--text-sub)">Trống.</div></div></div>
     </div>
     <div id="managerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>Quản lý</h3><span class="close-btn" onclick="closeModal()">&times;</span></div>
+        <div class="modal-content"><div class="modal-header"><h3>Quản lý</h3><span class="close-btn" onclick="closeModal()">&times;</span></div>
             <div class="modal-body">
                 <div style="background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom:15px;">
-                    <input type="hidden" id="edit-id"> 
-                    <div class="form-group"><input type="text" id="inp-title" placeholder="Tiêu đề..."></div>
-                    <div class="form-group"><textarea id="inp-content" placeholder="Nội dung..."></textarea></div>
-                    <button class="btn btn-auto-split" onclick="autoSplitSentences()">⚡ Tách câu tự động</button>
-                    <button class="btn btn-add" id="btn-add" onclick="saveLesson('add')">💾 Thêm</button>
-                    <button class="btn btn-save" id="btn-save" onclick="saveLesson('edit')">✅ Lưu</button>
-                    <button class="btn btn-cancel" id="btn-cancel" onclick="resetForm()">❌ Hủy</button>
-                    <div id="loader" class="loader"></div>
+                    <input type="hidden" id="edit-id"> <div class="form-group"><input type="text" id="inp-title" placeholder="Tiêu đề..."></div><div class="form-group"><textarea id="inp-content" placeholder="Nội dung..."></textarea></div>
+                    <button class="btn btn-auto-split" onclick="autoSplitSentences()">⚡ Tách câu tự động</button><button class="btn btn-add" id="btn-add" onclick="saveLesson('add')">💾 Thêm</button><button class="btn btn-save" id="btn-save" onclick="saveLesson('edit')">✅ Lưu</button><button class="btn btn-cancel" id="btn-cancel" onclick="resetForm()">❌ Hủy</button><div id="loader" class="loader"></div>
                 </div>
                 <div id="list-container"><div style="text-align:center; color:var(--text-sub)">Đang tải...</div></div>
             </div>
         </div>
     </div>
     <div id="statsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3>Tiến bộ</h3><span class="close-btn" onclick="closeStats()">&times;</span></div>
-            <div class="modal-body" style="height:400px">
-                <canvas id="progressChart"></canvas>
-                <div style="text-align:center; margin-top:15px; color:var(--text-sub); font-size:14px;">Điểm trung bình theo ngày.</div>
-                <button class="btn" style="background:#e74c3c; margin-top:20px;" onclick="clearStats()">🗑️ Xóa lịch sử</button>
-            </div>
-        </div>
+        <div class="modal-content"><div class="modal-header"><h3>Tiến bộ</h3><span class="close-btn" onclick="closeStats()">&times;</span></div><div class="modal-body" style="height:400px"><canvas id="progressChart"></canvas><div style="text-align:center; margin-top:15px; color:var(--text-sub); font-size:14px;">Điểm trung bình theo ngày.</div><button class="btn" style="background:#e74c3c; margin-top:20px;" onclick="clearStats()">🗑️ Xóa lịch sử</button></div></div>
     </div>
 
     <div class="main-container">
         <div class="control-bar">
             <h2 id="lesson-header" style="margin:0 0 10px 0">👈 Chọn bài học</h2>
-            
             <button id="btn-activate-voice" onclick="activateVoice()">🔊 Bấm vào đây để bật Âm Thanh</button>
-
             <div class="tools-row">
-                <div class="speed-control">
-                    <span>🐢 Tốc độ:</span>
-                    <input type="range" id="speed-slider" class="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedDisplay()">
-                    <span id="speed-val" style="font-weight:bold; color:var(--highlight); width: 40px; text-align:right;">0.9x</span>
-                </div>
+                <div class="speed-control"><span>🐢 Tốc độ:</span><input type="range" id="speed-slider" class="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedDisplay()"><span id="speed-val" style="font-weight:bold; color:var(--highlight); width: 40px; text-align:right;">0.9x</span></div>
                 <button class="toggle-btn" id="btn-dictation" onclick="toggleDictationMode()">📝 Chép chính tả</button>
             </div>
         </div>
-
-        <div id="display-area">
-            <div style="text-align:center; color:var(--text-sub); margin-top:80px; font-size:18px;">
-                Bấm nút 📂 để chọn bài.
-            </div>
-        </div>
+        <div id="display-area"><div style="text-align:center; color:var(--text-sub); margin-top:80px; font-size:18px;">Bấm nút 📂 để chọn bài.</div></div>
     </div>
 
 <script>
-    // ==========================================
-    // ⚠️ API ĐÃ ĐƯỢC CẬP NHẬT THEO YÊU CẦU CỦA BẠN
-    // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycbw9LrqxG5_JlnFqa7ftIgBX-yTtNMKvxME3Dqaq-5RcofyUqYIopq5WVJgWeUDq8IyP/exec"; 
     
-    // --- THEME ---
+    // --- UTILS & VOICE ---
     if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
     function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
+    
+    let globalStream=null, mediaRecorder, audioChunks=[], recognition, allLessons=[], isRecording=false, currentUtterance=null, currentSentencesData=[], clickTimeout=null;
+    let isDictationMode=false; const synth=window.speechSynthesis; let voices=[];
 
-    // --- GLOBALS ---
-    let globalStream = null, mediaRecorder, audioChunks = [], recognition, allLessons = [], isRecording = false, currentUtterance = null, currentSentencesData = [], clickTimeout = null;
-    let isDictationMode = false;
-
-    // --- VOICE FIX (NEW) ---
-    const synth = window.speechSynthesis;
-    let voices = [];
-
-    // Hàm load giọng liên tục cho đến khi tìm thấy
-    function loadVoices() {
-        voices = synth.getVoices();
-        if (voices.length > 0) {
-            // Đã tìm thấy giọng, ẩn nút kích hoạt nếu có
-            document.getElementById('btn-activate-voice').style.display = 'none';
-        } else {
-            // Chưa tìm thấy, thử lại sau 500ms
-            setTimeout(loadVoices, 500);
-        }
-    }
-    loadVoices(); // Chạy ngay khi mở
-    if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
-
-    // Hàm "mồi" âm thanh
-    function activateVoice() {
-        if(synth.speaking) synth.cancel();
-        const u = new SpeechSynthesisUtterance("Voice system activated.");
-        u.lang = 'en-US';
-        synth.speak(u);
-        document.getElementById('btn-activate-voice').style.display = 'none';
-    }
+    function loadVoices() { voices=synth.getVoices(); if(voices.length>0) document.getElementById('btn-activate-voice').style.display='none'; else setTimeout(loadVoices,500); }
+    loadVoices(); if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=loadVoices;
+    function activateVoice() { if(synth.speaking)synth.cancel(); const u=new SpeechSynthesisUtterance("Activated"); u.lang='en-US'; synth.speak(u); document.getElementById('btn-activate-voice').style.display='none'; }
 
     // --- MODALS ---
-    const modal = document.getElementById("managerModal");
-    const statsModal = document.getElementById("statsModal");
-    const dictModal = document.getElementById("dictModal");
-    const vocabModal = document.getElementById("vocabModal");
-    function openModal() { modal.style.display = "flex"; } function closeModal() { modal.style.display = "none"; }
-    function openStats() { statsModal.style.display = "flex"; renderChart(); } function closeStats() { statsModal.style.display = "none"; }
-    function closeDict() { dictModal.style.display = "none"; }
-    function openVocab() { vocabModal.style.display = "flex"; renderVocabList(); } function closeVocab() { vocabModal.style.display = "none"; }
-    window.onclick = function(e) { if (e.target == modal) closeModal(); if (e.target == statsModal) closeStats(); if (e.target == dictModal) closeDict(); if (e.target == vocabModal) closeVocab(); }
+    const modal=document.getElementById("managerModal"), statsModal=document.getElementById("statsModal"), dictModal=document.getElementById("dictModal"), vocabModal=document.getElementById("vocabModal");
+    function openModal(){modal.style.display="flex"} function closeModal(){modal.style.display="none"} function openStats(){statsModal.style.display="flex";renderChart()} function closeStats(){statsModal.style.display="none"} function closeDict(){dictModal.style.display="none"} function openVocab(){vocabModal.style.display="flex";renderVocabList()} function closeVocab(){vocabModal.style.display="none"}
+    window.onclick=function(e){if(e.target==modal)closeModal();if(e.target==statsModal)closeStats();if(e.target==dictModal)closeDict();if(e.target==vocabModal)closeVocab()}
 
-    // --- TRANSLATE ---
-    async function googleTranslate(text) {
-        try { const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`; const res = await fetch(url); const json = await res.json(); return json[0].map(x => x[0]).join(''); } catch (e) { return "Lỗi dịch."; }
-    }
-
-    // --- VOCAB ---
-    function getVocab() { return JSON.parse(localStorage.getItem('my_vocab')) || []; }
-    function addVocab(word) {
-        word = word.trim().replace(/[^a-zA-Z]/g, "").toLowerCase(); if(!word) return;
-        let list = getVocab(); if(!list.includes(word)) { list.push(word); localStorage.setItem('my_vocab', JSON.stringify(list)); alert(`Đã lưu "${word}"`); } else { alert("Từ này đã có."); }
-    }
-    function removeVocab(word) { let list = getVocab().filter(w => w !== word); localStorage.setItem('my_vocab', JSON.stringify(list)); renderVocabList(); }
-    function renderVocabList() {
-        const list = getVocab(); const container = document.getElementById('vocab-list'); container.innerHTML = '';
-        if(list.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--text-sub)">Trống.</div>'; return; }
-        list.forEach(w => {
-            const div = document.createElement('div'); div.className = 'vocab-item';
-            div.innerHTML = `<span class="vocab-word" onclick="lookupWord('${w}')">${w}</span><div><button class="btn-sm" style="background:var(--highlight)" onclick="speak('${w}')">🔊</button><button class="btn-sm btn-del" onclick="removeVocab('${w}')">🗑️</button></div>`;
-            container.appendChild(div);
-        });
-    }
-
-    // --- DICTATION ---
-    function toggleDictationMode() {
-        isDictationMode = !isDictationMode;
-        document.getElementById('btn-dictation').classList.toggle('active');
-        document.querySelectorAll('.text-display').forEach(el => el.classList.toggle('blurred', isDictationMode));
-        document.querySelectorAll('.dictation-area').forEach(el => el.style.display = isDictationMode ? 'block' : 'none');
-    }
-
-    function checkDictation(index) {
-        const input = document.getElementById(`dict-input-${index}`);
-        const resultDiv = document.getElementById(`dict-result-${index}`);
-        const target = currentSentencesData[index].trim();
-        const userText = input.value.trim();
-        document.querySelectorAll('.text-display')[index].classList.remove('blurred');
-        
-        const clean = (str) => str.toLowerCase().replace(/[^\w\s]/g,'').trim();
-        const tWords = clean(target).split(/\s+/);
-        const uWords = clean(userText).split(/\s+/);
-        let html = ''; let score = 0;
-        tWords.forEach((w, i) => {
-            const userW = uWords[i] || "";
-            if (userW === w) { html += `<span class="correct">${w}</span> `; score++; }
-            else { html += `${userW ? `<span class="wrong">${userW}</span>` : `<span class="wrong">...</span>`}<span class="fix">${w}</span> `; }
-        });
-        const percent = Math.round((score / tWords.length) * 100);
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `<div style="font-weight:bold; margin-bottom:5px; color:${percent===100?'var(--success)':'var(--danger)'}">🎯 Kết quả: ${percent}%</div><div style="font-size:1.1em; line-height:1.6;">${html}</div>`;
-    }
-
-    // --- DICT & SPEAK (UPDATED) ---
-    async function lookupWord(word) {
-        if(!word) return; word = word.trim().replace(/[^a-zA-Z]/g, ""); if(word.length < 2) return;
-        dictModal.style.display = "flex"; const body = document.getElementById("dict-body"); body.innerHTML = '<div style="text-align:center;"><div class="loader" style="display:block"></div>Đang tra...</div>';
-        try {
-            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-            let data = null, def = "No def", ex = "", phon = "", audio = "";
-            if(res.ok) {
-                const json = await res.json(); data = json[0];
-                phon = data.phonetic || (data.phonetics.find(p=>p.text)?data.phonetics.find(p=>p.text).text:"");
-                audio = data.phonetics.find(p=>p.audio)?.audio || "";
-                if(data.meanings[0]) { def = data.meanings[0].definitions[0].definition; for(let m of data.meanings){for(let d of m.definitions){if(d.example){ex=d.example;break}}if(ex)break} }
-            }
-            const transW = await googleTranslate(word); let transEx = ""; if(ex) transEx = await googleTranslate(ex);
-            body.innerHTML = `<div><span class="dict-word">${data?data.word:word}</span> ${audio?`<button class="dict-audio-btn" onclick="new Audio('${audio}').play()">🔊</button>`:""}</div><div class="dict-phonetic">${phon}</div><div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${transW}</div><div class="dict-meaning-en">${def}</div></div><div class="example-box"><div class="ex-en">📝 ${ex||"No example"}</div>${transEx?`<div class="ex-vi">➥ ${transEx}</div>`:""}</div><div style="margin-top:15px;text-align:center;"><button class="btn btn-sm btn-add" onclick="addVocab('${word}')">➕ Lưu Sổ tay</button></div>`;
-        } catch(e) { body.innerHTML = "Lỗi kết nối."; }
-    }
-
-    function handleTextClick(index) {
-        if(isDictationMode) return; 
-        const s = window.getSelection().toString().trim();
-        if (s.length > 0) { lookupWord(s); window.getSelection().removeAllRanges(); }
-        else { if (clickTimeout) { clearTimeout(clickTimeout); clickTimeout = null; } else { clickTimeout = setTimeout(() => { speakByIndex(index); clickTimeout = null; }, 250); } }
-    }
+    // --- TRANSLATE & DICT ---
+    async function googleTranslate(text) { try{const u=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;const r=await fetch(u);const j=await r.json();return j[0].map(x=>x[0]).join('')}catch(e){return "Lỗi dịch."} }
+    function getVocab(){return JSON.parse(localStorage.getItem('my_vocab'))||[]}
+    function addVocab(w){w=w.trim().replace(/[^a-zA-Z]/g,"").toLowerCase();if(!w)return;let l=getVocab();if(!l.includes(w)){l.push(w);localStorage.setItem('my_vocab',JSON.stringify(l));alert(`Đã lưu "${w}"`)}else{alert("Đã có.")}}
+    function removeVocab(w){let l=getVocab().filter(x=>x!==w);localStorage.setItem('my_vocab',JSON.stringify(l));renderVocabList()}
+    function renderVocabList(){const l=getVocab(),c=document.getElementById('vocab-list');c.innerHTML='';if(l.length===0){c.innerHTML='Trống.';return}l.forEach(w=>{const d=document.createElement('div');d.className='vocab-item';d.innerHTML=`<span class="vocab-word" onclick="lookupWord('${w}')">${w}</span><div><button class="btn-sm" style="background:var(--highlight)" onclick="speak('${w}')">🔊</button><button class="btn-sm btn-del" onclick="removeVocab('${w}')">🗑️</button></div>`;c.appendChild(d)})}
     
-    // --- MAIN ---
-    let currentSpeed = 0.9;
-    function updateSpeedDisplay() { currentSpeed = document.getElementById('speed-slider').value; document.getElementById('speed-val').innerText = currentSpeed + 'x'; }
-    function autoSplitSentences() { const ta = document.getElementById('inp-content'); if (!ta.value) return alert("Trống!"); ta.value = ta.value.replace(/([.?!])\s*(?=[A-Z])/g, "$1\n"); }
+    async function lookupWord(w){
+        if(!w)return;w=w.trim().replace(/[^a-zA-Z]/g,"");if(w.length<2)return;
+        dictModal.style.display="flex";const b=document.getElementById("dict-body");b.innerHTML='<div style="text-align:center;"><div class="loader" style="display:block"></div>Đang tra...</div>';
+        try{
+            const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w}`);let d=null,de="No def",ex="",ph="",au="";
+            if(r.ok){const j=await r.json();d=j[0];ph=d.phonetic||(d.phonetics.find(p=>p.text)?d.phonetics.find(p=>p.text).text:"");au=d.phonetics.find(p=>p.audio)?.audio||"";if(d.meanings[0]){de=d.meanings[0].definitions[0].definition;for(let m of d.meanings){for(let df of m.definitions){if(df.example){ex=df.example;break}}if(ex)break}}}
+            const tw=await googleTranslate(w);let te="";if(ex)te=await googleTranslate(ex);
+            b.innerHTML=`<div><span class="dict-word">${d?d.word:w}</span> ${au?`<button class="dict-audio-btn" onclick="new Audio('${au}').play()">🔊</button>`:""}</div><div class="dict-phonetic">${ph}</div><div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${tw}</div><div class="dict-meaning-en">${de}</div></div><div class="example-box"><div class="ex-en">📝 ${ex||"No example"}</div>${te?`<div class="ex-vi">➥ ${te}</div>`:""}</div><div style="margin-top:15px;text-align:center;"><button class="btn btn-sm btn-add" onclick="addVocab('${w}')">➕ Lưu Sổ tay</button></div>`;
+        }catch(e){b.innerHTML="Lỗi kết nối."}
+    }
+    function handleTextClick(idx){if(isDictationMode)return;const s=window.getSelection().toString().trim();if(s.length>0){lookupWord(s);window.getSelection().removeAllRanges()}else{if(clickTimeout){clearTimeout(clickTimeout);clickTimeout=null}else{clickTimeout=setTimeout(()=>{speakByIndex(idx);clickTimeout=null},250)}}}
+
+    // --- DICTATION & LIST ---
+    function toggleDictationMode(){isDictationMode=!isDictationMode;document.getElementById('btn-dictation').classList.toggle('active');document.querySelectorAll('.text-display').forEach(e=>e.classList.toggle('blurred',isDictationMode));document.querySelectorAll('.dictation-area').forEach(e=>e.style.display=isDictationMode?'block':'none')}
+    function checkDictation(idx){
+        const inp=document.getElementById(`dict-input-${idx}`),res=document.getElementById(`dict-result-${idx}`),tgt=currentSentencesData[idx].trim(),usr=inp.value.trim();
+        document.querySelectorAll('.text-display')[idx].classList.remove('blurred');
+        const cl=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim(), tw=cl(tgt).split(/\s+/), uw=cl(usr).split(/\s+/);
+        let h='',sc=0; tw.forEach((w,i)=>{if(uw[i]===w){h+=`<span class="correct">${w}</span> `;sc++}else{h+=`${uw[i]?`<span class="wrong">${uw[i]}</span>`:`<span class="wrong">...</span>`}<span class="fix">${w}</span> `}});
+        const p=Math.round((sc/tw.length)*100); res.style.display='block'; res.innerHTML=`<div style="font-weight:bold;margin-bottom:5px;color:${p===100?'var(--success)':'var(--danger)'}">🎯 Kết quả: ${p}%</div><div style="font-size:1.1em;line-height:1.6;">${h}</div>`;
+    }
+
+    // --- CORE LOGIC (FIXED) ---
+    let currentSpeed=0.9; function updateSpeedDisplay(){currentSpeed=document.getElementById('speed-slider').value;document.getElementById('speed-val').innerText=currentSpeed+'x'}
+    function autoSplitSentences(){const t=document.getElementById('inp-content');if(!t.value)return alert("Trống!");t.value=t.value.replace(/([.?!])\s*(?=[A-Z])/g,"$1\n")}
+    function speakByIndex(idx){ if(currentSentencesData[idx]) speak(currentSentencesData[idx]) }
+    function speak(txt){
+        if(synth.speaking||synth.pending)synth.cancel();
+        const u=new SpeechSynthesisUtterance(txt); u.lang='en-US'; u.rate=parseFloat(currentSpeed);
+        const v=voices.find(v=>(v.name.includes('Samantha')||v.name.includes('Google US')||v.name.includes('Zira')||v.lang==='en-US'));
+        if(v)u.voice=v; u.onend=function(){currentUtterance=null}; synth.speak(u);
+    }
+
+    function saveScoreToHistory(s){const h=JSON.parse(localStorage.getItem('voice_history'))||[];h.push({date:new Date().toLocaleDateString('vi-VN'),score:s});localStorage.setItem('voice_history',JSON.stringify(h))}
+    function renderChart(){const c=document.getElementById('progressChart').getContext('2d'),h=JSON.parse(localStorage.getItem('voice_history'))||[];let st={};h.forEach(x=>{if(!st[x.date])st[x.date]={t:0,c:0};st[x.date].t+=x.score;st[x.date].c++});const l=Object.keys(st).slice(-7),d=l.map(k=>Math.round(st[k].t/st[k].c));if(window.myChart)window.myChart.destroy();window.myChart=new Chart(c,{type:'line',data:{labels:l,datasets:[{label:'Điểm %',data:d,borderColor:'#2980b9',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}})}
+    function clearStats(){if(confirm("Xóa?")){localStorage.removeItem('voice_history');renderChart()}}
+
+    async function initMicrophone(){if(globalStream)return globalStream;try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null}}
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(SpeechRecognition){recognition=new SpeechRecognition();recognition.lang='en-US';recognition.continuous=false;recognition.interimResults=false}
+
+    async function loadLessons(){const c=document.getElementById('list-container');c.innerHTML='<div class="loader" style="display:block"></div>';try{const r=await fetch(API_URL);const j=await r.json();if(j.status==='success'){allLessons=j.data;renderList(allLessons)}}catch(e){c.innerHTML='<div style="color:red;text-align:center;">Lỗi kết nối!</div>'}}
+    function renderList(d){const c=document.getElementById('list-container');c.innerHTML='';if(!d||d.length===0){c.innerHTML='Trống.';return}d.forEach(i=>{const v=document.createElement('div');v.className='list-item';v.innerHTML=`<div class="item-title" onclick="selectLesson('${i.id}')">${i.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${i.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${i.id}')">🗑️</button></div>`;c.appendChild(v)})}
     
-    function speakByIndex(index) { if (currentSentencesData[index]) speak(currentSentencesData[index]); }
-    function speak(txt) {
-        if (synth.speaking || synth.pending) synth.cancel();
-        currentUtterance = new SpeechSynthesisUtterance(txt); 
-        currentUtterance.lang = 'en-US'; 
-        currentUtterance.rate = parseFloat(currentSpeed);
-        // Cố gắng tìm giọng chuẩn
-        const preferredVoice = voices.find(v => (v.name.includes('Samantha') || v.name.includes('Google US') || v.name.includes('Zira') || v.lang === 'en-US'));
-        if (preferredVoice) currentUtterance.voice = preferredVoice;
-        
-        currentUtterance.onend = function() { currentUtterance = null; };
-        synth.speak(currentUtterance);
-    }
-
-    function saveScoreToHistory(score) { const h = JSON.parse(localStorage.getItem('voice_history'))||[]; h.push({date:new Date().toLocaleDateString('vi-VN'), score}); localStorage.setItem('voice_history', JSON.stringify(h)); }
-    function renderChart() {
-        const ctx = document.getElementById('progressChart').getContext('2d'); const h = JSON.parse(localStorage.getItem('voice_history'))||[]; let stats={};
-        h.forEach(x=>{if(!stats[x.date])stats[x.date]={t:0,c:0};stats[x.date].t+=x.score;stats[x.date].c++});
-        const lbl=Object.keys(stats).slice(-7), dat=lbl.map(k=>Math.round(stats[k].t/stats[k].c));
-        if(window.myChart)window.myChart.destroy(); window.myChart=new Chart(ctx,{type:'line',data:{labels:lbl,datasets:[{label:'Điểm %',data:dat,borderColor:'#2980b9',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}});
-    }
-    function clearStats() { if(confirm("Xóa?")) { localStorage.removeItem('voice_history'); renderChart(); } }
-
-    async function initMicrophone() { if(globalStream)return globalStream; try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null} }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) { recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = false; recognition.interimResults = false; }
-
-    async function loadLessons() {
-        const c = document.getElementById('list-container'); c.innerHTML = '<div class="loader" style="display:block"></div>';
-        try { const r = await fetch(API_URL); const j = await r.json(); if(j.status==='success'){allLessons=j.data;renderList(allLessons)} } catch(e){c.innerHTML='<div style="color:red;text-align:center;">Lỗi kết nối!</div>'}
-    }
-    function renderList(d) {
-        const c = document.getElementById('list-container'); c.innerHTML=''; if(!d||d.length===0){c.innerHTML='Trống.';return}
-        d.forEach(i=>{ const div=document.createElement('div');div.className='list-item';div.innerHTML=`<div class="item-title" onclick="selectLesson('${i.id}')">${i.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${i.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${i.id}')">🗑️</button></div>`;c.appendChild(div) });
-    }
+    // --- FIX QUAN TRỌNG Ở ĐÂY: selectLesson ---
     function selectLesson(id) {
         const item = allLessons.find(x => x.id == id); if(!item) return;
         document.getElementById('lesson-header').innerText = item.title; closeModal();
         const area = document.getElementById('display-area'); area.innerHTML = '';
+        
+        // 1. Tách thô
         let raw = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
-        currentSentencesData = [];
-        raw.forEach((s, i) => {
-            s = s.trim(); if(s.length === 0) return; currentSentencesData.push(s);
+        
+        // 2. Làm sạch danh sách trước khi hiển thị (Fix lỗi lệch dòng)
+        currentSentencesData = raw.map(s => s.trim()).filter(s => s.length > 0);
+
+        // 3. Hiển thị UI dựa trên danh sách đã làm sạch
+        currentSentencesData.forEach((s, i) => {
             const div = document.createElement('div'); div.className = 'sentence-row';
             div.innerHTML = `
                 <div class="text-display" onclick="handleTextClick(${i})">${s}</div>
@@ -361,36 +234,34 @@
             area.appendChild(div);
         });
         isDictationMode = false; document.getElementById('btn-dictation').classList.remove('active');
-        // Nếu không tải được giọng, hiện nút kích hoạt
         if(voices.length === 0) document.getElementById('btn-activate-voice').style.display = 'block';
     }
 
-    async function toggleRecording(index, fbId, btnId, audioId) {
-        const target = currentSentencesData[index]; const btn=document.getElementById(btnId); const fb=document.getElementById(fbId); const aud=document.getElementById(audioId); const res=document.getElementById(fbId.replace('fb','result-text'));
-        if(btn.classList.contains('recording')){ if(mediaRecorder&&mediaRecorder.state!=="inactive")mediaRecorder.stop(); try{recognition.stop()}catch(e){} btn.classList.remove('recording'); btn.innerHTML='🎙️ Nói'; isRecording=false; return; }
-        if(isRecording)return alert("Dừng câu trước!"); const stream=await initMicrophone(); if(!stream)return;
-        isRecording=true; btn.classList.add('recording'); btn.innerHTML='🔴 Dừng'; fb.style.display='block'; res.innerHTML='...'; aud.style.display='none'; audioChunks=[];
-        try {
-            let opts = MediaRecorder.isTypeSupported('audio/webm')?{mimeType:'audio/webm'}:(MediaRecorder.isTypeSupported('audio/mp4')?{mimeType:'audio/mp4'}:{});
-            mediaRecorder=new MediaRecorder(stream,opts); mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
-            mediaRecorder.onstop=()=>{ const type=mediaRecorder.mimeType||'audio/webm'; aud.src=URL.createObjectURL(new Blob(audioChunks,{type})); aud.style.display='block'; aud.load(); };
+    async function toggleRecording(idx, fbId, btnId, audioId) {
+        const tgt=currentSentencesData[idx], btn=document.getElementById(btnId), fb=document.getElementById(fbId), aud=document.getElementById(audioId), res=document.getElementById(fbId.replace('fb','result-text'));
+        if(btn.classList.contains('recording')){if(mediaRecorder&&mediaRecorder.state!=="inactive")mediaRecorder.stop();try{recognition.stop()}catch(e){}btn.classList.remove('recording');btn.innerHTML='🎙️ Nói';isRecording=false;return}
+        if(isRecording)return alert("Dừng câu trước!"); const st=await initMicrophone(); if(!st)return;
+        isRecording=true;btn.classList.add('recording');btn.innerHTML='🔴 Dừng';fb.style.display='block';res.innerHTML='...';aud.style.display='none';audioChunks=[];
+        try{
+            let op=MediaRecorder.isTypeSupported('audio/webm')?{mimeType:'audio/webm'}:(MediaRecorder.isTypeSupported('audio/mp4')?{mimeType:'audio/mp4'}:{});
+            mediaRecorder=new MediaRecorder(st,op); mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
+            mediaRecorder.onstop=()=>{const tp=mediaRecorder.mimeType||'audio/webm';aud.src=URL.createObjectURL(new Blob(audioChunks,{type:tp}));aud.style.display='block';aud.load()};
             mediaRecorder.start(); recognition.start();
-            recognition.onresult=e=>{ grade(target,e.results[0][0].transcript,res) }; recognition.onerror=e=>{if(e.error!=='no-speech')res.innerHTML="Lỗi: "+e.error};
-            recognition.onend=()=>{ if(mediaRecorder.state!=="inactive")mediaRecorder.stop(); btn.classList.remove('recording'); btn.innerHTML='🎙️ Nói'; isRecording=false; };
-        } catch(e){ btn.classList.remove('recording'); isRecording=false; }
+            recognition.onresult=e=>{grade(tgt,e.results[0][0].transcript,res)}; recognition.onerror=e=>{if(e.error!=='no-speech')res.innerHTML="Lỗi: "+e.error};
+            recognition.onend=()=>{if(mediaRecorder.state!=="inactive")mediaRecorder.stop();btn.classList.remove('recording');btn.innerHTML='🎙️ Nói';isRecording=false};
+        }catch(e){btn.classList.remove('recording');isRecording=false}
     }
-    function grade(t,u,c){ 
-        const cl=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim(); const tw=cl(t).split(/\s+/); const uw=cl(u).split(/\s+/);
-        let h='',sc=0; tw.forEach((w,i)=>{ if(uw[i]===w){h+=`<span class="correct">${w}</span> `;sc++}else{h+=`<span class="wrong">${uw[i]||"..."}</span><span class="fix">${w}<span class="add-vocab-btn" onclick="addVocab('${w}')">+</span></span> `} });
+    function grade(t,u,c){
+        const cl=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim(), tw=cl(t).split(/\s+/), uw=cl(u).split(/\s+/);
+        let h='',sc=0; tw.forEach((w,i)=>{if(uw[i]===w){h+=`<span class="correct">${w}</span> `;sc++}else{h+=`<span class="wrong">${uw[i]||"..."}</span><span class="fix">${w}<span class="add-vocab-btn" onclick="addVocab('${w}')">+</span></span> `}});
         const p=Math.round((sc/tw.length)*100); saveScoreToHistory(p);
         c.parentElement.style.borderLeftColor=p>80?'#27ae60':(p>50?'#f39c12':'#c0392b'); c.innerHTML=`<div style="font-weight:bold;color:${p>80?'#27ae60':'#c0392b'}">🎯 ${p}% - Bạn: "${u}"</div><div style="font-size:1.1em;margin-top:5px;color:var(--text-main)">${h}</div>`;
     }
-    
-    // CRUD
-    async function saveLesson(act){ const t=document.getElementById('inp-title').value, c=document.getElementById('inp-content').value, id=document.getElementById('edit-id').value, l=document.getElementById('loader'); if(!t||!c)return alert("Thiếu!"); l.style.display='block'; try{await fetch(API_URL,{method:'POST',headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:act,id,title:t,content:c})});resetForm();setTimeout(loadLessons,1000)}catch(e){alert("Lỗi:"+e)}finally{l.style.display='none'} }
-    async function deleteLesson(id){ if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id})});setTimeout(loadLessons,1000)} }
-    function startEdit(id){ const i=allLessons.find(x=>x.id==id);if(!i)return;document.getElementById('inp-title').value=i.title;document.getElementById('inp-content').value=i.content;document.getElementById('edit-id').value=i.id;document.getElementById('btn-add').style.display='none';document.getElementById('btn-save').style.display='block';document.getElementById('btn-cancel').style.display='block'; }
-    function resetForm(){ document.getElementById('inp-title').value='';document.getElementById('inp-content').value='';document.getElementById('edit-id').value='';document.getElementById('btn-add').style.display='block';document.getElementById('btn-save').style.display='none';document.getElementById('btn-cancel').style.display='none'; }
+
+    async function saveLesson(a){const t=document.getElementById('inp-title').value, c=document.getElementById('inp-content').value, id=document.getElementById('edit-id').value, l=document.getElementById('loader');if(!t||!c)return alert("Thiếu!");l.style.display='block';try{await fetch(API_URL,{method:'POST',headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:a,id,title:t,content:c})});resetForm();setTimeout(loadLessons,1000)}catch(e){alert("Lỗi:"+e)}finally{l.style.display='none'}}
+    async function deleteLesson(id){if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id})});setTimeout(loadLessons,1000)}}
+    function startEdit(id){const i=allLessons.find(x=>x.id==id);if(!i)return;document.getElementById('inp-title').value=i.title;document.getElementById('inp-content').value=i.content;document.getElementById('edit-id').value=i.id;document.getElementById('btn-add').style.display='none';document.getElementById('btn-save').style.display='block';document.getElementById('btn-cancel').style.display='block'}
+    function resetForm(){document.getElementById('inp-title').value='';document.getElementById('inp-content').value='';document.getElementById('edit-id').value='';document.getElementById('btn-add').style.display='block';document.getElementById('btn-save').style.display='none';document.getElementById('btn-cancel').style.display='none'}
     window.onload=loadLessons;
 </script>
 </body>
