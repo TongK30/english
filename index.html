@@ -18,11 +18,11 @@
         }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); transition: background 0.3s; -webkit-tap-highlight-color: transparent; }
 
-        /* OLD HEADER */
+        /* HEADER */
         .header-bar { padding: 15px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
         .header-btn { background: var(--bg-card); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 18px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        /* --- NEW: FLOATING SIDEBAR V59 --- */
+        /* FLOATING SIDEBAR V59 */
         .float-sidebar {
             position: fixed; right: 15px; top: 50%; transform: translateY(-50%) translateX(100px);
             display: flex; flex-direction: column; gap: 12px; z-index: 1000; opacity: 0;
@@ -41,7 +41,6 @@
         .float-btn:hover { transform: scale(1.1); z-index: 2;}
         .float-btn:active { transform: scale(0.95); }
         
-        /* Tooltip */
         .float-btn::after {
             content: attr(data-title); position: absolute; right: 60px; background: rgba(0,0,0,0.8);
             color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; opacity: 0;
@@ -54,8 +53,6 @@
         .fb-dict { color: #8e44ad; }
         .fb-vocab { color: var(--warning); }
         .fb-stats { color: #27ae60; }
-        
-        /* Feature Colors */
         .fb-dictation { color: #16a085; border: 2px solid transparent; }
         .fb-dictation.active { background: #16a085; color: white; border-color: white;}
         .fb-playlist { color: #2980b9; border: 2px solid transparent; }
@@ -167,7 +164,7 @@
         /* POPUP MENU BÔI ĐEN */
         #selection-tooltip {
             position: absolute; background: #2c3e50; color: white; padding: 6px 12px;
-            border-radius: 8px; display: none; z-index: 9999; gap: 12px;
+            border-radius: 8px; display: none; z-index: 9999; gap: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: popUp 0.2s ease-out;
         }
         #selection-tooltip::after {
@@ -213,9 +210,9 @@
 <body>
 
     <div id="selection-tooltip">
-        <button class="tooltip-btn" onclick="applyHighlight()">🖍️ Tô vàng</button>
-        <button class="tooltip-btn" onclick="removeHighlight()">🧽 Tẩy màu</button>
-        <button class="tooltip-btn" onclick="lookupSelection()">📖 Dịch cụm</button>
+        <button class="tooltip-btn" onclick="applyHighlight()" title="Phím tắt: Alt + H">🖍️ Tô vàng</button>
+        <button class="tooltip-btn" onclick="removeHighlight()" title="Phím tắt: Alt + X">🧽 Tẩy màu</button>
+        <button class="tooltip-btn" onclick="lookupSelection()" title="Phím tắt: Alt + D">📖 Dịch cụm</button>
     </div>
 
     <div class="header-bar">
@@ -230,9 +227,7 @@
         <button id="fb-dictation" class="float-btn fb-dictation" onclick="toggleDictationMode()" data-title="Chép chính tả">📝</button>
         <button id="fb-playlist" class="float-btn fb-playlist" onclick="togglePlaylist()" data-title="Nghe thụ động">🎧</button>
         <button class="float-btn fb-zen" onclick="enterZenMode()" data-title="Zen Mode">🧘</button>
-        
         <div style="height:1px; background:var(--border); margin: 5px 10px; opacity:0.5;"></div>
-
         <button class="float-btn fb-main" onclick="openModal()" data-title="Chọn bài">📂</button>
         <button class="float-btn fb-dict" onclick="openDict()" data-title="Từ điển">📖</button>
         <button class="float-btn fb-vocab" onclick="openVocab()" data-title="Sổ tay">📒</button>
@@ -242,9 +237,7 @@
     </div>
 
     <div id="zenModal">
-        <div class="zen-header">
-            <span class="zen-close" onclick="exitZenMode()">&times;</span>
-        </div>
+        <div class="zen-header"><span class="zen-close" onclick="exitZenMode()">&times;</span></div>
         <div class="zen-content">
             <div id="zen-text" class="zen-text" onclick="zenSpeak()">Select a lesson first...</div>
             <div class="zen-controls">
@@ -388,8 +381,7 @@
     let isDictationMode=false; const synth=window.speechSynthesis; 
     let availableVoices=[]; let currentLiveText = ""; 
     let isPlaylistPlaying = false, playlistIndex = 0, repeatCount = 0, maxRepeats = 3; 
-    let zenIndex = 0;
-    let currentLessonId = null; 
+    let zenIndex = 0; let currentLessonId = null; 
     
     // --- VOICE HANDLING ---
     function loadVoices() { 
@@ -427,59 +419,56 @@
     function openVocab(){vocabModal.style.display="flex"; loadVocabFromAPI();} function closeVocab(){vocabModal.style.display="none"}
     window.onclick=function(e){if(e.target==modal)closeModal();if(e.target==statsModal)closeStats();if(e.target==dictModal)closeDict();if(e.target==vocabModal)closeVocab();if(e.target==document.getElementById('practiceModal'))closePractice();}
 
-    // --- LOGIC BÔI ĐEN VÀ HIỂN THỊ MENU TÙY CHỈNH ---
+    // --- LOGIC BÔI ĐEN CHỮ VÀ HIỂN THỊ MENU ---
     const tooltip = document.getElementById('selection-tooltip');
     
     document.addEventListener('mouseup', (e) => {
         const selection = window.getSelection();
         const text = selection.toString().trim();
-        
         if (text.length > 0 && e.target.closest('.text-display')) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
+            const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
             tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-            tooltip.style.top = `${rect.top + window.scrollY - 45}px`;
-            tooltip.style.display = 'flex';
+            tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
         } 
     });
-
-    document.addEventListener('mousedown', (e) => {
-        if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; }
-    });
+    document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
     
-    // Tô vàng
+    // --- PHÍM TẮT BÔI ĐEN (ALT + H/X/D) ---
+    document.addEventListener('keydown', (e) => {
+        if(document.getElementById('zenModal').style.display === 'flex') { 
+            if(e.key === 'ArrowRight') zenNext(); 
+            if(e.key === 'ArrowLeft') zenPrev(); 
+            if(e.code === 'Space') { e.preventDefault(); zenSpeak(); } 
+            return;
+        }
+
+        if (window.getSelection().toString().trim().length > 0) {
+            if (e.altKey && e.code === 'KeyH') { e.preventDefault(); applyHighlight(); }
+            else if (e.altKey && e.code === 'KeyX') { e.preventDefault(); removeHighlight(); }
+            else if (e.altKey && e.code === 'KeyD') { e.preventDefault(); lookupSelection(); }
+        }
+    });
+
     function applyHighlight() {
-        const selection = window.getSelection();
-        if (!selection.rangeCount || selection.toString().trim() === "") return;
-        
-        let node = selection.anchorNode;
-        let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
-        
+        const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
+        let node = selection.anchorNode; let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
         if (textDisplay) {
             textDisplay.contentEditable = "true";
-            document.execCommand("backColor", false, "#ffeaa7");
-            document.execCommand("foreColor", false, "#d35400");
-            textDisplay.contentEditable = "false";
-            saveHighlightsState(); 
+            document.execCommand("backColor", false, "#ffeaa7"); document.execCommand("foreColor", false, "#d35400");
+            textDisplay.contentEditable = "false"; saveHighlightsState(); 
         }
         selection.removeAllRanges(); tooltip.style.display = 'none'; 
     }
 
-    // Tẩy màu (MỚI)
     function removeHighlight() {
-        const selection = window.getSelection();
-        if (!selection.rangeCount || selection.toString().trim() === "") return;
-        
-        let node = selection.anchorNode;
-        let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
-        
+        const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
+        let node = selection.anchorNode; let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
         if (textDisplay) {
             textDisplay.contentEditable = "true";
             document.execCommand("backColor", false, "transparent");
             let defaultTextColor = document.body.classList.contains('dark-mode') ? "#e0e0e0" : "#333333";
             document.execCommand("foreColor", false, defaultTextColor);
-            textDisplay.contentEditable = "false";
-            saveHighlightsState(); 
+            textDisplay.contentEditable = "false"; saveHighlightsState(); 
         }
         selection.removeAllRanges(); tooltip.style.display = 'none'; 
     }
@@ -489,11 +478,7 @@
         if(text) {
             document.getElementById('dict-search-input').value = text; openDict();
             googleTranslate(text).then(res => {
-                document.getElementById('dict-result').innerHTML = `
-                    <div class="dict-meaning-vi" style="font-size:22px; color:var(--highlight); margin-bottom: 10px;">✨ "${text}"</div>
-                    <div class="dict-meaning-vi" style="font-size:20px;">👉 ${res}</div>
-                    <div style="color:var(--text-sub); margin-top:15px; font-style: italic;">(Dịch cụm từ bởi Google Translate)</div>
-                `;
+                document.getElementById('dict-result').innerHTML = `<div class="dict-meaning-vi" style="font-size:22px; color:var(--highlight); margin-bottom: 10px;">✨ "${text}"</div><div class="dict-meaning-vi" style="font-size:20px;">👉 ${res}</div><div style="color:var(--text-sub); margin-top:15px; font-style: italic;">(Dịch cụm từ bởi Google Translate)</div>`;
             });
             tooltip.style.display = 'none'; window.getSelection().removeAllRanges();
         }
@@ -510,8 +495,7 @@
     function resetLessonHighlights() {
         if (!currentLessonId) return;
         if(confirm("Bạn có chắc muốn xóa toàn bộ vùng Tô Vàng của bài học này?")) {
-            localStorage.removeItem('lesson_state_' + currentLessonId);
-            selectLesson(currentLessonId); 
+            localStorage.removeItem('lesson_state_' + currentLessonId); selectLesson(currentLessonId); 
         }
     }
 
@@ -529,10 +513,6 @@
         u.onend = function() { if(document.getElementById('zenModal').style.display === 'flex' && document.getElementById('zen-automic').checked) { setTimeout(() => { if(!isRecording) zenToggleRecord(); }, 200); } }; synth.speak(u);
     }
     function zenToggleRecord() { toggleRecording(zenIndex, 'zen-feedback', 'zen-mic-btn', 'zen-audio'); }
-    
-    document.addEventListener('keydown', (e) => {
-        if(document.getElementById('zenModal').style.display === 'flex') { if(e.key === 'ArrowRight') zenNext(); if(e.key === 'ArrowLeft') zenPrev(); if(e.code === 'Space') { e.preventDefault(); zenSpeak(); } }
-    });
 
     // --- DICTATION & SEARCH ---
     async function googleTranslate(text) { try{const u=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;const r=await fetch(u);const j=await r.json();return j[0].map(x=>x[0]).join('')}catch(e){return "Lỗi dịch."} }
