@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V75: Ultimate Edition</title>
+    <title>Luyện Nói V76: Chống đơ 404 & YouGlish</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -58,7 +58,7 @@
             .editor-wrapper, .vocab-detail-wrapper { flex: none; height: 60vh; }
         }
 
-        /* FLASHCARD STYLES - LAYOUT DIỆN TÍCH RỘNG */
+        /* FLASHCARD STYLES */
         #vocab-flashcard-view { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: var(--bg-body); border-radius: 8px; }
         .flashcard-wrapper { position: relative; width: 100%; max-width: 450px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
         
@@ -418,7 +418,9 @@
 <script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
 
 <script>
-    // --- YOUGLISH INTEGRATION (V75 CẢI TIẾN CHỐNG LỖI CORS 403) ---
+    // --- BẢN V76: SỬA LỖI 404 VÀ YOUGLISH BỊ CHẶN ---
+
+    // --- YOUGLISH INTEGRATION ---
     let ygWidget;
     function onYouglishAPIReady() {
         if (typeof YG !== 'undefined') {
@@ -426,8 +428,19 @@
                 width: "100%", 
                 components: 9, 
                 events: {
-                    'onFetchDone': function() { document.getElementById('yg-loading').style.display = 'none'; },
-                    'onPlayerReady': function() { document.getElementById('yg-loading').style.display = 'none'; }
+                    'onFetchDone': function(event) { 
+                        document.getElementById('yg-loading').style.display = 'none'; 
+                        // Nếu không tìm thấy video nào trên YouGlish
+                        if (event && event.totalResult === 0) {
+                            document.getElementById('yg-loading').style.display = 'flex';
+                            document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">😢 Không tìm thấy video YouGlish nào cho từ này.</div>`;
+                        }
+                    },
+                    'onPlayerReady': function() { document.getElementById('yg-loading').style.display = 'none'; },
+                    'onError': function() {
+                        document.getElementById('yg-loading').style.display = 'flex';
+                        document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">⚠️ Lỗi tải video YouGlish.</div>`;
+                    }
                 } 
             });
         }
@@ -446,20 +459,18 @@
         `;
 
         setTimeout(() => {
-            // Kiểm tra xem mã YouGlish có bị chặn không (Lỗi CORS 403 khi chạy file://)
             if (typeof YG === 'undefined') {
                 loadingDiv.innerHTML = `
                     <div style="color: #e74c3c; font-size: 40px; margin-bottom: 10px;">⚠️</div>
                     <div style="text-align: center; color: var(--text-main);">
-                        YouGlish từ chối kết nối ở môi trường này (Lỗi 403).<br>
-                        <span style="font-size: 14px; color: var(--text-sub);">Vui lòng mở file bằng Local Server, hoặc xem trực tiếp bằng link dưới:</span>
+                        Trình duyệt đang chặn kết nối YouGlish (Lỗi bảo mật).<br>
+                        <span style="font-size: 14px; color: var(--text-sub);">Bạn hãy xem trực tiếp bằng link dưới nhé:</span>
                     </div>
                     <a href="https://youglish.com/pronounce/${encodeURIComponent(word)}/english" target="_blank" style="margin-top: 15px; padding: 10px 20px; background: #e74c3c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">Mở YouGlish ở Tab Mới ↗️</a>
                 `;
                 return;
             }
 
-            // Nếu an toàn, chạy widget
             if(ygWidget) { 
                 ygWidget.fetch(word, "english"); 
             } else if (YG && YG.Widget) {
@@ -556,15 +567,12 @@
     });
     document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
     
-    // SỬA / XÓA GHI CHÚ KHI CLICK
     document.addEventListener('click', (e) => {
         let noteNode = e.target.closest('.has-note');
         if (noteNode) {
             const oldNote = noteNode.getAttribute('data-note');
             const newNote = prompt("Chỉnh sửa ghi chú (Xóa sạch chữ và bấm OK để gỡ bỏ ghi chú):", oldNote);
-
             if (newNote === null) return; 
-            
             if (newNote.trim() === "") {
                 const docFrag = document.createDocumentFragment();
                 while(noteNode.firstChild) { docFrag.appendChild(noteNode.firstChild); }
@@ -577,7 +585,6 @@
         }
     });
     
-    // PHÍM TẮT THÔNG MINH
     document.addEventListener('keydown', (e) => {
         if(document.getElementById('zenModal').style.display === 'flex') { 
             if(e.key === 'ArrowRight') zenNext(); if(e.key === 'ArrowLeft') zenPrev(); 
@@ -660,14 +667,96 @@
         tooltip.style.display = 'none'; 
     }
     
+    // --- V76: TỐI ƯU TRA TỪ & TRÁNH BỂ GIAO DIỆN KHI 404 ---
     function lookupSelection() {
         const text = window.getSelection().toString().trim();
         if(text) {
-            document.getElementById('dict-search-input').value = text; openDict();
-            googleTranslate(text).then(res => {
-                document.getElementById('dict-result').innerHTML = `<div class="dict-meaning-vi" style="font-size:22px; color:var(--highlight); margin-bottom: 10px;">✨ "${text}"</div><div class="dict-meaning-vi" style="font-size:20px;">👉 ${res}</div><div style="color:var(--text-sub); margin-top:15px; font-style: italic;">(Dịch cụm từ bởi Google Translate)</div>`;
-            });
-            tooltip.style.display = 'none'; window.getSelection().removeAllRanges();
+            document.getElementById('dict-search-input').value = text; 
+            openDict();
+            lookupWord(text);
+            tooltip.style.display = 'none'; 
+            window.getSelection().removeAllRanges();
+        }
+    }
+
+    async function googleTranslate(text) { 
+        try {
+            const u = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;
+            const r = await fetch(u);
+            const j = await r.json();
+            return j[0].map(x => x[0]).join('');
+        } catch(e) { return "Lỗi dịch."; } 
+    }
+    
+    async function manualLookup() { const w = document.getElementById('dict-search-input').value; lookupWord(w); }
+    
+    async function lookupWord(w) {
+        if(!w) return; w = w.trim(); if(w.length < 2) return;
+        const b = document.getElementById("dict-result"); 
+        b.innerHTML = '<div class="loader" style="display:block"></div>';
+        document.getElementById('dict-search-input').value = w; 
+        
+        try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, ""); // Cho phép giữ lại khoảng trắng để Google Translate dịch
+            const tw = await googleTranslate(cleanWord); // Dịch luôn từ đầu
+            
+            // Nếu tra cụm từ (có dấu cách) -> Thường từ điển sẽ báo 404
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
+            
+            if (!r.ok) {
+                // XỬ LÝ LỖI 404 ÊM ÁI (KHÔNG CẦN BÁO LỖI, CHỈ CẦN HIỆN BẢN DỊCH GOOGLE)
+                b.innerHTML = `
+                    <div>
+                        <span class="dict-word">${w}</span> 
+                        <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                    </div>
+                    <div style="margin-top:15px; border-left: 4px solid var(--highlight); padding-left: 10px;">
+                        <div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div>
+                        <div style="color:var(--text-sub); font-size:13px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate do đây là cụm từ/từ không có trong thư viện)</div>
+                    </div>
+                    <div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${w}', event)">➕ Lưu Sổ tay</button></div>
+                `;
+                return;
+            }
+
+            // NẾU TRA THÀNH CÔNG TỪ ĐƠN
+            const j = await r.json(); const d = j[0]; 
+            const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); 
+            const au = d.phonetics.find(p => p.audio)?.audio || "";
+            let de = "No def", ex = "", synonyms = [], antonyms = [];
+            
+            if(d.meanings[0]) { 
+                de = d.meanings[0].definitions[0].definition; 
+                for(let m of d.meanings) { 
+                    if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); 
+                    if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); 
+                    for(let df of m.definitions) { 
+                        if(df.example && !ex) ex = df.example; 
+                        if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); 
+                        if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); 
+                    } 
+                } 
+            }
+            
+            synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
+            let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="lookupWord('${s}')">${s}</span>`).join('')}</div>` : '';
+            let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="lookupWord('${a}')">${a}</span>`).join('')}</div>` : '';
+            let te = ""; if(ex) te = await googleTranslate(ex);
+
+            b.innerHTML = `
+                <div>
+                    <span class="dict-word">${d.word}</span> 
+                    ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                </div>
+                <div class="dict-phonetic">${ph}</div>
+                <div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${tw}</div><div class="dict-meaning-en">${de}</div></div>
+                <div class="example-box"><div class="ex-en">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi">➥ ${te}</div>` : ""}</div>
+                ${(synHtml || antHtml) ? `<div class="word-relations">${synHtml}${antHtml}</div>` : ''}
+                <div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${d.word}', event)">➕ Lưu Sổ tay</button></div>
+            `;
+        } catch(e) { 
+            b.innerHTML = `<div style="color:var(--danger); text-align:center;">Lỗi kết nối mạng hoặc từ điển đang bận.</div>`; 
         }
     }
 
@@ -726,41 +815,6 @@
         u.onend = function() { if(document.getElementById('zenModal').style.display === 'flex' && document.getElementById('zen-automic').checked) { setTimeout(() => { if(!isRecording) zenToggleRecord(); }, 200); } }; synth.speak(u);
     }
     function zenToggleRecord() { toggleRecording(zenIndex, 'zen-feedback', 'zen-mic-btn', 'zen-audio'); }
-
-    // --- DICTIONARY & TRANSLATION ---
-    async function googleTranslate(text) { try{const u=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;const r=await fetch(u);const j=await r.json();return j[0].map(x=>x[0]).join('')}catch(e){return "Lỗi dịch."} }
-    async function manualLookup() { const w = document.getElementById('dict-search-input').value; lookupWord(w); }
-    
-    async function lookupWord(w) {
-        if(!w) return; w = w.trim().replace(/[^a-zA-Z]/g, ""); if(w.length < 2) return;
-        const b = document.getElementById("dict-result"); b.innerHTML = '<div class="loader" style="display:block"></div>';
-        document.getElementById('dict-search-input').value = w; 
-        try {
-            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w}`);
-            let d = null, de = "No def", ex = "", ph = "", au = ""; let synonyms = [], antonyms = [];
-            if(r.ok) {
-                const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); au = d.phonetics.find(p => p.audio)?.audio || "";
-                if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } }
-            }
-            synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
-            let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="lookupWord('${s}')">${s}</span>`).join('')}</div>` : '';
-            let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="lookupWord('${a}')">${a}</span>`).join('')}</div>` : '';
-            const tw = await googleTranslate(w); let te = ""; if(ex) te = await googleTranslate(ex);
-
-            b.innerHTML = `
-                <div>
-                    <span class="dict-word">${d ? d.word : w}</span> 
-                    ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}
-                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
-                </div>
-                <div class="dict-phonetic">${ph}</div>
-                <div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${tw}</div><div class="dict-meaning-en">${de}</div></div>
-                <div class="example-box"><div class="ex-en">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi">➥ ${te}</div>` : ""}</div>
-                ${(synHtml || antHtml) ? `<div class="word-relations">${synHtml}${antHtml}</div>` : ''}
-                <div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${w}', event)">➕ Lưu Sổ tay</button></div>
-            `;
-        } catch(e) { b.innerHTML = "Lỗi kết nối. Vui lòng thử lại sau."; }
-    }
 
     // --- INTERACTIVE TEXT ---
     function renderInteractiveText(text, index) {
@@ -883,7 +937,52 @@
         } catch(e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red;text-align:center;">Lỗi tải dữ liệu.</div>'; }
     }
     
-    // --- LỌC VÍ DỤ THÔNG MINH CHO FLASHCARD VÀ DICTIONARY ---
+    // --- V76: SỬA LỖI 404 KHI TRA CỤM TỪ TRONG SỔ TAY / FLASHCARD ---
+    async function viewVocabDetail(w) {
+        if(!w) return; w = w.trim(); if(w.length < 2) return;
+        const b = document.getElementById("vocab-detail-content"); 
+        b.innerHTML = '<div class="loader" style="display:block; margin-top: 50px;"></div>';
+        
+        try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, "");
+            const tw = await googleTranslate(cleanWord);
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`); 
+            
+            if(!r.ok) {
+                // Rớt vào Fallback 404
+                b.innerHTML = `
+                    <div>
+                        <span class="dict-word" style="font-size:32px;">${w}</span> 
+                        <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                    </div>
+                    <div style="margin-top:20px; border-left: 4px solid var(--highlight); padding-left: 15px;">
+                        <div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div>
+                        <div style="color:var(--text-sub); font-size:14px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate)</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let d = null, de = "No def", ex = "", ph = "", au = ""; let synonyms = [], antonyms = [];
+            const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); au = d.phonetics.find(p => p.audio)?.audio || ""; 
+            if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } } 
+            synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
+            let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="viewVocabDetail('${s}')">${s}</span>`).join('')}</div>` : '';
+            let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="viewVocabDetail('${a}')">${a}</span>`).join('')}</div>` : '';
+            let te = ""; if(ex) te = await googleTranslate(ex);
+            b.innerHTML = `
+                <div>
+                    <span class="dict-word" style="font-size:32px;">${d.word}</span> 
+                    ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                </div>
+                <div class="dict-phonetic" style="font-size: 20px;">${ph}</div>
+                <div style="margin-top:20px;"><div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div><div class="dict-meaning-en" style="font-size: 16px;">${de}</div></div>
+                <div class="example-box" style="margin-top: 15px;"><div class="ex-en" style="font-size: 18px;">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi" style="font-size: 16px; margin-top:5px; color: var(--text-sub);">➥ ${te}</div>` : ""}</div>${(synHtml || antHtml) ? `<div class="word-relations" style="margin-top: 20px;">${synHtml}${antHtml}</div>` : ''}`;
+        } catch(e) { b.innerHTML = '<div style="color:var(--danger); text-align:center; margin-top:20px;">Lỗi kết nối từ điển. Vui lòng thử lại sau.</div>'; }
+    }
+
+    // FLASHCARD LOGIC
     function startFlashcards() {
         if(globalVocabList.length === 0) return alert("Sổ tay của bạn chưa có từ nào!");
         
@@ -974,53 +1073,69 @@
         else { fetchFlashcardData(word); }
     }
 
+    // --- LỌC VÍ DỤ THÔNG MINH CHO FLASHCARD CHỐNG LỖI 404 ---
     async function fetchFlashcardData(w) {
         try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, "");
             let topHtml = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 85%;">
                     <div style="font-size: 24px; font-weight: 800; color: var(--text-main); text-transform: capitalize;">${w}</div>
-                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
                 </div>
                 <div style="width: 80%; border-bottom: 1px solid var(--border); margin-top: 8px; margin-bottom: 12px;"></div>
             `;
 
-            const tw = await googleTranslate(w);
+            const tw = await googleTranslate(cleanWord);
             let meaningHtml = `<div class="fc-meaning">✨ ${tw}</div>`;
             
-            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w}`);
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
+            
+            // XỬ LÝ 404 DÀNH CHO THẺ FLASHCARD
+            if(!r.ok) {
+                const finalFallback = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+                        ${topHtml}
+                        ${meaningHtml}
+                        <div style="color:var(--text-sub); font-size:12px; margin-top: 10px;">(Cụm từ này được dịch bởi Google Translate)</div>
+                    </div>
+                </div>`;
+                fcCache[w] = finalFallback;
+                if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = finalFallback;
+                return;
+            }
+
             let syns = [], ants = [];
             let exArray = []; 
             let fallbackEx = [];
             
-            if(r.ok) {
-                const j = await r.json(); const d = j[0];
-                const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : "");
-                if(ph) meaningHtml = `<div class="fc-phonetic">${ph}</div>` + meaningHtml;
+            const j = await r.json(); const d = j[0];
+            const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : "");
+            if(ph) meaningHtml = `<div class="fc-phonetic">${ph}</div>` + meaningHtml;
+            
+            if(d.meanings[0]) {
+                const de = d.meanings[0].definitions[0].definition;
+                meaningHtml += `<div class="fc-def">"${de}"</div>`;
                 
-                if(d.meanings[0]) {
-                    const de = d.meanings[0].definitions[0].definition;
-                    meaningHtml += `<div class="fc-def">"${de}"</div>`;
-                    
-                    for(let m of d.meanings) { 
-                        if(m.synonyms && m.synonyms.length > 0) syns.push(...m.synonyms); 
-                        if(m.antonyms && m.antonyms.length > 0) ants.push(...m.antonyms); 
-                        for(let df of m.definitions) { 
-                            if(df.synonyms && df.synonyms.length > 0) syns.push(...df.synonyms); 
-                            if(df.antonyms && df.antonyms.length > 0) ants.push(...df.antonyms); 
+                for(let m of d.meanings) { 
+                    if(m.synonyms && m.synonyms.length > 0) syns.push(...m.synonyms); 
+                    if(m.antonyms && m.antonyms.length > 0) ants.push(...m.antonyms); 
+                    for(let df of m.definitions) { 
+                        if(df.synonyms && df.synonyms.length > 0) syns.push(...df.synonyms); 
+                        if(df.antonyms && df.antonyms.length > 0) ants.push(...df.antonyms); 
+                        
+                        if(df.example) {
+                            let exText = df.example.trim();
+                            exText = exText.charAt(0).toUpperCase() + exText.slice(1);
+                            if (!/[.!?]$/.test(exText)) exText += '.';
                             
-                            if(df.example) {
-                                let exText = df.example.trim();
-                                exText = exText.charAt(0).toUpperCase() + exText.slice(1);
-                                if (!/[.!?]$/.test(exText)) exText += '.';
-                                
-                                if (exText.split(' ').length >= 3) {
-                                    if(!exArray.includes(exText)) exArray.push(exText);
-                                } else {
-                                    if(!fallbackEx.includes(exText)) fallbackEx.push(exText);
-                                }
+                            if (exText.split(' ').length >= 3) {
+                                if(!exArray.includes(exText)) exArray.push(exText);
+                            } else {
+                                if(!fallbackEx.includes(exText)) fallbackEx.push(exText);
                             }
-                        } 
-                    }
+                        }
+                    } 
                 }
             }
             
@@ -1072,13 +1187,13 @@
             if(globalVocabList[fcIndex] === w) { document.getElementById('fc-back-content').innerHTML = finalHtml; }
             
         } catch(e) {
-            const errHtml = `<div style="color:var(--danger); font-weight:bold;">Lỗi tải dữ liệu.</div>`;
+            const errHtml = `<div style="color:var(--danger); font-weight:bold;">Lỗi tải dữ liệu mạng.</div>`;
             fcCache[w] = errHtml;
             if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = errHtml;
         }
     }
 
-    // --- BẢO TỒN GHI CHÚ KHI CHỈNH SỬA BÀI HỌC (KEY-MAPPING) ---
+    // --- BẢO TỒN GHI CHÚ KHI CHỈNH SỬA (KEY-MAPPING) ---
     async function saveLesson(a){
         const t=document.getElementById('inp-title').value, 
               c=document.getElementById('inp-content').value, 
@@ -1091,30 +1206,20 @@
         if (a === 'edit') {
             const item = allLessons.find(x => x.id == id);
             if (item && item.highlightsData) {
-                hlData = item.highlightsData; // Lấy dữ liệu Ghi chú cũ
+                hlData = item.highlightsData; // Giữ lại mảng ghi chú cũ
             }
         }
 
         try{
-            await fetch(API_URL,{method:'POST',body:JSON.stringify({action:a, id:id, title:t, content:c})});
-            
-            if (a === 'edit' && hlData) {
-                await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'save_highlights', id:id, highlightsData: hlData})});
-            }
-            
+            await fetch(API_URL,{method:'POST',body:JSON.stringify({action:a, id:id, title:t, content:c, highlightsData: hlData})});
             resetForm();
-            setTimeout(loadLessons,1000);
-        }catch(e){
-            alert("Lỗi:"+e);
-        }finally{
-            l.style.display='none';
-        }
+            setTimeout(loadLessons,1000)
+        }catch(e){alert("Lỗi:"+e)}finally{l.style.display='none'}
     }
 
+    async function deleteLesson(id){if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id:id})});setTimeout(loadLessons,1000)}}
     function startEdit(id){const i=allLessons.find(x=>x.id==id);if(!i)return;document.getElementById('inp-title').value=i.title;document.getElementById('inp-content').value=i.content;document.getElementById('edit-id').value=i.id;document.getElementById('btn-add').style.display='none';document.getElementById('btn-save').style.display='block';document.getElementById('btn-cancel').style.display='block'}
     function resetForm(){document.getElementById('inp-title').value='';document.getElementById('inp-content').value='';document.getElementById('edit-id').value='';document.getElementById('btn-add').style.display='block';document.getElementById('btn-save').style.display='none';document.getElementById('btn-cancel').style.display='none'}
-    async function deleteLesson(id){if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id:id})});setTimeout(loadLessons,1000)}}
-    
     async function loadLessons(){const c=document.getElementById('list-container');c.innerHTML='<div class="loader" style="display:block"></div>';try{const r=await fetch(API_URL);const j=await r.json();if(j.status==='success'){allLessons=j.data;renderList(allLessons)}}catch(e){c.innerHTML='<div style="color:red;text-align:center;">Lỗi kết nối!</div>'}}
     function renderList(d){const c=document.getElementById('list-container');c.innerHTML='';if(!d||d.length===0){c.innerHTML='Trống.';return}d.forEach(i=>{const v=document.createElement('div');v.className='list-item';v.innerHTML=`<div class="item-title" onclick="selectLesson('${i.id}')">${i.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${i.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${i.id}')">🗑️</button></div>`;c.appendChild(v)})}
 
