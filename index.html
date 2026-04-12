@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V79: The Ultimate Edition</title>
+    <title>Luyện Nói V77: Firewall Bypassed & No 404</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -58,8 +58,10 @@
             .editor-wrapper, .vocab-detail-wrapper { flex: none; height: 60vh; }
         }
 
-        /* FLASHCARD STYLES (DÙNG CHUNG CHO VOCAB VÀ STRUCT) */
+        /* FLASHCARD STYLES */
+        #vocab-flashcard-view { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: var(--bg-body); border-radius: 8px; }
         .flashcard-wrapper { position: relative; width: 100%; max-width: 450px; display: flex; justify-content: center; align-items: center; margin: 10px 0; }
+        
         .fc-nav-arrow {
             position: absolute; top: 50%; transform: translateY(-50%);
             background: var(--bg-card); border: 2px solid var(--border);
@@ -71,26 +73,27 @@
         .fc-nav-arrow:active { transform: translateY(-50%) scale(0.95); }
         .fc-nav-arrow.left { left: 0; }
         .fc-nav-arrow.right { right: 0; }
+        
         .flashcard-container { perspective: 1000px; width: calc(100% - 110px); max-width: 340px; height: 380px; cursor: pointer; }
         .flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
         .flashcard.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--bg-card); border: 2px solid var(--highlight); overflow-y:auto; scrollbar-width: none;}
-        .card-face::-webkit-scrollbar { display: none; }
-        .card-back { transform: rotateY(180deg); border-color: var(--success); } 
         
-        .fc-word { font-size: 36px; font-weight: bold; color: var(--highlight); margin-bottom: 20px; word-break: break-word;}
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.12); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--bg-card); border: 2px solid var(--highlight); }
+        .card-back { transform: rotateY(180deg); border-color: var(--success); overflow: hidden; } 
+        
+        .fc-word { font-size: 38px; font-weight: bold; color: var(--highlight); margin-bottom: 20px; word-break: break-word;}
         .fc-phonetic { font-size: 16px; color: var(--text-sub); font-style: italic; margin-bottom: 8px;}
-        .fc-meaning { font-size: 24px; color: var(--success); font-weight: bold; margin-bottom: 10px; line-height: 1.2;}
+        .fc-meaning { font-size: 26px; color: var(--success); font-weight: bold; margin-bottom: 10px; line-height: 1.2;}
         .fc-def { font-size: 14px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; padding: 0 10px;} 
+        
         .fc-example-box { background: rgba(0,0,0,0.03); padding: 8px 12px; border-left: 3px solid var(--warning); margin-top: 10px; border-radius: 4px; text-align: left; width: 100%; box-sizing: border-box;}
         body.dark-mode .fc-example-box { background: rgba(255,255,255,0.05); }
-        .fc-ex-en { font-size: 14px; font-style: italic; color: var(--text-main); margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .fc-ex-en { font-size: 14px; font-style: italic; color: var(--text-main); margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .fc-ex-vi { font-size: 13px; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
         .fc-tags-area { width: 100%; border-top: 1px dashed var(--border); padding-top: 10px; margin-top: auto; display: flex; flex-direction: column; gap: 6px; } 
         .fc-tags-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 5px; }
         .fc-tag-title { font-size: 12px; color: var(--text-sub); font-weight: bold; width: 80px; text-align: right; }
-
-        #vocab-flashcard-view, #struct-flashcard-view { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: var(--bg-body); border-radius: 8px; }
 
         /* ZEN MODE */
         #zenModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; transition: background 0.3s; }
@@ -153,7 +156,7 @@
         .note-tag { font-weight: bold; color: var(--tag-text); font-size: 0.95em; }
         .note-suffix { font-weight: normal; color: var(--text-main); font-size: 1em; margin-left: 4px; } 
 
-        /* CSS GHI CHÚ TRỰC TIẾP */
+        /* --- CSS GHI CHÚ TRỰC TIẾP --- */
         .has-note { background-color: #a29bfe; color: #2d3436; border-radius: 3px; padding: 0 4px; margin: 0 2px; display: inline; cursor: pointer; transition: background-color 0.2s; }
         .has-note:hover { background-color: #9088f3; }
         body.dark-mode .has-note { background-color: #6c5ce7; color: white; }
@@ -167,7 +170,7 @@
         .tooltip-btn { background: none; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: bold; padding: 0; }
         .tooltip-btn:hover { color: var(--warning); }
 
-        /* DICTATION & PRACTICE */
+        /* DICTATION, FEEDBACK, PRACTICE */
         .dictation-area { display: none; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
         .action-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; }
         .btn-action { padding: 10px; border-radius: 30px; border: none; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; flex: 1; cursor: pointer; }
@@ -241,7 +244,7 @@
         <button class="float-btn fb-top" onclick="scrollToTop()" data-title="Lên đầu trang">⬆️</button>
     </div>
 
-    <div id="zenModal" class="modal">
+    <div id="zenModal">
         <div class="zen-header"><span class="zen-close" onclick="exitZenMode()">&times;</span></div>
         <div class="zen-content">
             <div id="zen-text" class="zen-text" onclick="zenSpeak()">Select a lesson first...</div>
@@ -301,8 +304,10 @@
                             <span id="fc-counter" style="font-weight:bold; font-size:15px; color:var(--text-sub); background: var(--border); padding: 4px 12px; border-radius: 15px;">1/10</span>
                         </div>
                     </div>
+                    
                     <div class="flashcard-wrapper">
                         <button class="fc-nav-arrow left" onclick="prevFlashcard(event)">&#10094;</button>
+                        
                         <div class="flashcard-container" onclick="flipFlashcard()">
                             <div class="flashcard" id="fc-card">
                                 <div class="card-face card-front">
@@ -313,8 +318,10 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <button class="fc-nav-arrow right" onclick="nextFlashcard(event)">&#10095;</button>
                     </div>
+                    
                     <div style="color: var(--text-sub); font-size: 13px; margin-bottom: 10px;">💡 Phím tắt: <b>←</b> / <b>→</b> (Chuyển), <b>Space</b> (Lật)</div>
                     <button class="btn btn-cancel" style="width:auto; display:inline-block; padding: 10px 30px;" onclick="exitFlashcards()">❌ Thoát</button>
                 </div>
@@ -323,50 +330,17 @@
     </div>
 
     <div id="structureModal" class="modal">
-        <div class="modal-content modal-large" style="max-width: 900px !important;">
+        <div class="modal-content">
             <div class="modal-header"><h3>🏗️ Sổ tay Cấu trúc</h3><span class="close-btn" onclick="closeStructureModal()">&times;</span></div>
             <div class="modal-body">
-                <div id="struct-normal-view" style="display:flex; flex-direction:column; width:100%; height:100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div style="font-weight:bold; color:var(--highlight); font-size:18px;">Thêm cấu trúc mới</div>
-                        <button class="btn btn-add" style="background: #8e44ad; width: auto; padding: 8px 15px; margin: 0;" onclick="startStructFlashcards()">📇 Ôn tập Flashcard</button>
-                    </div>
-                    <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom:15px; border: 1px solid var(--border);">
-                        <div class="form-group"><input type="text" id="inp-struct" placeholder="Cấu trúc tiếng Anh (Ví dụ: It takes + sb + time + to Vo)..."></div>
-                        <div class="form-group"><input type="text" id="inp-struct-meaning" placeholder="Giải nghĩa / Cách dùng tiếng Việt..."></div>
-                        <div class="form-group"><textarea id="inp-struct-examples" placeholder="Các ví dụ (Mỗi ví dụ 1 dòng)..." style="height: 80px;"></textarea></div>
-                        <button class="btn btn-add" id="btn-save-struct" onclick="saveStructureAPI()">💾 Lưu cấu trúc</button>
-                    </div>
-                    <div style="font-weight:bold; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom:5px;">📚 Cấu trúc đã lưu</div>
-                    <div id="struct-loader" class="loader"></div>
-                    <div id="structure-list" style="flex:1; overflow-y:auto; padding-right:5px;"></div>
+                <div style="background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom:15px;">
+                    <div class="form-group"><input type="text" id="inp-struct" placeholder="Cấu trúc (Ví dụ: It takes + sb + time + to Vo)..."></div>
+                    <div class="form-group"><input type="text" id="inp-struct-meaning" placeholder="Giải nghĩa / Cách dùng..."></div>
+                    <div class="form-group"><textarea id="inp-struct-examples" placeholder="Các ví dụ (Mỗi ví dụ 1 dòng)..." style="height: 80px;"></textarea></div>
+                    <button class="btn btn-add" id="btn-save-struct" onclick="saveStructureAPI()">💾 Lưu cấu trúc</button>
                 </div>
-
-                <div id="struct-flashcard-view" style="display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 550px; margin-bottom: 5px;">
-                        <h3 style="margin:0; color:#8e44ad;">📇 Ôn tập Cấu trúc</h3>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <button class="btn-sm" style="background:var(--warning); border:none; padding: 4px 10px;" onclick="shuffleStructFlashcards()">🔀 Trộn</button>
-                            <span id="sfc-counter" style="font-weight:bold; font-size:15px; color:var(--text-sub); background: var(--border); padding: 4px 12px; border-radius: 15px;">1/10</span>
-                        </div>
-                    </div>
-                    <div class="flashcard-wrapper" style="max-width: 550px;">
-                        <button class="fc-nav-arrow left" onclick="prevStructFlashcard(event)">&#10094;</button>
-                        <div class="flashcard-container" style="max-width: 440px;" onclick="flipStructFlashcard()">
-                            <div class="flashcard" id="sfc-card">
-                                <div class="card-face card-front" style="border-color: #8e44ad;">
-                                    <div id="sfc-front-content">Loading...</div>
-                                </div>
-                                <div class="card-face card-back" style="border-color: var(--success);">
-                                    <div id="sfc-back-content">Loading details...</div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="fc-nav-arrow right" onclick="nextStructFlashcard(event)">&#10095;</button>
-                    </div>
-                    <div style="color: var(--text-sub); font-size: 13px; margin-bottom: 10px;">💡 Phím tắt: <b>←</b> / <b>→</b> (Chuyển), <b>Space</b> (Lật)</div>
-                    <button class="btn btn-cancel" style="width:auto; display:inline-block; padding: 10px 30px;" onclick="exitStructFlashcards()">❌ Thoát</button>
-                </div>
+                <div id="struct-loader" class="loader"></div>
+                <div id="structure-list"></div>
             </div>
         </div>
     </div>
@@ -441,551 +415,990 @@
         <div id="display-area"><div style="text-align:center; color:var(--text-sub); margin-top:80px; font-size:18px;">Bấm nút 📂 để chọn bài.</div></div>
     </div>
 
-    <script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
+<script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
 
-    <script>
-        // --- YOUGLISH INTEGRATION ---
-        let ygWidget;
-        function onYouglishAPIReady() {
-            if (typeof YG !== 'undefined') {
-                let safeWidth = window.innerWidth > 640 ? 600 : window.innerWidth - 40;
-                ygWidget = new YG.Widget("yg-widget-0", { 
-                    width: safeWidth, 
-                    components: 9, 
-                    events: {
-                        'onFetchDone': function(event) { 
-                            document.getElementById('yg-loading').style.display = 'none'; 
-                            if (event && event.totalResult === 0) {
-                                document.getElementById('yg-loading').style.display = 'flex';
-                                document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">😢 Không tìm thấy video YouGlish nào cho từ này.</div>`;
-                            }
-                        },
-                        'onPlayerReady': function() { document.getElementById('yg-loading').style.display = 'none'; },
-                        'onError': function() {
+<script>
+    // --- V77: FIX YOUGLISH FIREWALL BLOCK & 404 CỤM TỪ ---
+
+    let ygWidget;
+    function onYouglishAPIReady() {
+        if (typeof YG !== 'undefined') {
+            // TÍNH TOÁN KÍCH THƯỚC BẰNG SỐ NGUYÊN (TRÁNH LỖI WAF TỪ TỪ KHÓA '100%')
+            let safeWidth = window.innerWidth > 640 ? 600 : window.innerWidth - 40;
+            
+            ygWidget = new YG.Widget("yg-widget-0", { 
+                width: safeWidth, 
+                components: 9, 
+                events: {
+                    'onFetchDone': function(event) { 
+                        document.getElementById('yg-loading').style.display = 'none'; 
+                        if (event && event.totalResult === 0) {
                             document.getElementById('yg-loading').style.display = 'flex';
-                            document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">⚠️ Lỗi tải video YouGlish.</div>`;
+                            document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">😢 Không tìm thấy video YouGlish nào cho từ này.</div>`;
                         }
-                    } 
-                });
-            }
-        }
-        
-        function openYouGlish(word) {
-            if(event) event.stopPropagation(); 
-            const modal = document.getElementById('youglishModal');
-            modal.style.display = 'flex'; 
-            const loadingDiv = document.getElementById('yg-loading');
-            loadingDiv.style.display = 'flex'; 
-            loadingDiv.innerHTML = `<div class="loader" style="display:block; border-top-color: #e74c3c;"></div>Đang kết nối YouGlish...`;
-
-            setTimeout(() => {
-                if (typeof YG === 'undefined') {
-                    loadingDiv.innerHTML = `
-                        <div style="color: #e74c3c; font-size: 40px; margin-bottom: 10px;">⚠️</div>
-                        <div style="text-align: center; color: var(--text-main);">
-                            Trình duyệt đang chặn kết nối YouGlish (Lỗi bảo mật).<br>
-                            <span style="font-size: 14px; color: var(--text-sub);">Bạn hãy xem trực tiếp bằng link dưới nhé:</span>
-                        </div>
-                        <a href="https://youglish.com/pronounce/${encodeURIComponent(word)}/english" target="_blank" style="margin-top: 15px; padding: 10px 20px; background: #e74c3c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">Mở YouGlish ở Tab Mới ↗️</a>
-                    `;
-                    return;
-                }
-                if(ygWidget) { ygWidget.fetch(word, "english"); } 
-                else if (YG && YG.Widget) { onYouglishAPIReady(); setTimeout(() => { if(ygWidget) ygWidget.fetch(word, "english"); }, 300); }
-            }, 300); 
-        }
-        
-        function closeYouglish() { document.getElementById('youglishModal').style.display = 'none'; if(typeof ygWidget !== 'undefined' && ygWidget) ygWidget.pause(); }
-
-        // --- GOOGLE SHEETS API URL ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbxTKOV158UW10k7KNexunMuyD_QFXBGrK5MeFC3qwB7kbT2D1uqxh9a7cqgIxcr4mfm/exec"; 
-        
-        // --- THEME & SCROLL ---
-        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
-        
-        window.addEventListener('scroll', () => {
-            const sidebar = document.getElementById('floatSidebar');
-            if (window.scrollY > 300) { sidebar.classList.add('visible'); } else { sidebar.classList.remove('visible'); }
-        });
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        // --- GLOBAL VARIABLES ---
-        let globalStream=null, mediaRecorder, audioChunks=[], recognition, allLessons=[], isRecording=false, currentUtterance=null, currentSentencesData=[];
-        let isDictationMode=false; const synth=window.speechSynthesis; 
-        let availableVoices=[]; let currentLiveText = ""; 
-        let isPlaylistPlaying = false, playlistIndex = 0, repeatCount = 0, maxRepeats = 3; 
-        let zenIndex = 0; let currentLessonId = null; 
-        let globalVocabList = []; let fcExamples = {}; 
-        let globalStructList = []; let structFcIndex = 0; // V79: Cấu trúc
-        
-        // --- VOICE SETUP ---
-        function loadVoices() { 
-            let rawVoices = synth.getVoices(); availableVoices = rawVoices.filter(v => v.lang.startsWith('en'));
-            const select = document.getElementById('voice-select'); select.innerHTML = ''; 
-            if(availableVoices.length === 0) { const op = document.createElement('option'); op.text = "Không tìm thấy giọng Anh"; select.add(op); } 
-            else {
-                availableVoices.forEach((v, index) => { const op = document.createElement('option'); op.value = index; op.text = `${v.name} (${v.lang})`; select.add(op); });
-                const savedVoiceName = localStorage.getItem('selected_voice_name');
-                if(savedVoiceName){ const idx = availableVoices.findIndex(v => v.name === savedVoiceName); if(idx !== -1) select.value = idx; }
-                document.getElementById('btn-activate-voice').style.display='none'; 
-            }
-        }
-        loadVoices(); if(synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
-        function saveVoicePreference() { const select = document.getElementById('voice-select'); const idx = select.value; if(availableVoices[idx]) localStorage.setItem('selected_voice_name', availableVoices[idx].name); }
-        function activateVoice() { if(synth.speaking) synth.cancel(); const u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); document.getElementById('btn-activate-voice').style.display='none'; }
-
-        // --- TEXT PARSERS ---
-        function getParts(text) { const parts = text.split('+'); return { main: parts[0].trim(), note: parts.length > 1 ? parts.slice(1).join('+').trim() : "" }; }
-        function getSpokenText(text) {
-            if(!text) return ""; const parts = text.split('+'); let spoken = parts[0].trim(); 
-            if (parts.length > 1) { let note = parts[1].trim(); let firstSpace = note.indexOf(' '); if (firstSpace !== -1) { let suffix = note.substring(firstSpace).trim(); spoken += " " + suffix; } }
-            return spoken.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-        }
-
-        // --- MODAL TOGGLES ---
-        const modal=document.getElementById("managerModal"), statsModal=document.getElementById("statsModal"), dictModal=document.getElementById("dictModal"), vocabModal=document.getElementById("vocabModal"), structModal=document.getElementById("structureModal");
-        function openModal(){modal.style.display="flex"} function closeModal(){modal.style.display="none"}
-        function openStats(){statsModal.style.display="flex";renderChart()} function closeStats(){statsModal.style.display="none"}
-        function openDict(){dictModal.style.display="flex"; document.getElementById('dict-search-input').focus();} function closeDict(){dictModal.style.display="none"}
-        function openVocab(){vocabModal.style.display="flex"; exitFlashcards(); loadVocabFromAPI();} function closeVocab(){vocabModal.style.display="none"}
-        function openStructureModal() { structModal.style.display = "flex"; exitStructFlashcards(); loadStructuresFromAPI(); } function closeStructureModal() { structModal.style.display = "none"; }
-        
-        window.onclick = function(e){
-            if(e.target==modal) closeModal(); if(e.target==statsModal) closeStats(); if(e.target==dictModal) closeDict();
-            if(e.target==vocabModal) closeVocab(); if(e.target==structModal) closeStructureModal();
-            if(e.target==document.getElementById('practiceModal')) closePractice(); if(e.target==document.getElementById('youglishModal')) closeYouglish();
-        }
-
-        // --- SELECTION, HIGHLIGHT & INLINE NOTES ---
-        const tooltip = document.getElementById('selection-tooltip');
-        document.addEventListener('mouseup', (e) => {
-            const selection = window.getSelection(); const text = selection.toString().trim();
-            if (text.length > 0 && e.target.closest('.text-display')) {
-                const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
-                tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-                tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
-            } 
-        });
-        document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
-        
-        document.addEventListener('click', (e) => {
-            let noteNode = e.target.closest('.has-note');
-            if (noteNode) {
-                const oldNote = noteNode.getAttribute('data-note'); const newNote = prompt("Chỉnh sửa ghi chú (Xóa sạch chữ để gỡ bỏ ghi chú):", oldNote);
-                if (newNote === null) return; 
-                if (newNote.trim() === "") {
-                    const docFrag = document.createDocumentFragment(); while(noteNode.firstChild) { docFrag.appendChild(noteNode.firstChild); }
-                    noteNode.parentNode.replaceChild(docFrag, noteNode); saveHighlightsState();
-                } else { noteNode.setAttribute('data-note', newNote.trim()); saveHighlightsState(); }
-            }
-        });
-        
-        document.addEventListener('keydown', (e) => {
-            if(document.getElementById('zenModal').style.display === 'flex') { 
-                if(e.key === 'ArrowRight') zenNext(); if(e.key === 'ArrowLeft') zenPrev(); 
-                if(e.code === 'Space') { e.preventDefault(); zenSpeak(); } return;
-            }
-            if(document.getElementById('vocabModal').style.display === 'flex' && document.getElementById('vocab-flashcard-view').style.display === 'flex') {
-                if(e.key === 'ArrowRight') nextFlashcard(); if(e.key === 'ArrowLeft') prevFlashcard(); 
-                if(e.code === 'Space') { e.preventDefault(); flipFlashcard(); } return;
-            }
-            if(document.getElementById('structureModal').style.display === 'flex' && document.getElementById('struct-flashcard-view').style.display === 'flex') {
-                if(e.key === 'ArrowRight') nextStructFlashcard(); if(e.key === 'ArrowLeft') prevStructFlashcard(); 
-                if(e.code === 'Space') { e.preventDefault(); flipStructFlashcard(); } return;
-            }
-            if (window.getSelection().toString().trim().length > 0) {
-                if (e.altKey && e.code === 'KeyH') { e.preventDefault(); applyHighlight(); }
-                else if (e.altKey && e.code === 'KeyN') { e.preventDefault(); addNoteToSelection(); }
-                else if (e.altKey && e.code === 'KeyX') { e.preventDefault(); removeHighlight(); }
-                else if (e.altKey && e.code === 'KeyD') { e.preventDefault(); lookupSelection(); }
-                else if (e.altKey && e.code === 'KeyS') { e.preventDefault(); openAddStructureFromSelection(); }
-            }
-        });
-
-        function applyHighlight() {
-            const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
-            let node = selection.anchorNode; let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
-            if (textDisplay) { textDisplay.contentEditable = "true"; document.execCommand("backColor", false, "#ffeaa7"); document.execCommand("foreColor", false, "#d35400"); textDisplay.contentEditable = "false"; saveHighlightsState(); }
-            selection.removeAllRanges(); tooltip.style.display = 'none'; 
-        }
-        function removeHighlight() {
-            const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
-            let node = selection.anchorNode; let targetTag = node.nodeType === 3 ? node.parentNode.closest('.has-note, [style*="background-color"]') : node.closest('.has-note, [style*="background-color"]');
-            if (targetTag && targetTag.classList.contains('has-note')) {
-                const docFrag = document.createDocumentFragment(); while(targetTag.firstChild) { docFrag.appendChild(targetTag.firstChild); }
-                targetTag.parentNode.replaceChild(docFrag, targetTag); window.getSelection().removeAllRanges(); saveHighlightsState(); tooltip.style.display = 'none';
-            } else {
-                let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
-                if (textDisplay) { textDisplay.contentEditable = "true"; document.execCommand("backColor", false, "transparent"); let defaultTextColor = document.body.classList.contains('dark-mode') ? "#e0e0e0" : "#333333"; document.execCommand("foreColor", false, defaultTextColor); textDisplay.contentEditable = "false"; saveHighlightsState(); }
-                selection.removeAllRanges(); tooltip.style.display = 'none'; 
-            }
-        }
-        function addNoteToSelection() {
-            const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
-            const textDisplay = selection.anchorNode.nodeType === 3 ? selection.anchorNode.parentNode.closest('.text-display') : selection.anchorNode.closest('.text-display');
-            if (!textDisplay) { tooltip.style.display = 'none'; return; }
-            const noteText = prompt("Nhập ghi chú cho đoạn này:"); if (!noteText || noteText.trim() === "") { tooltip.style.display = 'none'; return; }
-            const range = selection.getRangeAt(0); const noteSpan = document.createElement('span'); noteSpan.className = 'has-note'; noteSpan.setAttribute('data-note', noteText.trim());
-            try { noteSpan.appendChild(range.extractContents()); range.insertNode(noteSpan); } catch (e) { const selectedText = selection.toString(); range.deleteContents(); noteSpan.innerText = selectedText; range.insertNode(noteSpan); }
-            saveHighlightsState(); selection.removeAllRanges(); tooltip.style.display = 'none'; 
-        }
-        function lookupSelection() {
-            const text = window.getSelection().toString().trim();
-            if(text) { document.getElementById('dict-search-input').value = text; openDict(); lookupWord(text); tooltip.style.display = 'none'; window.getSelection().removeAllRanges(); }
-        }
-        function openAddStructureFromSelection() {
-            const text = window.getSelection().toString().trim();
-            if(text) { document.getElementById('inp-struct').value = text; document.getElementById('inp-struct-meaning').value = ""; document.getElementById('inp-struct-examples').value = ""; document.getElementById('selection-tooltip').style.display = 'none'; window.getSelection().removeAllRanges(); openStructureModal(); setTimeout(() => document.getElementById('inp-struct-meaning').focus(), 100); }
-        }
-        function saveHighlightsState() {
-            if (!currentLessonId) return; const displays = document.querySelectorAll('.text-display'); let stateObj = {}; 
-            displays.forEach(el => { let html = el.innerHTML; let plain = el.textContent || el.innerText || ""; let key = plain.replace(/\s+/g, '').toLowerCase(); stateObj[key] = html; });
-            const hlString = JSON.stringify(stateObj); const item = allLessons.find(x => x.id == currentLessonId);
-            if(item) { fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save_highlights', id: currentLessonId, highlightsData: hlString }) }); item.highlightsData = hlString; }
-        }
-        function resetLessonHighlights() {
-            if (!currentLessonId) return;
-            if(confirm("Bạn có chắc muốn xóa toàn bộ vùng Tô Vàng và Ghi chú của bài học này?")) {
-                fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save_highlights', id: currentLessonId, highlightsData: "" }) }).then(() => { const item = allLessons.find(x => x.id == currentLessonId); if(item) item.highlightsData = ""; selectLesson(currentLessonId); });
-            }
-        }
-
-        // --- DICTIONARY & TRANSLATION ---
-        async function googleTranslate(text) { try { const u = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`; const r = await fetch(u); const j = await r.json(); return j[0].map(x => x[0]).join(''); } catch(e) { return "Lỗi dịch."; } }
-        async function manualLookup() { lookupWord(document.getElementById('dict-search-input').value); }
-        async function lookupWord(w) {
-            if(!w) return; w = w.trim(); if(w.length < 2) return;
-            const b = document.getElementById("dict-result"); b.innerHTML = '<div class="loader" style="display:block"></div>'; document.getElementById('dict-search-input').value = w; 
-            try {
-                const cleanWord = w.replace(/[^a-zA-Z\s]/g, ""); const tw = await googleTranslate(cleanWord); 
-                const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
-                if (!r.ok) {
-                    b.innerHTML = `<div><span class="dict-word">${w}</span> <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button></div><div style="margin-top:15px; border-left: 4px solid var(--highlight); padding-left: 10px;"><div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div><div style="color:var(--text-sub); font-size:13px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate do đây là cụm từ/từ không có trong thư viện)</div></div><div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${w}', event)">➕ Lưu Sổ tay</button></div>`;
-                    return;
-                }
-                const j = await r.json(); const d = j[0]; const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); const au = d.phonetics.find(p => p.audio)?.audio || "";
-                let de = "No def", ex = "", synonyms = [], antonyms = [];
-                if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } }
-                synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
-                let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="lookupWord('${s}')">${s}</span>`).join('')}</div>` : '';
-                let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="lookupWord('${a}')">${a}</span>`).join('')}</div>` : '';
-                let te = ""; if(ex) te = await googleTranslate(ex);
-                b.innerHTML = `<div><span class="dict-word">${d.word}</span> ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}<button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button></div><div class="dict-phonetic">${ph}</div><div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${tw}</div><div class="dict-meaning-en">${de}</div></div><div class="example-box"><div class="ex-en">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi">➥ ${te}</div>` : ""}</div>${(synHtml || antHtml) ? `<div class="word-relations">${synHtml}${antHtml}</div>` : ''}<div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${d.word}', event)">➕ Lưu Sổ tay</button></div>`;
-            } catch(e) { b.innerHTML = `<div style="color:var(--danger); text-align:center;">Lỗi kết nối mạng.</div>`; }
-        }
-
-        // --- API VOCAB & FLASHCARDS ---
-        async function addVocabToAPI(word, event) {
-            if(event) { event.stopPropagation(); } if(!confirm(`Lưu từ "${word}" vào sổ tay online?`)) return;
-            if(event && event.target) { const btn = event.target; const orig = btn.innerText; btn.innerText = "⏳"; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'add_vocab', word: word })}); btn.innerText = "✅"; } catch(e) { alert("Lỗi: " + e); btn.innerText = orig; } } else { try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'add_vocab', word: word })}); alert('Đã lưu!'); } catch(e) { alert("Lỗi: " + e); } }
-        }
-        async function removeVocabAPI(word) { if(!confirm(`Xóa từ "${word}"?`)) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>'; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'del_vocab', word: word })}); loadVocabFromAPI(); } catch(e) { alert("Lỗi: " + e); } }
-        async function editVocabAPI(oldWord) { const newWord = prompt("Sửa từ:", oldWord); if(!newWord || newWord === oldWord) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang cập nhật...</div>'; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'edit_vocab', oldWord: oldWord, newWord: newWord })}); loadVocabFromAPI(); } catch(e) { alert("Lỗi: " + e); } }
-        async function loadVocabFromAPI() {
-            const c = document.getElementById('vocab-list'), l = document.getElementById('vocab-loader'); c.innerHTML = ''; l.style.display = 'block'; document.getElementById('vocab-detail-content').innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top: 50px; font-size: 16px;">👈 Bấm vào một từ bên trái để xem chi tiết.</div>`;
-            try {
-                const r = await fetch(API_URL + "?action=get_vocab"); const j = await r.json(); l.style.display = 'none';
-                if(j.status === 'success' && j.data.length > 0) { 
-                    globalVocabList = j.data;
-                    j.data.forEach(w => { const d = document.createElement('div'); d.className = 'vocab-item'; d.innerHTML = `<span class="vocab-word" onclick="viewVocabDetail('${w}')" style="cursor:pointer; color:var(--highlight); font-size:18px; font-weight:bold;">${w}</span><div><button class="btn-sm" style="background:var(--highlight)" onclick="speak('${w}')">🔊</button><button class="btn-sm btn-edit" onclick="editVocabAPI('${w}')">✏️</button><button class="btn-sm btn-del" onclick="removeVocabAPI('${w}')">🗑️</button></div>`; c.appendChild(d); }); 
-                } else { globalVocabList = []; c.innerHTML = '<div style="text-align:center;">Sổ tay trống.</div>'; }
-            } catch(e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red;text-align:center;">Lỗi mạng.</div>'; }
-        }
-        
-        async function viewVocabDetail(w) {
-            if(!w) return; w = w.trim(); if(w.length < 2) return;
-            const b = document.getElementById("vocab-detail-content"); b.innerHTML = '<div class="loader" style="display:block; margin-top: 50px;"></div>';
-            try {
-                const cleanWord = w.replace(/[^a-zA-Z\s]/g, ""); const tw = await googleTranslate(cleanWord); const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`); 
-                if(!r.ok) { b.innerHTML = `<div><span class="dict-word" style="font-size:32px;">${w}</span><button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button></div><div style="margin-top:20px; border-left: 4px solid var(--highlight); padding-left: 15px;"><div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div><div style="color:var(--text-sub); font-size:14px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate)</div></div>`; return; }
-                let d = null, de = "No def", ex = "", ph = "", au = ""; let synonyms = [], antonyms = [];
-                const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); au = d.phonetics.find(p => p.audio)?.audio || ""; 
-                if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } } 
-                synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
-                let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="viewVocabDetail('${s}')">${s}</span>`).join('')}</div>` : '';
-                let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="viewVocabDetail('${a}')">${a}</span>`).join('')}</div>` : '';
-                let te = ""; if(ex) te = await googleTranslate(ex);
-                b.innerHTML = `<div><span class="dict-word" style="font-size:32px;">${d.word}</span> ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}<button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button></div><div class="dict-phonetic" style="font-size: 20px;">${ph}</div><div style="margin-top:20px;"><div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div><div class="dict-meaning-en" style="font-size: 16px;">${de}</div></div><div class="example-box" style="margin-top: 15px;"><div class="ex-en" style="font-size: 18px;">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi" style="font-size: 16px; margin-top:5px; color: var(--text-sub);">➥ ${te}</div>` : ""}</div>${(synHtml || antHtml) ? `<div class="word-relations" style="margin-top: 20px;">${synHtml}${antHtml}</div>` : ''}`;
-            } catch(e) { b.innerHTML = '<div style="color:var(--danger); text-align:center; margin-top:20px;">Lỗi mạng.</div>'; }
-        }
-
-        function startFlashcards() {
-            if(globalVocabList.length === 0) return alert("Sổ tay chưa có từ nào!");
-            if (globalVocabList.length > 1) { for (let i = globalVocabList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [globalVocabList[i], globalVocabList[j]] = [globalVocabList[j], globalVocabList[i]]; } }
-            document.getElementById('vocab-normal-view').style.display = 'none'; document.getElementById('vocab-flashcard-view').style.display = 'flex'; fcIndex = 0; renderFlashcard();
-        }
-        function exitFlashcards() { document.getElementById('vocab-normal-view').style.display = 'flex'; document.getElementById('vocab-flashcard-view').style.display = 'none'; }
-        function shuffleFlashcards() {
-            if (globalVocabList.length < 2) return;
-            for (let i = globalVocabList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [globalVocabList[i], globalVocabList[j]] = [globalVocabList[j], globalVocabList[i]]; }
-            fcIndex = 0; renderFlashcard();
-        }
-        function flipFlashcard() { const card = document.getElementById('fc-card'); card.classList.toggle('flipped'); if (card.classList.contains('flipped')) { speak(globalVocabList[fcIndex]); } }
-        function nextFlashcard(e) { if(e) e.stopPropagation(); if(fcIndex < globalVocabList.length - 1) { fcIndex++; renderFlashcard(); } }
-        function prevFlashcard(e) { if(e) e.stopPropagation(); if(fcIndex > 0) { fcIndex--; renderFlashcard(); } }
-
-        async function cycleExample(w, event) {
-            if(event) event.stopPropagation(); const safeW = w.replace(/[^a-zA-Z0-9]/g, ''); const exArray = fcExamples[w]; if(!exArray || exArray.length <= 1) return;
-            const idxInput = document.getElementById(`fc-ex-idx-${safeW}`); const enDiv = document.getElementById(`fc-ex-en-${safeW}`); const viDiv = document.getElementById(`fc-ex-vi-${safeW}`);
-            if(!idxInput || !enDiv) return;
-            let nextIdx = (parseInt(idxInput.value) + 1) % exArray.length; idxInput.value = nextIdx; const newEx = exArray[nextIdx]; enDiv.innerHTML = `⏳ Đang dịch...`; if(viDiv) viDiv.innerHTML = "";
-            try { const newTe = await googleTranslate(newEx); enDiv.innerHTML = `📝 "${newEx}"`; if(viDiv) viDiv.innerHTML = `➥ ${newTe}`; } catch(e) { enDiv.innerHTML = `📝 "${newEx}"`; if(viDiv) viDiv.innerHTML = `➥ Lỗi dịch.`; }
-        }
-
-        async function renderFlashcard() {
-            const word = globalVocabList[fcIndex]; document.getElementById('fc-counter').innerText = `${fcIndex + 1} / ${globalVocabList.length}`;
-            const card = document.getElementById('fc-card'); card.classList.remove('flipped'); 
-            document.getElementById('fc-front-content').innerHTML = `<div class="fc-word">${word}</div><button class="btn" style="background:var(--highlight); width: auto;" onclick="event.stopPropagation(); speak('${word}')">🔊 Phát âm</button>`;
-            document.getElementById('fc-back-content').innerHTML = `<div class="loader" style="display:block"></div>`;
-            if(fcCache[word]) { document.getElementById('fc-back-content').innerHTML = fcCache[word]; } else { fetchFlashcardData(word); }
-        }
-
-        async function fetchFlashcardData(w) {
-            try {
-                const cleanWord = w.replace(/[^a-zA-Z\s]/g, "");
-                let topHtml = `<div style="display: flex; justify-content: space-between; align-items: center; width: 85%;"><div style="font-size: 24px; font-weight: 800; color: var(--text-main); text-transform: capitalize;">${w}</div><button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button></div><div style="width: 80%; border-bottom: 1px solid var(--border); margin-top: 8px; margin-bottom: 12px;"></div>`;
-                const tw = await googleTranslate(cleanWord); let meaningHtml = `<div class="fc-meaning">✨ ${tw}</div>`;
-                const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
-                if(!r.ok) {
-                    const finalFallback = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;"><div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">${topHtml}${meaningHtml}<div style="color:var(--text-sub); font-size:12px; margin-top: 10px;">(Dịch bởi Google Translate)</div></div></div>`;
-                    fcCache[w] = finalFallback; if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = finalFallback; return;
-                }
-                let syns = [], ants = [], exArray = [], fallbackEx = [];
-                const j = await r.json(); const d = j[0];
-                const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : "");
-                if(ph) meaningHtml = `<div class="fc-phonetic">${ph}</div>` + meaningHtml;
-                if(d.meanings[0]) {
-                    const de = d.meanings[0].definitions[0].definition; meaningHtml += `<div class="fc-def">"${de}"</div>`;
-                    for(let m of d.meanings) { 
-                        if(m.synonyms && m.synonyms.length > 0) syns.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) ants.push(...m.antonyms); 
-                        for(let df of m.definitions) { 
-                            if(df.synonyms && df.synonyms.length > 0) syns.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) ants.push(...df.antonyms); 
-                            if(df.example) { let exText = df.example.trim(); exText = exText.charAt(0).toUpperCase() + exText.slice(1); if (!/[.!?]$/.test(exText)) exText += '.'; if (exText.split(' ').length >= 3) { if(!exArray.includes(exText)) exArray.push(exText); } else { if(!fallbackEx.includes(exText)) fallbackEx.push(exText); } }
-                        } 
+                    },
+                    'onPlayerReady': function() { document.getElementById('yg-loading').style.display = 'none'; },
+                    'onError': function() {
+                        document.getElementById('yg-loading').style.display = 'flex';
+                        document.getElementById('yg-loading').innerHTML = `<div style="color:#e74c3c; padding:20px; text-align:center;">⚠️ Lỗi tải video YouGlish.</div>`;
                     }
-                }
-                if (exArray.length === 0 && fallbackEx.length > 0) { exArray = fallbackEx; }
-                fcExamples[w] = exArray; const safeW = w.replace(/[^a-zA-Z0-9]/g, '');
-                if (exArray.length > 0) {
-                    const ex = exArray[0]; const te = await googleTranslate(ex);
-                    let btnHtml = exArray.length > 1 ? `<div onclick="cycleExample('${w.replace(/'/g, "\\'")}', event)" style="cursor:pointer; font-size:14px; margin-left:8px; opacity:0.8;" title="Đổi ví dụ khác">🔄</div>` : '';
-                    meaningHtml += `<div class="fc-example-box" id="fc-ex-box-${safeW}"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div class="fc-ex-en" id="fc-ex-en-${safeW}" style="flex:1;">📝 "${ex}"</div>${btnHtml}</div>${te ? `<div class="fc-ex-vi" id="fc-ex-vi-${safeW}">➥ ${te}</div>` : ""}<input type="hidden" id="fc-ex-idx-${safeW}" value="0"></div>`;
-                }
-                topHtml += meaningHtml; syns = [...new Set(syns)].slice(0, 3); ants = [...new Set(ants)].slice(0, 3);
-                let bottomHtml = '';
-                if (syns.length > 0 || ants.length > 0) {
-                    bottomHtml += `<div class="fc-tags-area">`;
-                    if (syns.length > 0) bottomHtml += `<div class="fc-tags-group"><span class="fc-tag-title">Đồng nghĩa:</span>${syns.map(s => `<span class="rel-tag tag-syn" style="padding:2px 8px; font-size:11px; cursor:default;">${s}</span>`).join('')}</div>`;
-                    if (ants.length > 0) bottomHtml += `<div class="fc-tags-group"><span class="fc-tag-title">Trái nghĩa:</span>${ants.map(a => `<span class="rel-tag tag-ant" style="padding:2px 8px; font-size:11px; cursor:default;">${a}</span>`).join('')}</div>`;
-                    bottomHtml += `</div>`;
-                }
-                const finalHtml = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;"><div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">${topHtml}</div>${bottomHtml}</div>`;
-                fcCache[w] = finalHtml; if(globalVocabList[fcIndex] === w) { document.getElementById('fc-back-content').innerHTML = finalHtml; }
-            } catch(e) { const errHtml = `<div style="color:var(--danger); font-weight:bold;">Lỗi mạng.</div>`; fcCache[w] = errHtml; if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = errHtml; }
-        }
-
-        // --- V79: CẤU TRÚC (STRUCTURE) FLASHCARDS ---
-        async function saveStructureAPI() {
-            const struct = document.getElementById('inp-struct').value.trim(); const meaning = document.getElementById('inp-struct-meaning').value.trim(); const examples = document.getElementById('inp-struct-examples').value.trim();
-            if(!struct || !meaning) return alert("Vui lòng nhập đủ Cấu trúc và Nghĩa!");
-            const btn = document.getElementById('btn-save-struct'); btn.innerText = "⏳ Đang lưu...";
-            try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_structure', struct: struct, meaning: meaning, examples: examples }) }); document.getElementById('inp-struct').value = ""; document.getElementById('inp-struct-meaning').value = ""; document.getElementById('inp-struct-examples').value = ""; loadStructuresFromAPI(); } catch(e) { alert("Lỗi: " + e); } finally { btn.innerText = "💾 Lưu cấu trúc"; }
-        }
-        async function deleteStructureAPI(id) {
-            if(!confirm("Xóa cấu trúc này?")) return; document.getElementById('structure-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>';
-            try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'del_structure', id: id }) }); loadStructuresFromAPI(); } catch(e) { alert("Lỗi xóa: " + e); }
-        }
-        async function loadStructuresFromAPI() {
-            const c = document.getElementById('structure-list'), l = document.getElementById('struct-loader'); c.innerHTML = ''; l.style.display = 'block';
-            try {
-                const r = await fetch(API_URL + "?action=get_structures"); const j = await r.json(); l.style.display = 'none';
-                if(j.status === 'success' && j.data.length > 0) { 
-                    globalStructList = j.data;
-                    j.data.forEach(item => { 
-                        const d = document.createElement('div'); d.className = 'list-item'; let exHtml = item.examples ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); color: var(--text-sub); font-size: 13px; font-style: italic; white-space: pre-wrap;">📝 ${item.examples}</div>` : '';
-                        d.innerHTML = `<div style="max-width: 85%;"><div style="font-weight: bold; color: var(--danger); font-size: 16px;">${item.struct}</div><div style="color: var(--text-main); font-size: 14px; margin-top: 4px;">👉 ${item.meaning}</div>${exHtml}</div><div><button class="btn-sm btn-del" onclick="deleteStructureAPI('${item.id}')">🗑️</button></div>`; c.appendChild(d); 
-                    }); 
-                } else { globalStructList = []; c.innerHTML = '<div style="text-align:center;">Chưa có cấu trúc nào.</div>'; }
-            } catch(e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red;text-align:center;">Lỗi mạng.</div>'; }
-        }
-
-        function startStructFlashcards() {
-            if(globalStructList.length === 0) return alert("Sổ tay chưa có cấu trúc nào!");
-            if (globalStructList.length > 1) { for (let i = globalStructList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [globalStructList[i], globalStructList[j]] = [globalStructList[j], globalStructList[i]]; } }
-            document.getElementById('struct-normal-view').style.display = 'none'; document.getElementById('struct-flashcard-view').style.display = 'flex'; structFcIndex = 0; renderStructFlashcard();
-        }
-        function exitStructFlashcards() { document.getElementById('struct-normal-view').style.display = 'flex'; document.getElementById('struct-flashcard-view').style.display = 'none'; }
-        function shuffleStructFlashcards() {
-            if (globalStructList.length < 2) return;
-            for (let i = globalStructList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [globalStructList[i], globalStructList[j]] = [globalStructList[j], globalStructList[i]]; }
-            structFcIndex = 0; renderStructFlashcard();
-        }
-        function flipStructFlashcard() { const card = document.getElementById('sfc-card'); card.classList.toggle('flipped'); }
-        function nextStructFlashcard(e) { if(e) e.stopPropagation(); if(structFcIndex < globalStructList.length - 1) { structFcIndex++; renderStructFlashcard(); } }
-        function prevStructFlashcard(e) { if(e) e.stopPropagation(); if(structFcIndex > 0) { structFcIndex--; renderStructFlashcard(); } }
-        
-        function renderStructFlashcard() {
-            const item = globalStructList[structFcIndex];
-            document.getElementById('sfc-counter').innerText = `${structFcIndex + 1} / ${globalStructList.length}`;
-            const card = document.getElementById('sfc-card'); card.classList.remove('flipped'); 
-            
-            // Mặt trước: Chỉ hiện tiếng Việt
-            document.getElementById('sfc-front-content').innerHTML = `
-                <div style="font-size:22px; color:var(--highlight); font-weight:bold; margin-bottom:15px; padding: 0 10px;">${item.meaning}</div>
-                <div style="font-size:14px; color:var(--text-sub); font-style:italic;">(Nhấn vào thẻ để xem cấu trúc tiếng Anh)</div>
-            `;
-            
-            // Mặt sau: Tiếng Anh + Ví dụ
-            let exHtml = item.examples ? `<div style="background: rgba(0,0,0,0.03); padding: 10px; border-left: 3px solid #8e44ad; border-radius: 4px; font-style: italic; font-size:15px; color:var(--text-sub); width:100%; box-sizing:border-box; white-space:pre-wrap; text-align:left;">${item.examples}</div>` : '';
-            document.getElementById('sfc-back-content').innerHTML = `
-                <div style="font-size:26px; color:#8e44ad; font-weight:bold; margin-bottom:10px;">${item.struct}</div>
-                <button class="btn-sm" style="background:#8e44ad; display:inline-block; margin-bottom:15px;" onclick="event.stopPropagation(); speak('${item.struct.replace(/'/g, "\\'")}')">🔊 Đọc cấu trúc</button>
-                ${exHtml}
-            `;
-        }
-
-        // --- BẢO TỒN GHI CHÚ KHI CHỈNH SỬA (KEY-MAPPING) ---
-        async function saveLesson(a){
-            const t=document.getElementById('inp-title').value, c=document.getElementById('inp-content').value, id=document.getElementById('edit-id').value, l=document.getElementById('loader');
-            if(!t||!c)return alert("Thiếu tiêu đề hoặc nội dung!");
-            
-            const btnAdd = document.getElementById('btn-add'); const btnEdit = document.getElementById('btn-save'); const origAddText = btnAdd.innerText; const origEditText = btnEdit.innerText;
-            btnAdd.disabled = true; btnEdit.disabled = true; btnAdd.style.opacity = "0.5"; btnEdit.style.opacity = "0.5"; btnAdd.style.cursor = "not-allowed"; btnEdit.style.cursor = "not-allowed"; btnAdd.innerText = "⏳ Đang xử lý..."; btnEdit.innerText = "⏳ Đang xử lý..."; l.style.display = 'block';
-            
-            let hlData = "";
-            if (a === 'edit') { const item = allLessons.find(x => x.id == id); if (item && item.highlightsData) { hlData = item.highlightsData; } }
-
-            try{
-                await fetch(API_URL,{method:'POST',body:JSON.stringify({action:a, id:id, title:t, content:c, highlightsData: hlData})});
-                if (a === 'edit' && hlData) { await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'save_highlights', id:id, highlightsData: hlData})}); }
-                resetForm(); setTimeout(loadLessons,1000);
-            }catch(e){ alert("Lỗi:"+e); }finally{
-                btnAdd.disabled = false; btnEdit.disabled = false; btnAdd.style.opacity = "1"; btnEdit.style.opacity = "1"; btnAdd.style.cursor = "pointer"; btnEdit.style.cursor = "pointer"; btnAdd.innerText = origAddText; btnEdit.innerText = origEditText; l.style.display = 'none';
-            }
-        }
-
-        function autoSplitSentences(){const t=document.getElementById('inp-content');if(!t.value)return alert("Trống!");t.value=t.value.replace(/([.?!])\s*(?=[A-Z])/g,"$1\n")}
-        function startEdit(id){const i=allLessons.find(x=>x.id==id);if(!i)return;document.getElementById('inp-title').value=i.title;document.getElementById('inp-content').value=i.content;document.getElementById('edit-id').value=i.id;document.getElementById('btn-add').style.display='none';document.getElementById('btn-save').style.display='block';document.getElementById('btn-cancel').style.display='block'}
-        function resetForm(){document.getElementById('inp-title').value='';document.getElementById('inp-content').value='';document.getElementById('edit-id').value='';document.getElementById('btn-add').style.display='block';document.getElementById('btn-save').style.display='none';document.getElementById('btn-cancel').style.display='none'}
-        async function deleteLesson(id){if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id:id})});setTimeout(loadLessons,1000)}}
-        
-        async function loadLessons(){const c=document.getElementById('list-container');c.innerHTML='<div class="loader" style="display:block"></div>';try{const r=await fetch(API_URL);const j=await r.json();if(j.status==='success'){allLessons=j.data;renderList(allLessons)}}catch(e){c.innerHTML='<div style="color:red;text-align:center;">Lỗi mạng!</div>'}}
-        function renderList(d){const c=document.getElementById('list-container');c.innerHTML='';if(!d||d.length===0){c.innerHTML='Trống.';return}d.forEach(i=>{const v=document.createElement('div');v.className='list-item';v.innerHTML=`<div class="item-title" onclick="selectLesson('${i.id}')">${i.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${i.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${i.id}')">🗑️</button></div>`;c.appendChild(v)})}
-
-        function selectLesson(id) {
-            if(isPlaylistPlaying) stopPlaylist();
-            const item = allLessons.find(x => x.id == id); if(!item) return;
-            currentLessonId = id; 
-            document.getElementById('lesson-header').innerText = item.title; closeModal();
-            const area = document.getElementById('display-area'); area.innerHTML = '';
-            let raw = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
-            currentSentencesData = raw.map(s => s.trim()).filter(s => s.length > 0);
-            
-            let savedState = null;
-            try { 
-                if(item.highlightsData) {
-                    let parsed = JSON.parse(item.highlightsData);
-                    if (Array.isArray(parsed)) { savedState = {}; currentSentencesData.forEach((s, i) => { if (parsed[i]) { let tempDiv = document.createElement('div'); tempDiv.innerHTML = parsed[i]; let key = (tempDiv.textContent || tempDiv.innerText || "").replace(/\s+/g, '').toLowerCase(); savedState[key] = parsed[i]; } }); } 
-                    else { savedState = parsed; }
-                }
-            } catch(e){}
-
-            currentSentencesData.forEach((s, i) => {
-                const div = document.createElement('div'); div.className = 'sentence-row';
-                let tempDiv = document.createElement('div'); tempDiv.innerHTML = renderInteractiveText(s, i);
-                let plainText = tempDiv.textContent || tempDiv.innerText || ""; let sentenceKey = plainText.replace(/\s+/g, '').toLowerCase(); 
-                let displayHtml = tempDiv.innerHTML; if (savedState && savedState[sentenceKey]) { displayHtml = savedState[sentenceKey]; }
-
-                div.innerHTML = `<div class="text-display" onclick="handleTextClick(${i}, event)">${displayHtml}</div><div class="dictation-area"><textarea id="dict-input-${i}" class="dictation-input" placeholder="Nghe và gõ lại..."></textarea><button class="btn btn-check" onclick="checkDictation(${i})" style="width:auto;margin-top:5px;padding:6px 12px">Kiểm tra</button><div id="dict-result-${i}" class="dictation-result"></div></div><div class="action-area"><button class="btn-action btn-speak" onclick="speakByIndex(${i})">🔊 Nghe</button><button class="btn-action btn-mic" id="btn-${i}" onclick="toggleRecording(${i}, 'fb-${i}', 'btn-${i}', 'audio-${i}')">🎙️ Nói</button></div><div class="feedback-box" id="fb-${i}"><div id="result-text-${i}"></div><audio id="audio-${i}" class="audio-player" controls playsinline style="display:none"></audio></div>`;
-                area.appendChild(div);
+                } 
             });
-            
-            isDictationMode = false; document.getElementById('btn-dictation').classList.remove('active');
-            if(availableVoices.length === 0) document.getElementById('btn-activate-voice').style.display = 'block';
-            document.getElementById('btn-clear-hl').style.display = 'inline-block';
         }
+    }
+    
+    function openYouGlish(word) {
+        if(event) event.stopPropagation(); 
+        const modal = document.getElementById('youglishModal');
+        modal.style.display = 'flex'; 
+        const loadingDiv = document.getElementById('yg-loading');
+        loadingDiv.style.display = 'flex'; 
         
-        // --- RECORDING & GRADING CORE ---
-        async function initMicrophone(){if(globalStream)return globalStream;try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null}}
-        const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; let accumulatedTranscript = ""; if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; }
-        
-        async function toggleRecording(idx, fbId, btnId, audioId) {
-            if(isPlaylistPlaying) stopPlaylist();
-            const tgt = currentSentencesData[idx]; const btn = document.getElementById(btnId); const fb = document.getElementById(fbId); const aud = document.getElementById(audioId); const res = document.getElementById(fbId === 'zen-feedback' ? 'zen-result-text' : fbId.replace('fb', 'result-text'));
+        loadingDiv.innerHTML = `
+            <div class="loader" style="display:block; border-top-color: #e74c3c;"></div>
+            Đang kết nối YouGlish...
+        `;
 
-            if(btn.classList.contains('recording')){
-                btn.classList.remove('recording'); btn.innerHTML = btnId === 'zen-mic-btn' ? '🎙️' : '🎙️ Nói'; isRecording = false;
-                if(currentLiveText) { grade(getSpokenText(tgt), currentLiveText, res); }
-                try { recognition.stop(); } catch(e){} if (mediaRecorder && mediaRecorder.state !== "inactive") { mediaRecorder.stop(); }
+        setTimeout(() => {
+            if (typeof YG === 'undefined') {
+                loadingDiv.innerHTML = `
+                    <div style="color: #e74c3c; font-size: 40px; margin-bottom: 10px;">⚠️</div>
+                    <div style="text-align: center; color: var(--text-main);">
+                        Trình duyệt đang chặn kết nối YouGlish (Lỗi bảo mật).<br>
+                        <span style="font-size: 14px; color: var(--text-sub);">Bạn hãy xem trực tiếp bằng link dưới nhé:</span>
+                    </div>
+                    <a href="https://youglish.com/pronounce/${encodeURIComponent(word)}/english" target="_blank" style="margin-top: 15px; padding: 10px 20px; background: #e74c3c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">Mở YouGlish ở Tab Mới ↗️</a>
+                `;
                 return;
             }
 
-            if(isRecording) return alert("Vui lòng dừng câu trước đó!");
-            const st = await initMicrophone(); if(!st) return; isRecording = true; currentLiveText = ""; accumulatedTranscript = "";
-            btn.classList.add('recording'); btn.innerHTML = btnId === 'zen-mic-btn' ? '⏹️' : '🔴 Dừng (Chấm điểm)';
-            fb.style.display = 'block'; res.innerHTML = '<span class="recording-text">👂 Đang nghe...</span>'; aud.style.display = 'none'; aud.src = ""; audioChunks = []; 
-
-            try {
-                let mime = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : (MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm');
-                mediaRecorder = new MediaRecorder(st, { mimeType: mime }); mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); }; mediaRecorder.onstop = () => { try { aud.src = URL.createObjectURL(new Blob(audioChunks, { type: mime })); aud.style.display = 'block'; } catch (err) {} };
-                mediaRecorder.start(); recognition.start();
-                recognition.onresult = e => { let interim = ''; for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) { accumulatedTranscript += e.results[i][0].transcript + ' '; } else { interim += e.results[i][0].transcript; } } currentLiveText = (accumulatedTranscript + interim).trim(); grade(getSpokenText(tgt), currentLiveText, res); };
-                recognition.onerror = e => { if(e.error !== 'no-speech') console.log("Lỗi REC: " + e.error); };
-            } catch(e) { btn.classList.remove('recording'); isRecording = false; alert("Lỗi khởi động: " + e); }
-        }
-        
-        function grade(t, u, c) {
-            const cl = s => s.toLowerCase().replace(/[^\w\s]/g, '').trim(); const tw = cl(t).split(/\s+/), uw = cl(u).split(/\s+/);
-            let h = '', sc = 0;
-            for (let i = 0; i < uw.length; i++) {
-                if (i >= tw.length) { h += `<span class="wrong">${uw[i]}</span> `; } else if (uw[i] === tw[i]) { h += `<span class="correct">${tw[i]}</span> `; sc++; } 
-                else { const wordEscaped = tw[i].replace(/'/g, "\\'"); h += `<span class="wrong-clickable" onclick="openPractice('${wordEscaped}')">${uw[i] || "..."}</span><span class="fix-container"><span class="fix-word" onclick="speak('${wordEscaped}')">${tw[i]}</span></span> `; }
+            if(ygWidget) { 
+                ygWidget.fetch(word, "english"); 
+            } else if (YG && YG.Widget) {
+                onYouglishAPIReady();
+                setTimeout(() => { if(ygWidget) ygWidget.fetch(word, "english"); }, 300);
             }
-            if (uw.length < tw.length) { for (let i = uw.length; i < tw.length; i++) { const wordEscaped = tw[i].replace(/'/g, "\\'"); h += `<span class="wrong-clickable" onclick="openPractice('${wordEscaped}')" style="text-decoration:none; opacity: 0.5;">[${tw[i]}]</span> `; } }
-            const p = tw.length > 0 ? Math.round((sc / tw.length) * 100) : 0; if (!isRecording && p > 0) saveScoreToHistory(p);
-            c.parentElement.style.borderLeftColor = p > 80 ? '#27ae60' : (p > 50 ? '#f39c12' : '#c0392b');
-            c.innerHTML = `<div style="font-weight:bold;color:${p > 80 ? '#27ae60' : (isRecording ? '#f39c12' : '#c0392b')}">${isRecording ? '🎙️ Đang nghe...' : `🎯 Kết quả: ${p}%`}</div><div style="font-size:1.1em;margin-top:5px;color:var(--text-main); line-height:1.6;">${h}</div>${!isRecording && p < 100 ? '<div style="font-size:0.85em; color:#666; margin-top:5px;">💡 Mẹo: Bấm vào chữ đỏ để luyện lại từng từ.</div>' : ''}`;
-        }
+        }, 300); 
+    }
+    
+    function closeYouglish() {
+        document.getElementById('youglishModal').style.display = 'none';
+        if(typeof ygWidget !== 'undefined' && ygWidget) ygWidget.pause();
+    }
 
-        // --- PRACTICE ENGINE ---
-        let currentPracticeWord = "", isPracticeRecording = false, practiceRecognition = null;
-        function initPracticeEngine() {
-            if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return null;
-            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)(); rec.lang = 'en-US'; rec.continuous = false; rec.interimResults = true; 
-            rec.onresult = (e) => { let final = "", interim = ""; for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else interim += e.results[i][0].transcript; } const fb = document.getElementById('practice-feedback'); fb.innerHTML = `<span class="hearing-text">... ${interim || final} ...</span>`; fb.style.backgroundColor = "rgba(41, 128, 185, 0.1)"; if(final) { checkPracticeResult(final.toLowerCase().trim()); rec.stop(); } };
-            rec.onend = () => { isPracticeRecording = false; updatePracticeBtnState(false); const fb = document.getElementById('practice-feedback'); if(fb.innerHTML.includes("...")) { fb.innerHTML = `<div style="color:#666">Không nghe thấy gì. Thử lại nhé.</div>`; fb.style.backgroundColor = "transparent"; } };
-            rec.onerror = (e) => { if (e.error !== 'aborted' && e.error !== 'no-speech') document.getElementById('practice-feedback').innerText = "Lỗi: " + e.error; else if (e.error === 'no-speech') document.getElementById('practice-feedback').innerText = "🔇 Không phát hiện âm thanh."; isPracticeRecording = false; updatePracticeBtnState(false); };
-            return rec;
-        }
+    // --- GOOGLE SHEETS API URL ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbxTKOV158UW10k7KNexunMuyD_QFXBGrK5MeFC3qwB7kbT2D1uqxh9a7cqgIxcr4mfm/exec"; 
+    
+    // --- THEME & SCROLL ---
+    if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
+    
+    window.addEventListener('scroll', () => {
+        const sidebar = document.getElementById('floatSidebar');
+        if (window.scrollY > 300) { sidebar.classList.add('visible'); } else { sidebar.classList.remove('visible'); }
+    });
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        function updatePracticeBtnState(isRec) { const btn = document.getElementById('btn-practice-mic'); if(isRec) { btn.classList.add('mic-active'); btn.innerText = "🔴 Đang nghe..."; } else { btn.classList.remove('mic-active'); btn.innerText = "🎙️ Đọc lại"; } }
-        function openPractice(word) { if (isRecording) { alert("Vui lòng dừng ghi âm câu chính trước."); return; } if (synth.speaking) synth.cancel(); currentPracticeWord = word.toLowerCase().replace(/[^\w\s]/g, ''); document.getElementById('practice-target-word').innerText = word; document.getElementById('practice-feedback').innerHTML = "Bấm nút 🎙️ và đọc to từ trên."; document.getElementById('practice-feedback').style.backgroundColor = "transparent"; updatePracticeBtnState(false); document.getElementById('practiceModal').style.display = 'flex'; }
-        function closePractice() { document.getElementById('practiceModal').style.display = 'none'; if(isPracticeRecording && practiceRecognition) { practiceRecognition.abort(); isPracticeRecording = false; } }
-        function speakPracticeWord() { speak(document.getElementById('practice-target-word').innerText); }
-        function togglePracticeMic() { if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return alert("Trình duyệt không hỗ trợ."); if (isPracticeRecording) { if(practiceRecognition) practiceRecognition.stop(); return; } practiceRecognition = initPracticeEngine(); try { practiceRecognition.start(); isPracticeRecording = true; updatePracticeBtnState(true); document.getElementById('practice-feedback').innerText = "👂 Đang nghe..."; document.getElementById('practice-feedback').style.backgroundColor = "rgba(41, 128, 185, 0.1)"; } catch(e) { setTimeout(() => { practiceRecognition = initPracticeEngine(); practiceRecognition.start(); isPracticeRecording = true; updatePracticeBtnState(true); }, 300); } }
-        function checkPracticeResult(spokenWord) { const fb = document.getElementById('practice-feedback'); fb.style.backgroundColor = "transparent"; if (spokenWord.includes(currentPracticeWord) || currentPracticeWord.includes(spokenWord)) { fb.innerHTML = `<span style="color:var(--success); font-weight:bold; font-size:24px;">✅ Chính xác!</span><br><span style="color:#666;font-size:14px">Bạn đọc: ${spokenWord}</span>`; speak("Good job"); } else { fb.innerHTML = `<div style="color:var(--danger)">Nghe được: <strong>${spokenWord}</strong></div><div style="color:#666; font-size:14px">Thử lại nhé!</div>`; } }
-
-        function saveScoreToHistory(s){const h=JSON.parse(localStorage.getItem('voice_history'))||[];h.push({date:new Date().toLocaleDateString('vi-VN'),score:s});localStorage.setItem('voice_history',JSON.stringify(h))}
-        function renderChart(){const c=document.getElementById('progressChart').getContext('2d'),h=JSON.parse(localStorage.getItem('voice_history'))||[];let st={};h.forEach(x=>{if(!st[x.date])st[x.date]={t:0,c:0};st[x.date].t+=x.score;st[x.date].c++});const l=Object.keys(st).slice(-7),d=l.map(k=>Math.round(st[k].t/st[k].c));if(window.myChart)window.myChart.destroy();window.myChart=new Chart(c,{type:'line',data:{labels:l,datasets:[{label:'Điểm %',data:d,borderColor:'#2980b9',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}});}
-        function clearStats(){if(confirm("Xóa?")){localStorage.removeItem('voice_history');renderChart()}}
-
-        function toggleDictationMode(){
-            if(isPlaylistPlaying) stopPlaylist(); isDictationMode=!isDictationMode;
-            document.getElementById('btn-dictation').classList.toggle('active'); document.getElementById('fb-dictation').classList.toggle('active');
-            document.querySelectorAll('.text-display').forEach(e=>e.classList.toggle('blurred',isDictationMode));
-            document.querySelectorAll('.dictation-area').forEach(e=>e.style.display=isDictationMode?'block':'none')
+    // --- GLOBAL VARIABLES ---
+    let globalStream=null, mediaRecorder, audioChunks=[], recognition, allLessons=[], isRecording=false, currentUtterance=null, currentSentencesData=[];
+    let isDictationMode=false; const synth=window.speechSynthesis; 
+    let availableVoices=[]; let currentLiveText = ""; 
+    let isPlaylistPlaying = false, playlistIndex = 0, repeatCount = 0, maxRepeats = 3; 
+    let zenIndex = 0; let currentLessonId = null; 
+    let globalVocabList = []; 
+    let fcExamples = {}; 
+    
+    // --- VOICE SETUP ---
+    function loadVoices() { 
+        let rawVoices = synth.getVoices();
+        availableVoices = rawVoices.filter(v => v.lang.startsWith('en'));
+        const select = document.getElementById('voice-select'); select.innerHTML = ''; 
+        if(availableVoices.length === 0) {
+            const op = document.createElement('option'); op.text = "Không tìm thấy giọng Anh"; select.add(op);
+        } else {
+            availableVoices.forEach((v, index) => { const op = document.createElement('option'); op.value = index; op.text = `${v.name} (${v.lang})`; select.add(op); });
+            const savedVoiceName = localStorage.getItem('selected_voice_name');
+            if(savedVoiceName){ const idx = availableVoices.findIndex(v => v.name === savedVoiceName); if(idx !== -1) select.value = idx; }
+            document.getElementById('btn-activate-voice').style.display='none'; 
         }
-        function checkDictation(idx){
-            const inp=document.getElementById(`dict-input-${idx}`),res=document.getElementById(`dict-result-${idx}`),tgt=currentSentencesData[idx].trim(),usr=inp.value.trim();
-            document.querySelectorAll('.text-display')[idx].classList.remove('blurred');
-            const cl=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim(), tw=cl(getSpokenText(tgt)).split(/\s+/), uw=cl(usr).split(/\s+/);
-            let h='',sc=0; 
-            tw.forEach((w,i)=>{ if(uw[i]===w){ h+=`<span class="correct">${w}</span> `;sc++ } else{ const wordEscaped = w.replace(/'/g, "\\'"); h+=`<span class="wrong">${uw[i]||"..."}</span><span class="fix-container"><span class="fix-word" onclick="speak('${wordEscaped}')">${w}</span><span class="add-vocab-btn" onclick="addVocabToAPI('${wordEscaped}', event)">+</span></span> `; } });
-            const p=Math.round((sc/tw.length)*100); res.style.display='block'; res.innerHTML=`<div style="font-weight:bold;margin-bottom:5px;color:${p===100?'var(--success)':'var(--danger)'}">🎯 Kết quả: ${p}%</div><div style="font-size:1.1em;line-height:1.6;">${h}</div>`;
+    }
+    loadVoices(); if(synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+    function saveVoicePreference() { const select = document.getElementById('voice-select'); const idx = select.value; if(availableVoices[idx]) localStorage.setItem('selected_voice_name', availableVoices[idx].name); }
+    function activateVoice() { if(synth.speaking) synth.cancel(); const u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); document.getElementById('btn-activate-voice').style.display='none'; }
+
+    // --- TEXT PARSERS ---
+    function getParts(text) {
+        if(!text) return { main: "", note: "" };
+        const parts = text.split('+'); return { main: parts[0].trim(), note: parts.length > 1 ? parts.slice(1).join('+').trim() : "" };
+    }
+    function getSpokenText(text) {
+        if(!text) return ""; const parts = text.split('+'); let spoken = parts[0].trim(); 
+        if (parts.length > 1) { let note = parts[1].trim(); let firstSpace = note.indexOf(' '); if (firstSpace !== -1) { let suffix = note.substring(firstSpace).trim(); spoken += " " + suffix; } }
+        return spoken.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    // --- MODAL TOGGLES ---
+    const modal=document.getElementById("managerModal"), statsModal=document.getElementById("statsModal"), dictModal=document.getElementById("dictModal"), vocabModal=document.getElementById("vocabModal"), structModal=document.getElementById("structureModal");
+    function openModal(){modal.style.display="flex"} function closeModal(){modal.style.display="none"}
+    function openStats(){statsModal.style.display="flex";renderChart()} function closeStats(){statsModal.style.display="none"}
+    function openDict(){dictModal.style.display="flex"; document.getElementById('dict-search-input').focus();} function closeDict(){dictModal.style.display="none"}
+    function openVocab(){vocabModal.style.display="flex"; exitFlashcards(); loadVocabFromAPI();} function closeVocab(){vocabModal.style.display="none"}
+    function openStructureModal() { structModal.style.display = "flex"; loadStructuresFromAPI(); } function closeStructureModal() { structModal.style.display = "none"; }
+    
+    window.onclick = function(e){
+        if(e.target==modal) closeModal();
+        if(e.target==statsModal) closeStats();
+        if(e.target==dictModal) closeDict();
+        if(e.target==vocabModal) closeVocab();
+        if(e.target==structModal) closeStructureModal();
+        if(e.target==document.getElementById('practiceModal')) closePractice();
+        if(e.target==document.getElementById('youglishModal')) closeYouglish();
+    }
+
+    // --- SELECTION, HIGHLIGHT & INLINE NOTES ---
+    const tooltip = document.getElementById('selection-tooltip');
+    
+    document.addEventListener('mouseup', (e) => {
+        const selection = window.getSelection(); const text = selection.toString().trim();
+        if (text.length > 0 && e.target.closest('.text-display')) {
+            const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
+            tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+            tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
+        } 
+    });
+    document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
+    
+    document.addEventListener('click', (e) => {
+        let noteNode = e.target.closest('.has-note');
+        if (noteNode) {
+            const oldNote = noteNode.getAttribute('data-note');
+            const newNote = prompt("Chỉnh sửa ghi chú (Xóa sạch chữ và bấm OK để gỡ bỏ ghi chú):", oldNote);
+            if (newNote === null) return; 
+            if (newNote.trim() === "") {
+                const docFrag = document.createDocumentFragment();
+                while(noteNode.firstChild) { docFrag.appendChild(noteNode.firstChild); }
+                noteNode.parentNode.replaceChild(docFrag, noteNode);
+                saveHighlightsState();
+            } else {
+                noteNode.setAttribute('data-note', newNote.trim());
+                saveHighlightsState();
+            }
         }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if(document.getElementById('zenModal').style.display === 'flex') { 
+            if(e.key === 'ArrowRight') zenNext(); if(e.key === 'ArrowLeft') zenPrev(); 
+            if(e.code === 'Space') { e.preventDefault(); zenSpeak(); } return;
+        }
+        if(document.getElementById('vocabModal').style.display === 'flex' && document.getElementById('vocab-flashcard-view').style.display === 'flex') {
+            if(e.key === 'ArrowRight') nextFlashcard(); 
+            if(e.key === 'ArrowLeft') prevFlashcard(); 
+            if(e.code === 'Space') { e.preventDefault(); flipFlashcard(); }
+            return;
+        }
+        if (window.getSelection().toString().trim().length > 0) {
+            if (e.altKey && e.code === 'KeyH') { e.preventDefault(); applyHighlight(); }
+            else if (e.altKey && e.code === 'KeyN') { e.preventDefault(); addNoteToSelection(); }
+            else if (e.altKey && e.code === 'KeyX') { e.preventDefault(); removeHighlight(); }
+            else if (e.altKey && e.code === 'KeyD') { e.preventDefault(); lookupSelection(); }
+            else if (e.altKey && e.code === 'KeyS') { e.preventDefault(); openAddStructureFromSelection(); }
+        }
+    });
+
+    function applyHighlight() {
+        const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
+        let node = selection.anchorNode; let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
+        if (textDisplay) {
+            textDisplay.contentEditable = "true";
+            document.execCommand("backColor", false, "#ffeaa7"); document.execCommand("foreColor", false, "#d35400");
+            textDisplay.contentEditable = "false"; saveHighlightsState(); 
+        }
+        selection.removeAllRanges(); tooltip.style.display = 'none'; 
+    }
+
+    function removeHighlight() {
+        const selection = window.getSelection(); if (!selection.rangeCount || selection.toString().trim() === "") return;
+        let node = selection.anchorNode;
+        let targetTag = node.nodeType === 3 ? node.parentNode.closest('.has-note, [style*="background-color"]') : node.closest('.has-note, [style*="background-color"]');
         
-        window.onload= function() { loadLessons(); const storedRepeat = localStorage.getItem('playlist_repeat'); if(storedRepeat) { maxRepeats = parseInt(storedRepeat); const sel = document.getElementById('repeat-select'); if(sel) sel.value = storedRepeat; } };
-    </script>
+        if (targetTag && targetTag.classList.contains('has-note')) {
+            const docFrag = document.createDocumentFragment();
+            while(targetTag.firstChild) { docFrag.appendChild(targetTag.firstChild); }
+            targetTag.parentNode.replaceChild(docFrag, targetTag);
+            window.getSelection().removeAllRanges(); saveHighlightsState(); tooltip.style.display = 'none';
+        } else {
+            let textDisplay = node.nodeType === 3 ? node.parentNode.closest('.text-display') : node.closest('.text-display');
+            if (textDisplay) {
+                textDisplay.contentEditable = "true"; document.execCommand("backColor", false, "transparent");
+                let defaultTextColor = document.body.classList.contains('dark-mode') ? "#e0e0e0" : "#333333";
+                document.execCommand("foreColor", false, defaultTextColor); textDisplay.contentEditable = "false"; saveHighlightsState(); 
+            }
+            selection.removeAllRanges(); tooltip.style.display = 'none'; 
+        }
+    }
+
+    function addNoteToSelection() {
+        const selection = window.getSelection(); 
+        if (!selection.rangeCount || selection.toString().trim() === "") return;
+        
+        const textDisplay = selection.anchorNode.nodeType === 3 ? selection.anchorNode.parentNode.closest('.text-display') : selection.anchorNode.closest('.text-display');
+        if (!textDisplay) { tooltip.style.display = 'none'; return; }
+
+        const noteText = prompt("Nhập ghi chú cho đoạn này:");
+        if (!noteText || noteText.trim() === "") { tooltip.style.display = 'none'; return; }
+        
+        const range = selection.getRangeAt(0);
+        const noteSpan = document.createElement('span');
+        noteSpan.className = 'has-note';
+        noteSpan.setAttribute('data-note', noteText.trim());
+
+        try {
+            noteSpan.appendChild(range.extractContents());
+            range.insertNode(noteSpan);
+        } catch (e) {
+            const selectedText = selection.toString();
+            range.deleteContents();
+            noteSpan.innerText = selectedText;
+            range.insertNode(noteSpan);
+        }
+
+        saveHighlightsState(); 
+        selection.removeAllRanges(); 
+        tooltip.style.display = 'none'; 
+    }
+    
+    function lookupSelection() {
+        const text = window.getSelection().toString().trim();
+        if(text) {
+            document.getElementById('dict-search-input').value = text; 
+            openDict();
+            lookupWord(text);
+            tooltip.style.display = 'none'; 
+            window.getSelection().removeAllRanges();
+        }
+    }
+
+    async function googleTranslate(text) { 
+        try {
+            const u = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`;
+            const r = await fetch(u);
+            const j = await r.json();
+            return j[0].map(x => x[0]).join('');
+        } catch(e) { return "Lỗi dịch."; } 
+    }
+    
+    async function manualLookup() { const w = document.getElementById('dict-search-input').value; lookupWord(w); }
+    
+    async function lookupWord(w) {
+        if(!w) return; w = w.trim(); if(w.length < 2) return;
+        const b = document.getElementById("dict-result"); 
+        b.innerHTML = '<div class="loader" style="display:block"></div>';
+        document.getElementById('dict-search-input').value = w; 
+        
+        try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, ""); 
+            const tw = await googleTranslate(cleanWord); 
+            
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
+            
+            if (!r.ok) {
+                b.innerHTML = `
+                    <div>
+                        <span class="dict-word">${w}</span> 
+                        <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                    </div>
+                    <div style="margin-top:15px; border-left: 4px solid var(--highlight); padding-left: 10px;">
+                        <div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div>
+                        <div style="color:var(--text-sub); font-size:13px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate do đây là cụm từ/từ không có trong thư viện)</div>
+                    </div>
+                    <div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${w}', event)">➕ Lưu Sổ tay</button></div>
+                `;
+                return;
+            }
+
+            const j = await r.json(); const d = j[0]; 
+            const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); 
+            const au = d.phonetics.find(p => p.audio)?.audio || "";
+            let de = "No def", ex = "", synonyms = [], antonyms = [];
+            
+            if(d.meanings[0]) { 
+                de = d.meanings[0].definitions[0].definition; 
+                for(let m of d.meanings) { 
+                    if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); 
+                    if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); 
+                    for(let df of m.definitions) { 
+                        if(df.example && !ex) ex = df.example; 
+                        if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); 
+                        if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); 
+                    } 
+                } 
+            }
+            
+            synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
+            let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="lookupWord('${s}')">${s}</span>`).join('')}</div>` : '';
+            let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="lookupWord('${a}')">${a}</span>`).join('')}</div>` : '';
+            let te = ""; if(ex) te = await googleTranslate(ex);
+
+            b.innerHTML = `
+                <div>
+                    <span class="dict-word">${d.word}</span> 
+                    ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                </div>
+                <div class="dict-phonetic">${ph}</div>
+                <div style="margin-top:15px;"><div class="dict-meaning-vi">👉 ${tw}</div><div class="dict-meaning-en">${de}</div></div>
+                <div class="example-box"><div class="ex-en">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi">➥ ${te}</div>` : ""}</div>
+                ${(synHtml || antHtml) ? `<div class="word-relations">${synHtml}${antHtml}</div>` : ''}
+                <div style="margin-top:15px;"><button class="btn btn-sm btn-add" onclick="addVocabToAPI('${d.word}', event)">➕ Lưu Sổ tay</button></div>
+            `;
+        } catch(e) { 
+            b.innerHTML = `<div style="color:var(--danger); text-align:center;">Lỗi kết nối mạng hoặc từ điển đang bận.</div>`; 
+        }
+    }
+
+    function openAddStructureFromSelection() {
+        const text = window.getSelection().toString().trim();
+        if(text) {
+            document.getElementById('inp-struct').value = text; 
+            document.getElementById('inp-struct-meaning').value = "";
+            document.getElementById('inp-struct-examples').value = "";
+            document.getElementById('selection-tooltip').style.display = 'none'; window.getSelection().removeAllRanges();
+            openStructureModal(); setTimeout(() => document.getElementById('inp-struct-meaning').focus(), 100);
+        }
+    }
+
+    function saveHighlightsState() {
+        if (!currentLessonId) return;
+        const displays = document.querySelectorAll('.text-display');
+        let stateObj = {}; 
+        
+        displays.forEach(el => {
+            let html = el.innerHTML;
+            let plain = el.textContent || el.innerText || "";
+            let key = plain.replace(/\s+/g, '').toLowerCase(); 
+            stateObj[key] = html;
+        });
+        
+        const hlString = JSON.stringify(stateObj); 
+        const item = allLessons.find(x => x.id == currentLessonId);
+        if(item) { 
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save_highlights', id: currentLessonId, highlightsData: hlString }) });
+            item.highlightsData = hlString; 
+        }
+    }
+
+    function resetLessonHighlights() {
+        if (!currentLessonId) return;
+        if(confirm("Bạn có chắc muốn xóa toàn bộ vùng Tô Vàng và Ghi chú của bài học này?")) {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'save_highlights', id: currentLessonId, highlightsData: "" }) }).then(() => {
+                const item = allLessons.find(x => x.id == currentLessonId); if(item) item.highlightsData = ""; selectLesson(currentLessonId); 
+            });
+        }
+    }
+
+    // --- ZEN MODE ---
+    function enterZenMode() { if(currentSentencesData.length === 0) return alert("Vui lòng chọn bài học trước!"); document.getElementById('zenModal').style.display = 'flex'; zenIndex = 0; updateZenUI(); }
+    function exitZenMode() { document.getElementById('zenModal').style.display = 'none'; if(synth.speaking) synth.cancel(); if(isRecording) zenToggleRecord(); }
+    function updateZenUI() { const txt = currentSentencesData[zenIndex]; document.getElementById('zen-text').innerHTML = renderInteractiveText(txt, -1); document.getElementById('zen-feedback').style.display = 'none'; document.getElementById('zen-result-text').innerHTML = ''; document.getElementById('zen-audio').style.display = 'none'; }
+    function zenNext() { if(isRecording) zenToggleRecord(); if (zenIndex < currentSentencesData.length - 1) { zenIndex++; updateZenUI(); if(document.getElementById('zen-autoplay').checked) setTimeout(zenSpeak, 300); } }
+    function zenPrev() { if(isRecording) zenToggleRecord(); if (zenIndex > 0) { zenIndex--; updateZenUI(); if(document.getElementById('zen-autoplay').checked) setTimeout(zenSpeak, 300); } }
+    function zenSpeak() {
+        if(isRecording) return alert("Đang ghi âm! Bấm Dừng trước."); if(synth.speaking || synth.pending) synth.cancel();
+        const cleanTxt = getSpokenText(currentSentencesData[zenIndex]); if(!cleanTxt) return;
+        const u = new SpeechSynthesisUtterance(cleanTxt); u.lang = 'en-US'; u.rate = parseFloat(currentSpeed);
+        const selectedIdx = document.getElementById('voice-select').value; if (availableVoices[selectedIdx]) { u.voice = availableVoices[selectedIdx]; }
+        u.onend = function() { if(document.getElementById('zenModal').style.display === 'flex' && document.getElementById('zen-automic').checked) { setTimeout(() => { if(!isRecording) zenToggleRecord(); }, 200); } }; synth.speak(u);
+    }
+    function zenToggleRecord() { toggleRecording(zenIndex, 'zen-feedback', 'zen-mic-btn', 'zen-audio'); }
+
+    // --- INTERACTIVE TEXT ---
+    function renderInteractiveText(text, index) {
+        const { main, note } = getParts(text); const words = main.split(' ');
+        let html = words.map(w => { const cleanWord = w.replace(/[.,!?;:"]/g, ''); if(!cleanWord) return w + ' '; return `<span class="word-span" onclick="handleWordClick('${cleanWord}', event)">${w}</span> `; }).join('');
+        if(note) {
+            let noteRaw = note.trim(); let firstSpaceIdx = noteRaw.indexOf(' '); let tag = "", suffix = "";
+            if (firstSpaceIdx === -1) { tag = noteRaw; } else { tag = noteRaw.substring(0, firstSpaceIdx); suffix = noteRaw.substring(firstSpaceIdx); }
+            let suffixHtml = suffix;
+            if(suffix.length > 1) { suffixHtml = suffix.split(' ').map(w => { if(!w.trim()) return ' '; const cleanWord = w.replace(/[.,!?;:"]/g, ''); if(!cleanWord) return w + ' '; return `<span class="word-span" onclick="handleWordClick('${cleanWord}', event)">${w}</span> `; }).join(''); }
+            html += `<span class="note-sep">+</span><span class="note-tag">${tag}</span><span class="note-suffix">${suffixHtml}</span>`;
+        }
+        return html;
+    }
+    
+    function handleWordClick(word, event) {
+        if(event.target.closest('.has-note')) return; 
+        if(event) { event.preventDefault(); event.stopPropagation(); }
+        document.getElementById('dict-search-input').value = word; openDict(); lookupWord(word);
+    }
+    let currentSpeed=0.9; function updateSpeedDisplay(){currentSpeed=document.getElementById('speed-slider').value;document.getElementById('speed-val').innerText=currentSpeed+'x'}
+    function updateRepeatSetting() { maxRepeats = parseInt(document.getElementById('repeat-select').value); localStorage.setItem('playlist_repeat', maxRepeats); }
+
+    // --- PLAYLIST & SPEAKING ---
+    function handleTextClick(idx, event){
+        if(event.target.closest('.has-note')) return; 
+        if(event) { event.preventDefault(); event.stopPropagation(); }
+        if (window.getSelection().toString().trim().length > 0) return;
+        if(isDictationMode) return; if(isPlaylistPlaying) stopPlaylist(); speakByIndex(idx);
+    }
+    function speakByIndex(idx){ if (currentSentencesData[idx]) speak(currentSentencesData[idx]); }
+    function speak(txt){
+        if(synth.speaking || synth.pending) synth.cancel();
+        const cleanTxt = getSpokenText(txt); if(!cleanTxt) return;
+        const u = new SpeechSynthesisUtterance(cleanTxt); u.lang = 'en-US'; u.rate = parseFloat(currentSpeed);
+        const selectedIdx = document.getElementById('voice-select').value; if (availableVoices[selectedIdx]) { u.voice = availableVoices[selectedIdx]; }
+        synth.speak(u);
+    }
+
+    function togglePlaylist() { if (isPlaylistPlaying) { stopPlaylist(); } else { startPlaylist(); } }
+    function startPlaylist() {
+        if (currentSentencesData.length === 0) return alert("Chưa chọn bài!"); if(synth.speaking) synth.cancel();
+        isPlaylistPlaying = true; playlistIndex = 0; repeatCount = 0; updateRepeatSetting();
+        document.getElementById('btn-playlist').classList.add('active'); document.getElementById('btn-playlist').innerHTML = '⏹️ Dừng phát';
+        document.getElementById('fb-playlist').classList.add('active'); document.getElementById('fb-playlist').innerHTML = '⏹️'; playNextInQueue();
+    }
+    function stopPlaylist() {
+        isPlaylistPlaying = false; synth.cancel();
+        document.getElementById('btn-playlist').classList.remove('active'); document.getElementById('btn-playlist').innerHTML = '🎧 Nghe thụ động';
+        document.getElementById('fb-playlist').classList.remove('active'); document.getElementById('fb-playlist').innerHTML = '🎧';
+        document.querySelectorAll('.sentence-row').forEach(r => r.classList.remove('playing'));
+    }
+    function playNextInQueue() {
+        if (!isPlaylistPlaying) return; if (playlistIndex >= currentSentencesData.length) { stopPlaylist(); return; }
+        const rows = document.querySelectorAll('.sentence-row'); rows.forEach(r => r.classList.remove('playing'));
+        if(rows[playlistIndex]) { rows[playlistIndex].classList.add('playing'); rows[playlistIndex].scrollIntoView({behavior: "smooth", block: "center"}); }
+        const u = new SpeechSynthesisUtterance(getSpokenText(currentSentencesData[playlistIndex])); u.lang = 'en-US'; u.rate = parseFloat(currentSpeed); 
+        if (availableVoices[document.getElementById('voice-select').value]) { u.voice = availableVoices[document.getElementById('voice-select').value]; }
+        u.onend = function() {
+            if (!isPlaylistPlaying) return;
+            if (repeatCount < maxRepeats - 1) { repeatCount++; setTimeout(() => { if(isPlaylistPlaying) synth.speak(u); }, 500); } 
+            else { repeatCount = 0; playlistIndex++; setTimeout(playNextInQueue, 1000); }
+        }; synth.speak(u);
+    }
+
+    // --- API STRUCTURE ---
+    async function saveStructureAPI() {
+        const struct = document.getElementById('inp-struct').value.trim(); 
+        const meaning = document.getElementById('inp-struct-meaning').value.trim();
+        const examples = document.getElementById('inp-struct-examples').value.trim();
+        if(!struct || !meaning) return alert("Vui lòng nhập đủ Cấu trúc và Nghĩa!");
+        const btn = document.getElementById('btn-save-struct'); btn.innerText = "⏳ Đang lưu...";
+        try { 
+            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_structure', struct: struct, meaning: meaning, examples: examples }) }); 
+            document.getElementById('inp-struct').value = ""; 
+            document.getElementById('inp-struct-meaning').value = ""; 
+            document.getElementById('inp-struct-examples').value = ""; 
+            loadStructuresFromAPI(); 
+        } 
+        catch(e) { alert("Lỗi lưu cấu trúc: " + e); } finally { btn.innerText = "💾 Lưu cấu trúc"; }
+    }
+    async function deleteStructureAPI(id) {
+        if(!confirm("Xóa cấu trúc này?")) return; document.getElementById('structure-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>';
+        try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'del_structure', id: id }) }); loadStructuresFromAPI(); } catch(e) { alert("Lỗi xóa: " + e); }
+    }
+    async function loadStructuresFromAPI() {
+        const c = document.getElementById('structure-list'), l = document.getElementById('struct-loader'); c.innerHTML = ''; l.style.display = 'block';
+        try {
+            const r = await fetch(API_URL + "?action=get_structures"); const j = await r.json(); l.style.display = 'none';
+            if(j.status === 'success' && j.data.length > 0) { 
+                j.data.forEach(item => { 
+                    const d = document.createElement('div'); d.className = 'list-item'; 
+                    let exHtml = item.examples ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); color: var(--text-sub); font-size: 13px; font-style: italic; white-space: pre-wrap;">📝 ${item.examples}</div>` : '';
+                    d.innerHTML = `<div style="max-width: 85%;"><div style="font-weight: bold; color: var(--danger); font-size: 16px;">${item.struct}</div><div style="color: var(--text-main); font-size: 14px; margin-top: 4px;">👉 ${item.meaning}</div>${exHtml}</div><div><button class="btn-sm btn-del" onclick="deleteStructureAPI('${item.id}')">🗑️</button></div>`; 
+                    c.appendChild(d); 
+                }); 
+            } else { c.innerHTML = '<div style="text-align:center;">Chưa có cấu trúc nào.</div>'; }
+        } catch(e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red;text-align:center;">Lỗi tải dữ liệu.</div>'; }
+    }
+
+    // --- API VOCAB & FLASHCARDS ---
+    let fcIndex = 0;
+    let fcCache = {};
+
+    async function addVocabToAPI(word, event) {
+        if(event) { event.stopPropagation(); } if(!confirm(`Lưu từ "${word}" vào sổ tay online?`)) return;
+        if(event && event.target) { const btn = event.target; const orig = btn.innerText; btn.innerText = "⏳"; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'add_vocab', word: word })}); btn.innerText = "✅"; } catch(e) { alert("Lỗi lưu: " + e); btn.innerText = orig; } } else { try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'add_vocab', word: word })}); alert('Đã lưu!'); } catch(e) { alert("Lỗi lưu: " + e); } }
+    }
+    async function removeVocabAPI(word) { if(!confirm(`Xóa từ "${word}"?`)) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>'; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'del_vocab', word: word })}); loadVocabFromAPI(); } catch(e) { alert("Lỗi xóa: " + e); } }
+    async function editVocabAPI(oldWord) { const newWord = prompt("Sửa từ:", oldWord); if(!newWord || newWord === oldWord) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang cập nhật...</div>'; try { await fetch(API_URL, {method: 'POST',body: JSON.stringify({ action: 'edit_vocab', oldWord: oldWord, newWord: newWord })}); loadVocabFromAPI(); } catch(e) { alert("Lỗi sửa: " + e); } }
+    async function loadVocabFromAPI() {
+        const c = document.getElementById('vocab-list'), l = document.getElementById('vocab-loader'); c.innerHTML = ''; l.style.display = 'block';
+        document.getElementById('vocab-detail-content').innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top: 50px; font-size: 16px;">👈 Bấm vào một từ bên trái để xem chi tiết.</div>`;
+        try {
+            const r = await fetch(API_URL + "?action=get_vocab"); const j = await r.json(); l.style.display = 'none';
+            if(j.status === 'success' && j.data.length > 0) { 
+                globalVocabList = j.data;
+                j.data.forEach(w => { const d = document.createElement('div'); d.className = 'vocab-item'; d.innerHTML = `<span class="vocab-word" onclick="viewVocabDetail('${w}')" style="cursor:pointer; color:var(--highlight); font-size:18px; font-weight:bold;">${w}</span><div><button class="btn-sm" style="background:var(--highlight)" onclick="speak('${w}')">🔊</button><button class="btn-sm btn-edit" onclick="editVocabAPI('${w}')">✏️</button><button class="btn-sm btn-del" onclick="removeVocabAPI('${w}')">🗑️</button></div>`; c.appendChild(d); }); 
+            } else { globalVocabList = []; c.innerHTML = '<div style="text-align:center;">Sổ tay trống.</div>'; }
+        } catch(e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red;text-align:center;">Lỗi tải dữ liệu.</div>'; }
+    }
+    
+    async function viewVocabDetail(w) {
+        if(!w) return; w = w.trim(); if(w.length < 2) return;
+        const b = document.getElementById("vocab-detail-content"); 
+        b.innerHTML = '<div class="loader" style="display:block; margin-top: 50px;"></div>';
+        
+        try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, "");
+            const tw = await googleTranslate(cleanWord);
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`); 
+            
+            if(!r.ok) {
+                b.innerHTML = `
+                    <div>
+                        <span class="dict-word" style="font-size:32px;">${w}</span> 
+                        <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                    </div>
+                    <div style="margin-top:20px; border-left: 4px solid var(--highlight); padding-left: 15px;">
+                        <div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div>
+                        <div style="color:var(--text-sub); font-size:14px; font-style:italic; margin-top:5px;">(Bản dịch bởi Google Translate)</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let d = null, de = "No def", ex = "", ph = "", au = ""; let synonyms = [], antonyms = [];
+            const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); au = d.phonetics.find(p => p.audio)?.audio || ""; 
+            if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } } 
+            synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
+            let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="viewVocabDetail('${s}')">${s}</span>`).join('')}</div>` : '';
+            let antHtml = antonyms.length > 0 ? `<div class="relation-title">⚡ Trái nghĩa:</div><div class="tag-container">${antonyms.map(a => `<span class="rel-tag tag-ant" onclick="viewVocabDetail('${a}')">${a}</span>`).join('')}</div>` : '';
+            let te = ""; if(ex) te = await googleTranslate(ex);
+            b.innerHTML = `
+                <div>
+                    <span class="dict-word" style="font-size:32px;">${d.word}</span> 
+                    ${au ? `<button class="btn-sm" style="background:var(--highlight);display:inline-block" onclick="new Audio('${au}').play()">🔊</button>` : ""}
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${d.word.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                </div>
+                <div class="dict-phonetic" style="font-size: 20px;">${ph}</div>
+                <div style="margin-top:20px;"><div class="dict-meaning-vi" style="font-size: 22px;">👉 ${tw}</div><div class="dict-meaning-en" style="font-size: 16px;">${de}</div></div>
+                <div class="example-box" style="margin-top: 15px;"><div class="ex-en" style="font-size: 18px;">📝 ${ex || "No example"}</div>${te ? `<div class="ex-vi" style="font-size: 16px; margin-top:5px; color: var(--text-sub);">➥ ${te}</div>` : ""}</div>${(synHtml || antHtml) ? `<div class="word-relations" style="margin-top: 20px;">${synHtml}${antHtml}</div>` : ''}`;
+        } catch(e) { b.innerHTML = '<div style="color:var(--danger); text-align:center; margin-top:20px;">Lỗi kết nối từ điển. Vui lòng thử lại sau.</div>'; }
+    }
+
+    function startFlashcards() {
+        if(globalVocabList.length === 0) return alert("Sổ tay của bạn chưa có từ nào!");
+        
+        if (globalVocabList.length > 1) {
+            for (let i = globalVocabList.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [globalVocabList[i], globalVocabList[j]] = [globalVocabList[j], globalVocabList[i]];
+            }
+        }
+
+        document.getElementById('vocab-normal-view').style.display = 'none';
+        document.getElementById('vocab-flashcard-view').style.display = 'flex';
+        fcIndex = 0; renderFlashcard();
+    }
+    
+    function exitFlashcards() {
+        document.getElementById('vocab-normal-view').style.display = 'flex';
+        document.getElementById('vocab-flashcard-view').style.display = 'none';
+    }
+    
+    function shuffleFlashcards() {
+        if (globalVocabList.length < 2) return;
+        for (let i = globalVocabList.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [globalVocabList[i], globalVocabList[j]] = [globalVocabList[j], globalVocabList[i]];
+        }
+        fcIndex = 0;
+        renderFlashcard();
+    }
+    
+    function flipFlashcard() { 
+        const card = document.getElementById('fc-card');
+        card.classList.toggle('flipped'); 
+        if (card.classList.contains('flipped')) {
+            speak(globalVocabList[fcIndex]);
+        }
+    }
+
+    function nextFlashcard(e) { 
+        if(e) e.stopPropagation();
+        if(fcIndex < globalVocabList.length - 1) { fcIndex++; renderFlashcard(); } 
+    }
+    
+    function prevFlashcard(e) { 
+        if(e) e.stopPropagation();
+        if(fcIndex > 0) { fcIndex--; renderFlashcard(); } 
+    }
+
+    async function cycleExample(w, event) {
+        if(event) event.stopPropagation();
+        const safeW = w.replace(/[^a-zA-Z0-9]/g, '');
+        const exArray = fcExamples[w];
+        if(!exArray || exArray.length <= 1) return;
+
+        const idxInput = document.getElementById(`fc-ex-idx-${safeW}`);
+        const enDiv = document.getElementById(`fc-ex-en-${safeW}`);
+        const viDiv = document.getElementById(`fc-ex-vi-${safeW}`);
+        
+        if(!idxInput || !enDiv) return;
+
+        let nextIdx = (parseInt(idxInput.value) + 1) % exArray.length;
+        idxInput.value = nextIdx;
+        
+        const newEx = exArray[nextIdx];
+        enDiv.innerHTML = `⏳ Đang dịch...`;
+        if(viDiv) viDiv.innerHTML = "";
+
+        try {
+            const newTe = await googleTranslate(newEx);
+            enDiv.innerHTML = `📝 "${newEx}"`;
+            if(viDiv) viDiv.innerHTML = `➥ ${newTe}`;
+        } catch(e) {
+            enDiv.innerHTML = `📝 "${newEx}"`;
+            if(viDiv) viDiv.innerHTML = `➥ Lỗi dịch.`;
+        }
+    }
+
+    async function renderFlashcard() {
+        const word = globalVocabList[fcIndex];
+        document.getElementById('fc-counter').innerText = `${fcIndex + 1} / ${globalVocabList.length}`;
+        const card = document.getElementById('fc-card');
+        card.classList.remove('flipped'); 
+
+        document.getElementById('fc-front-content').innerHTML = `<div class="fc-word">${word}</div><button class="btn" style="background:var(--highlight); width: auto;" onclick="event.stopPropagation(); speak('${word}')">🔊 Phát âm</button>`;
+        document.getElementById('fc-back-content').innerHTML = `<div class="loader" style="display:block"></div>`;
+
+        if(fcCache[word]) { document.getElementById('fc-back-content').innerHTML = fcCache[word]; } 
+        else { fetchFlashcardData(word); }
+    }
+
+    async function fetchFlashcardData(w) {
+        try {
+            const cleanWord = w.replace(/[^a-zA-Z\s]/g, "");
+            let topHtml = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 85%;">
+                    <div style="font-size: 24px; font-weight: 800; color: var(--text-main); text-transform: capitalize;">${w}</div>
+                    <button class="btn-sm" style="background:#e74c3c; border:none; display:inline-block; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); openYouGlish('${w.replace(/'/g, "\\'")}')">🎥 YouGlish</button>
+                </div>
+                <div style="width: 80%; border-bottom: 1px solid var(--border); margin-top: 8px; margin-bottom: 12px;"></div>
+            `;
+
+            const tw = await googleTranslate(cleanWord);
+            let meaningHtml = `<div class="fc-meaning">✨ ${tw}</div>`;
+            
+            const r = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`);
+            
+            if(!r.ok) {
+                const finalFallback = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">
+                        ${topHtml}
+                        ${meaningHtml}
+                        <div style="color:var(--text-sub); font-size:12px; margin-top: 10px;">(Cụm từ này được dịch bởi Google Translate)</div>
+                    </div>
+                </div>`;
+                fcCache[w] = finalFallback;
+                if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = finalFallback;
+                return;
+            }
+
+            let syns = [], ants = [];
+            let exArray = []; 
+            let fallbackEx = [];
+            
+            const j = await r.json(); const d = j[0];
+            const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : "");
+            if(ph) meaningHtml = `<div class="fc-phonetic">${ph}</div>` + meaningHtml;
+            
+            if(d.meanings[0]) {
+                const de = d.meanings[0].definitions[0].definition;
+                meaningHtml += `<div class="fc-def">"${de}"</div>`;
+                
+                for(let m of d.meanings) { 
+                    if(m.synonyms && m.synonyms.length > 0) syns.push(...m.synonyms); 
+                    if(m.antonyms && m.antonyms.length > 0) ants.push(...m.antonyms); 
+                    for(let df of m.definitions) { 
+                        if(df.synonyms && df.synonyms.length > 0) syns.push(...df.synonyms); 
+                        if(df.antonyms && df.antonyms.length > 0) ants.push(...df.antonyms); 
+                        
+                        if(df.example) {
+                            let exText = df.example.trim();
+                            exText = exText.charAt(0).toUpperCase() + exText.slice(1);
+                            if (!/[.!?]$/.test(exText)) exText += '.';
+                            
+                            if (exText.split(' ').length >= 3) {
+                                if(!exArray.includes(exText)) exArray.push(exText);
+                            } else {
+                                if(!fallbackEx.includes(exText)) fallbackEx.push(exText);
+                            }
+                        }
+                    } 
+                }
+            }
+            
+            if (exArray.length === 0 && fallbackEx.length > 0) {
+                exArray = fallbackEx;
+            }
+
+            fcExamples[w] = exArray; 
+            const safeW = w.replace(/[^a-zA-Z0-9]/g, '');
+
+            if (exArray.length > 0) {
+                const ex = exArray[0]; 
+                const te = await googleTranslate(ex);
+                
+                let btnHtml = exArray.length > 1 ? `<div onclick="cycleExample('${w.replace(/'/g, "\\'")}', event)" style="cursor:pointer; font-size:14px; margin-left:8px; opacity:0.8;" title="Đổi ví dụ khác">🔄</div>` : '';
+                
+                meaningHtml += `
+                    <div class="fc-example-box" id="fc-ex-box-${safeW}">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="fc-ex-en" id="fc-ex-en-${safeW}" style="flex:1;">📝 "${ex}"</div>
+                            ${btnHtml}
+                        </div>
+                        ${te ? `<div class="fc-ex-vi" id="fc-ex-vi-${safeW}">➥ ${te}</div>` : ""}
+                        <input type="hidden" id="fc-ex-idx-${safeW}" value="0">
+                    </div>
+                `;
+            }
+            
+            topHtml += meaningHtml; 
+
+            syns = [...new Set(syns)].slice(0, 3);
+            ants = [...new Set(ants)].slice(0, 3);
+            
+            let bottomHtml = '';
+            if (syns.length > 0 || ants.length > 0) {
+                bottomHtml += `<div class="fc-tags-area">`;
+                if (syns.length > 0) bottomHtml += `<div class="fc-tags-group"><span class="fc-tag-title">Đồng nghĩa:</span>${syns.map(s => `<span class="rel-tag tag-syn" style="padding:2px 8px; font-size:11px; cursor:default;">${s}</span>`).join('')}</div>`;
+                if (ants.length > 0) bottomHtml += `<div class="fc-tags-group"><span class="fc-tag-title">Trái nghĩa:</span>${ants.map(a => `<span class="rel-tag tag-ant" style="padding:2px 8px; font-size:11px; cursor:default;">${a}</span>`).join('')}</div>`;
+                bottomHtml += `</div>`;
+            }
+
+            const finalHtml = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;">${topHtml}</div>
+                    ${bottomHtml}
+                </div>`;
+
+            fcCache[w] = finalHtml;
+            if(globalVocabList[fcIndex] === w) { document.getElementById('fc-back-content').innerHTML = finalHtml; }
+            
+        } catch(e) {
+            const errHtml = `<div style="color:var(--danger); font-weight:bold;">Lỗi tải dữ liệu mạng.</div>`;
+            fcCache[w] = errHtml;
+            if(globalVocabList[fcIndex] === w) document.getElementById('fc-back-content').innerHTML = errHtml;
+        }
+    }
+
+    async function saveLesson(a){
+        const t=document.getElementById('inp-title').value, 
+              c=document.getElementById('inp-content').value, 
+              id=document.getElementById('edit-id').value, 
+              l=document.getElementById('loader');
+        if(!t||!c)return alert("Thiếu!");
+        l.style.display='block';
+        
+        let hlData = "";
+        if (a === 'edit') {
+            const item = allLessons.find(x => x.id == id);
+            if (item && item.highlightsData) {
+                hlData = item.highlightsData; 
+            }
+        }
+
+        try{
+            await fetch(API_URL,{method:'POST',body:JSON.stringify({action:a, id:id, title:t, content:c, highlightsData: hlData})});
+            resetForm();
+            setTimeout(loadLessons,1000)
+        }catch(e){alert("Lỗi:"+e)}finally{l.style.display='none'}
+    }
+
+    async function deleteLesson(id){if(confirm("Xóa?")){await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',id:id})});setTimeout(loadLessons,1000)}}
+    function startEdit(id){const i=allLessons.find(x=>x.id==id);if(!i)return;document.getElementById('inp-title').value=i.title;document.getElementById('inp-content').value=i.content;document.getElementById('edit-id').value=i.id;document.getElementById('btn-add').style.display='none';document.getElementById('btn-save').style.display='block';document.getElementById('btn-cancel').style.display='block'}
+    function resetForm(){document.getElementById('inp-title').value='';document.getElementById('inp-content').value='';document.getElementById('edit-id').value='';document.getElementById('btn-add').style.display='block';document.getElementById('btn-save').style.display='none';document.getElementById('btn-cancel').style.display='none'}
+    async function loadLessons(){const c=document.getElementById('list-container');c.innerHTML='<div class="loader" style="display:block"></div>';try{const r=await fetch(API_URL);const j=await r.json();if(j.status==='success'){allLessons=j.data;renderList(allLessons)}}catch(e){c.innerHTML='<div style="color:red;text-align:center;">Lỗi kết nối!</div>'}}
+    function renderList(d){const c=document.getElementById('list-container');c.innerHTML='';if(!d||d.length===0){c.innerHTML='Trống.';return}d.forEach(i=>{const v=document.createElement('div');v.className='list-item';v.innerHTML=`<div class="item-title" onclick="selectLesson('${i.id}')">${i.title}</div><div><button class="btn-sm btn-edit" onclick="startEdit('${i.id}')">✏️</button><button class="btn-sm btn-del" onclick="deleteLesson('${i.id}')">🗑️</button></div>`;c.appendChild(v)})}
+
+    function selectLesson(id) {
+        if(isPlaylistPlaying) stopPlaylist();
+        const item = allLessons.find(x => x.id == id); if(!item) return;
+        currentLessonId = id; 
+        document.getElementById('lesson-header').innerText = item.title; closeModal();
+        const area = document.getElementById('display-area'); area.innerHTML = '';
+        let raw = item.content.match(/[^\.!\?]+[\.!\?]+|[^ \.!\?]+/g) || [item.content];
+        currentSentencesData = raw.map(s => s.trim()).filter(s => s.length > 0);
+        
+        let savedState = null;
+        try { 
+            if(item.highlightsData) {
+                let parsed = JSON.parse(item.highlightsData);
+                if (Array.isArray(parsed)) {
+                    savedState = {};
+                    currentSentencesData.forEach((s, i) => {
+                        if (parsed[i]) {
+                            let tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = parsed[i];
+                            let key = (tempDiv.textContent || tempDiv.innerText || "").replace(/\s+/g, '').toLowerCase();
+                            savedState[key] = parsed[i];
+                        }
+                    });
+                } else {
+                    savedState = parsed; 
+                }
+            }
+        } catch(e){}
+
+        currentSentencesData.forEach((s, i) => {
+            const div = document.createElement('div'); div.className = 'sentence-row';
+            
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = renderInteractiveText(s, i);
+            let plainText = tempDiv.textContent || tempDiv.innerText || "";
+            let sentenceKey = plainText.replace(/\s+/g, '').toLowerCase(); 
+            
+            let displayHtml = tempDiv.innerHTML;
+            if (savedState && savedState[sentenceKey]) {
+                displayHtml = savedState[sentenceKey]; 
+            }
+
+            div.innerHTML = `
+                <div class="text-display" onclick="handleTextClick(${i}, event)">${displayHtml}</div>
+                <div class="dictation-area"><textarea id="dict-input-${i}" class="dictation-input" placeholder="Nghe và gõ lại..."></textarea><button class="btn btn-check" onclick="checkDictation(${i})" style="width:auto;margin-top:5px;padding:6px 12px">Kiểm tra</button><div id="dict-result-${i}" class="dictation-result"></div></div>
+                <div class="action-area"><button class="btn-action btn-speak" onclick="speakByIndex(${i})">🔊 Nghe</button><button class="btn-action btn-mic" id="btn-${i}" onclick="toggleRecording(${i}, 'fb-${i}', 'btn-${i}', 'audio-${i}')">🎙️ Nói</button></div>
+                <div class="feedback-box" id="fb-${i}">
+                    <div id="result-text-${i}"></div>
+                    <audio id="audio-${i}" class="audio-player" controls playsinline style="display:none"></audio>
+                </div>`;
+            area.appendChild(div);
+        });
+        
+        isDictationMode = false; document.getElementById('btn-dictation').classList.remove('active');
+        if(availableVoices.length === 0) document.getElementById('btn-activate-voice').style.display = 'block';
+        document.getElementById('btn-clear-hl').style.display = 'inline-block';
+    }
+    
+    // --- RECORDING CORE ---
+    async function initMicrophone(){if(globalStream)return globalStream;try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null}}
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; 
+    let accumulatedTranscript = ""; 
+    if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; }
+    
+    async function toggleRecording(idx, fbId, btnId, audioId) {
+        if(isPlaylistPlaying) stopPlaylist();
+        const tgt = currentSentencesData[idx]; const btn = document.getElementById(btnId); const fb = document.getElementById(fbId); const aud = document.getElementById(audioId);
+        const res = document.getElementById(fbId === 'zen-feedback' ? 'zen-result-text' : fbId.replace('fb', 'result-text'));
+
+        if(btn.classList.contains('recording')){
+            btn.classList.remove('recording'); btn.innerHTML = btnId === 'zen-mic-btn' ? '🎙️' : '🎙️ Nói'; isRecording = false;
+            if(currentLiveText) { grade(getSpokenText(tgt), currentLiveText, res); }
+            try { recognition.stop(); } catch(e){} if (mediaRecorder && mediaRecorder.state !== "inactive") { mediaRecorder.stop(); }
+            return;
+        }
+
+        if(isRecording) return alert("Vui lòng dừng câu trước đó!");
+        const st = await initMicrophone(); if(!st) return;
+        isRecording = true; currentLiveText = ""; accumulatedTranscript = "";
+        btn.classList.add('recording'); btn.innerHTML = btnId === 'zen-mic-btn' ? '⏹️' : '🔴 Dừng (Chấm điểm)';
+        fb.style.display = 'block'; res.innerHTML = '<span class="recording-text">👂 Đang nghe...</span>';
+        aud.style.display = 'none'; aud.src = ""; audioChunks = []; 
+
+        try {
+            let mime = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : (MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm');
+            mediaRecorder = new MediaRecorder(st, { mimeType: mime });
+            mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
+            mediaRecorder.onstop = () => { try { aud.src = URL.createObjectURL(new Blob(audioChunks, { type: mime })); aud.style.display = 'block'; } catch (err) {} };
+            mediaRecorder.start(); recognition.start();
+            
+            recognition.onresult = e => {
+                let interim = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) { accumulatedTranscript += e.results[i][0].transcript + ' '; } else { interim += e.results[i][0].transcript; }
+                }
+                currentLiveText = (accumulatedTranscript + interim).trim();
+                grade(getSpokenText(tgt), currentLiveText, res);
+            };
+            recognition.onerror = e => { if(e.error !== 'no-speech') console.log("Lỗi REC: " + e.error); };
+        } catch(e) { btn.classList.remove('recording'); isRecording = false; alert("Lỗi khởi động: " + e); }
+    }
+    
+    function grade(t, u, c) {
+        const cl = s => s.toLowerCase().replace(/[^\w\s]/g, '').trim(); const tw = cl(t).split(/\s+/), uw = cl(u).split(/\s+/);
+        let h = '', sc = 0;
+        for (let i = 0; i < uw.length; i++) {
+            if (i >= tw.length) { h += `<span class="wrong">${uw[i]}</span> `; } 
+            else if (uw[i] === tw[i]) { h += `<span class="correct">${tw[i]}</span> `; sc++; } 
+            else {
+                const wordEscaped = tw[i].replace(/'/g, "\\'");
+                h += `<span class="wrong-clickable" onclick="openPractice('${wordEscaped}')">${uw[i] || "..."}</span><span class="fix-container"><span class="fix-word" onclick="speak('${wordEscaped}')">${tw[i]}</span></span> `;
+            }
+        }
+        if (uw.length < tw.length) { for (let i = uw.length; i < tw.length; i++) { const wordEscaped = tw[i].replace(/'/g, "\\'"); h += `<span class="wrong-clickable" onclick="openPractice('${wordEscaped}')" style="text-decoration:none; opacity: 0.5;">[${tw[i]}]</span> `; } }
+        const p = tw.length > 0 ? Math.round((sc / tw.length) * 100) : 0; if (!isRecording && p > 0) saveScoreToHistory(p);
+        c.parentElement.style.borderLeftColor = p > 80 ? '#27ae60' : (p > 50 ? '#f39c12' : '#c0392b');
+        c.innerHTML = `<div style="font-weight:bold;color:${p > 80 ? '#27ae60' : (isRecording ? '#f39c12' : '#c0392b')}">${isRecording ? '🎙️ Đang nghe...' : `🎯 Kết quả: ${p}%`}</div><div style="font-size:1.1em;margin-top:5px;color:var(--text-main); line-height:1.6;">${h}</div>${!isRecording && p < 100 ? '<div style="font-size:0.85em; color:#666; margin-top:5px;">💡 Mẹo: Bấm vào chữ đỏ để luyện lại từng từ.</div>' : ''}`;
+    }
+
+    // --- PRACTICE ENGINE ---
+    let currentPracticeWord = "", isPracticeRecording = false, practiceRecognition = null;
+    function initPracticeEngine() {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return null;
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)(); rec.lang = 'en-US'; rec.continuous = false; rec.interimResults = true; 
+        rec.onresult = (e) => {
+            let final = "", interim = "";
+            for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) final += e.results[i][0].transcript; else interim += e.results[i][0].transcript; }
+            const fb = document.getElementById('practice-feedback');
+            fb.innerHTML = `<span class="hearing-text">... ${interim || final} ...</span>`; fb.style.backgroundColor = "rgba(41, 128, 185, 0.1)";
+            if(final) { checkPracticeResult(final.toLowerCase().trim()); rec.stop(); }
+        };
+        rec.onend = () => {
+            isPracticeRecording = false; updatePracticeBtnState(false); const fb = document.getElementById('practice-feedback');
+            if(fb.innerHTML.includes("...")) { fb.innerHTML = `<div style="color:#666">Không nghe thấy gì. Thử lại nhé.</div>`; fb.style.backgroundColor = "transparent"; }
+        };
+        rec.onerror = (e) => { 
+            if (e.error !== 'aborted' && e.error !== 'no-speech') document.getElementById('practice-feedback').innerText = "Lỗi: " + e.error;
+            else if (e.error === 'no-speech') document.getElementById('practice-feedback').innerText = "🔇 Không phát hiện âm thanh.";
+            isPracticeRecording = false; updatePracticeBtnState(false);
+        };
+        return rec;
+    }
+
+    function updatePracticeBtnState(isRec) { const btn = document.getElementById('btn-practice-mic'); if(isRec) { btn.classList.add('mic-active'); btn.innerText = "🔴 Đang nghe..."; } else { btn.classList.remove('mic-active'); btn.innerText = "🎙️ Đọc lại"; } }
+    function openPractice(word) {
+        if (isRecording) { alert("Vui lòng dừng ghi âm câu chính trước."); return; } if (synth.speaking) synth.cancel();
+        currentPracticeWord = word.toLowerCase().replace(/[^\w\s]/g, ''); document.getElementById('practice-target-word').innerText = word;
+        document.getElementById('practice-feedback').innerHTML = "Bấm nút 🎙️ và đọc to từ trên."; document.getElementById('practice-feedback').style.backgroundColor = "transparent";
+        updatePracticeBtnState(false); document.getElementById('practiceModal').style.display = 'flex';
+    }
+    function closePractice() { document.getElementById('practiceModal').style.display = 'none'; if(isPracticeRecording && practiceRecognition) { practiceRecognition.abort(); isPracticeRecording = false; } }
+    function speakPracticeWord() { speak(document.getElementById('practice-target-word').innerText); }
+
+    function togglePracticeMic() {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) return alert("Trình duyệt không hỗ trợ.");
+        if (isPracticeRecording) { if(practiceRecognition) practiceRecognition.stop(); return; } practiceRecognition = initPracticeEngine();
+        try { practiceRecognition.start(); isPracticeRecording = true; updatePracticeBtnState(true); document.getElementById('practice-feedback').innerText = "👂 Đang nghe..."; document.getElementById('practice-feedback').style.backgroundColor = "rgba(41, 128, 185, 0.1)"; } 
+        catch(e) { setTimeout(() => { practiceRecognition = initPracticeEngine(); practiceRecognition.start(); isPracticeRecording = true; updatePracticeBtnState(true); }, 300); }
+    }
+
+    function checkPracticeResult(spokenWord) {
+        const fb = document.getElementById('practice-feedback'); fb.style.backgroundColor = "transparent";
+        if (spokenWord.includes(currentPracticeWord) || currentPracticeWord.includes(spokenWord)) { fb.innerHTML = `<span style="color:var(--success); font-weight:bold; font-size:24px;">✅ Chính xác!</span><br><span style="color:#666;font-size:14px">Bạn đọc: ${spokenWord}</span>`; speak("Good job"); } 
+        else { fb.innerHTML = `<div style="color:var(--danger)">Nghe được: <strong>${spokenWord}</strong></div><div style="color:#666; font-size:14px">Thử lại nhé!</div>`; }
+    }
+
+    function saveScoreToHistory(s){const h=JSON.parse(localStorage.getItem('voice_history'))||[];h.push({date:new Date().toLocaleDateString('vi-VN'),score:s});localStorage.setItem('voice_history',JSON.stringify(h))}
+    function renderChart(){const c=document.getElementById('progressChart').getContext('2d'),h=JSON.parse(localStorage.getItem('voice_history'))||[];let st={};h.forEach(x=>{if(!st[x.date])st[x.date]={t:0,c:0};st[x.date].t+=x.score;st[x.date].c++});const l=Object.keys(st).slice(-7),d=l.map(k=>Math.round(st[k].t/st[k].c));if(window.myChart)window.myChart.destroy();window.myChart=new Chart(c,{type:'line',data:{labels:l,datasets:[{label:'Điểm %',data:d,borderColor:'#2980b9',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}});}
+    function clearStats(){if(confirm("Xóa?")){localStorage.removeItem('voice_history');renderChart()}}
+
+    function toggleDictationMode(){
+        if(isPlaylistPlaying) stopPlaylist(); isDictationMode=!isDictationMode;
+        document.getElementById('btn-dictation').classList.toggle('active'); document.getElementById('fb-dictation').classList.toggle('active');
+        document.querySelectorAll('.text-display').forEach(e=>e.classList.toggle('blurred',isDictationMode));
+        document.querySelectorAll('.dictation-area').forEach(e=>e.style.display=isDictationMode?'block':'none')
+    }
+    function checkDictation(idx){
+        const inp=document.getElementById(`dict-input-${idx}`),res=document.getElementById(`dict-result-${idx}`),tgt=currentSentencesData[idx].trim(),usr=inp.value.trim();
+        document.querySelectorAll('.text-display')[idx].classList.remove('blurred');
+        const cl=s=>s.toLowerCase().replace(/[^\w\s]/g,'').trim(), tw=cl(getSpokenText(tgt)).split(/\s+/), uw=cl(usr).split(/\s+/);
+        let h='',sc=0; 
+        tw.forEach((w,i)=>{ if(uw[i]===w){ h+=`<span class="correct">${w}</span> `;sc++ } else{ const wordEscaped = w.replace(/'/g, "\\'"); h+=`<span class="wrong">${uw[i]||"..."}</span><span class="fix-container"><span class="fix-word" onclick="speak('${wordEscaped}')">${w}</span><span class="add-vocab-btn" onclick="addVocabToAPI('${wordEscaped}', event)">+</span></span> `; } });
+        const p=Math.round((sc/tw.length)*100); res.style.display='block'; res.innerHTML=`<div style="font-weight:bold;margin-bottom:5px;color:${p===100?'var(--success)':'var(--danger)'}">🎯 Kết quả: ${p}%</div><div style="font-size:1.1em;line-height:1.6;">${h}</div>`;
+    }
+    
+    window.onload= function() { loadLessons(); const storedRepeat = localStorage.getItem('playlist_repeat'); if(storedRepeat) { maxRepeats = parseInt(storedRepeat); const sel = document.getElementById('repeat-select'); if(sel) sel.value = storedRepeat; } };
+</script>
 </body>
 </html>
