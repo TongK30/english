@@ -852,57 +852,37 @@
         const cleanTxt = getSpokenText(rawText);
         if (!cleanTxt) return;
 
-        // Tìm .text-display tương ứng
         const displays = document.querySelectorAll('.text-display');
         const display = displays[idx];
         if (!display) { speak(rawText); return; }
 
-        // Thu thập tất cả word-span trong display
         const wordSpans = display.querySelectorAll('.word-span');
         if (wordSpans.length === 0) { speak(rawText); return; }
 
-        // Tô sáng hiệu ứng cả sentence row
         const row = display.closest('.sentence-row');
         if (row) row.classList.add('playing');
 
         const u = new SpeechSynthesisUtterance(cleanTxt);
         u.lang = 'en-US';
         u.rate = parseFloat(currentSpeed);
-        const selectedIdx = document.getElementById('voice-select').value;
-        if (availableVoices[selectedIdx]) u.voice = availableVoices[selectedIdx];
+        const selectedVoiceIdx = document.getElementById('voice-select').value;
+        if (availableVoices[selectedVoiceIdx]) u.voice = availableVoices[selectedVoiceIdx];
 
-        let currentWordIdx = 0;
+        let wordCounter = -1;
         let usedBoundary = false;
+        let fallbackTimer = null;
 
-        // Phương pháp 1: onboundary event (chính xác nhất)
-        u.onboundary = function(e) {
-            if (e.name !== 'word') return;
-            usedBoundary = true;
-            // Bỏ highlight từ cũ
-            wordSpans.forEach(s => { s.classList.remove('word-karaoke-active'); });
-            // Tìm word-span tương ứng với vị trí charIndex
-            const spokenWords = cleanTxt.split(/\s+/);
-            let charCount = 0, wordIndex = -1;
-            for (let i = 0; i < spokenWords.length; i++) {
-                if (charCount >= e.charIndex) { wordIndex = i; break; }
-                charCount += spokenWords[i].length + 1;
-            }
-            if (wordIndex === -1) wordIndex = spokenWords.length - 1;
-
-            // Đánh dấu các từ đã đọc
-            for (let i = 0; i < wordSpans.length && i < wordIndex; i++) {
+        function highlightWord(index) {
+            wordSpans.forEach(s => s.classList.remove('word-karaoke-active'));
+            for (let i = 0; i < index && i < wordSpans.length; i++) {
                 wordSpans[i].classList.add('word-karaoke-done');
             }
-            // Highlight từ đang đọc
-            if (wordIndex < wordSpans.length) {
-                wordSpans[wordIndex].classList.add('word-karaoke-active');
+            if (index >= 0 && index < wordSpans.length) {
+                wordSpans[index].classList.add('word-karaoke-active');
             }
-        };
+        }
 
-        u.onend = function() {
-            // Nếu không có boundary events, dùng fallback
-            if (!usedBoundary && wordSpans.length > 0) return;
-            // Đánh dấu hoàn tất
+        function finishKaraoke() {
             wordSpans.forEach(s => {
                 s.classList.remove('word-karaoke-active');
                 s.classList.add('word-karaoke-done');
@@ -910,31 +890,41 @@
             setTimeout(() => {
                 clearKaraoke();
                 if (row) row.classList.remove('playing');
-            }, 1500);
+            }, 1200);
+        }
+
+        // onboundary: mỗi lần TTS sang từ mới → tăng counter
+        u.onboundary = function(e) {
+            if (e.name !== 'word') return;
+            usedBoundary = true;
+            if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+            wordCounter++;
+            highlightWord(wordCounter);
+        };
+
+        u.onend = function() {
+            if (!usedBoundary) return; // fallback xử lý riêng
+            finishKaraoke();
         };
 
         synth.speak(u);
 
-        // Fallback: Nếu sau 500ms không có boundary event → dùng timing
-        setTimeout(() => {
+        // Fallback: nếu sau 300ms không có boundary → dùng timing
+        fallbackTimer = setTimeout(() => {
             if (usedBoundary) return;
             const words = cleanTxt.split(/\s+/);
-            const totalDuration = (cleanTxt.length / (currentSpeed * 12)) * 1000; // ước lượng ms
-            const wordDuration = totalDuration / words.length;
+            // ~2.5 words/sec ở speed 1.0, scale theo speed
+            const wps = 2.5 * parseFloat(currentSpeed);
+            const wordDuration = 1000 / wps;
             let i = 0;
-            function highlightNext() {
-                if (i >= wordSpans.length || !synth.speaking) {
-                    setTimeout(() => { clearKaraoke(); if (row) row.classList.remove('playing'); }, 1500);
-                    return;
-                }
-                wordSpans.forEach(s => s.classList.remove('word-karaoke-active'));
-                for (let j = 0; j < i; j++) wordSpans[j].classList.add('word-karaoke-done');
-                wordSpans[i].classList.add('word-karaoke-active');
+            function step() {
+                if (i >= wordSpans.length || !synth.speaking) { finishKaraoke(); return; }
+                highlightWord(i);
                 i++;
-                setTimeout(highlightNext, wordDuration);
+                setTimeout(step, wordDuration);
             }
-            highlightNext();
-        }, 500);
+            step();
+        }, 300);
     }
 
     function clearKaraoke() {
