@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V77i: Firewall Bypassed & No 404</title>
+    <title>Luyện Nói V77: Firewall Bypassed & No 404</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -1503,6 +1503,8 @@
     }
     
     // --- RECORDING CORE ---
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
     async function initMicrophone(){if(globalStream)return globalStream;try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null}}
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; 
     let accumulatedTranscript = ""; 
@@ -1510,7 +1512,7 @@
     const SILENCE_TIMEOUT = 2;
     // Lưu context recording hiện tại để auto-stop dùng
     let recContext = { btn: null, tgt: '', res: null, btnId: '' };
-    if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = true; recognition.interimResults = true; }
+    if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = !isIOS; recognition.interimResults = true; }
 
     function clearSilenceTimers() {
         if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
@@ -1568,7 +1570,12 @@
         }
 
         if(isRecording) return alert("Vui lòng dừng câu trước đó!");
-        const st = await initMicrophone(); if(!st) return;
+        
+        let st = null;
+        if (!isIOS) {
+            st = await initMicrophone(); if(!st) return;
+        }
+
         isRecording = true; currentLiveText = ""; accumulatedTranscript = "";
         // Lưu context cho auto-stop
         recContext = { btn, tgt, res, btnId };
@@ -1577,11 +1584,14 @@
         aud.style.display = 'none'; aud.src = ""; audioChunks = []; 
 
         try {
-            let mime = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : (MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm');
-            mediaRecorder = new MediaRecorder(st, { mimeType: mime });
-            mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
-            mediaRecorder.onstop = () => { try { aud.src = URL.createObjectURL(new Blob(audioChunks, { type: mime })); aud.style.display = 'block'; } catch (err) {} };
-            mediaRecorder.start(); recognition.start();
+            if (!isIOS && st) {
+                let mime = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : (MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm');
+                mediaRecorder = new MediaRecorder(st, { mimeType: mime });
+                mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
+                mediaRecorder.onstop = () => { try { aud.src = URL.createObjectURL(new Blob(audioChunks, { type: mime })); aud.style.display = 'block'; } catch (err) {} };
+                mediaRecorder.start(); 
+            }
+            recognition.start();
             
             recognition.onresult = e => {
                 let interim = '';
@@ -1593,7 +1603,7 @@
                 resetSilenceTimer();
             };
             recognition.onerror = e => { if(e.error !== 'no-speech') console.log("Lỗi REC: " + e.error); };
-        } catch(e) { clearSilenceTimers(); btn.classList.remove('recording'); isRecording = false; alert("Lỗi khởi động: " + e); }
+        } catch(e) { clearSilenceTimers(); btn.classList.remove('recording'); isRecording = false; alert("Lỗi khởi động Mic: " + e); }
     }
     
     // --- CONTRACTION NORMALIZATION & LCS GRADING ---
