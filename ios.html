@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luyện Nói V77: Firewall Bypassed & No 404</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Nói V78: iOS Safari Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -16,7 +16,11 @@
             --border: #333; --highlight: #5dade2; --input-bg: #2c2c2c;
             --tag-text: #e67e22; --sep-color: #555; --suffix-color: #e0e0e0;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); transition: background 0.3s; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-body); color: var(--text-main); transition: background 0.3s; -webkit-tap-highlight-color: rgba(0,0,0,0.05); -webkit-overflow-scrolling: touch; }
+        /* iOS touch fix: ensure all clickable elements respond to touch */
+        button, .btn, .header-btn, .float-btn, .toggle-btn, .btn-action, .btn-sm, .word-span, .item-title, .tooltip-btn, .zen-btn, .rel-tag, .fc-nav-arrow, .close-btn, .note-color-btn, .zen-check-label, [onclick] { touch-action: manipulation; -webkit-tap-highlight-color: rgba(0,0,0,0.05); cursor: pointer; }
+        .modal { -webkit-overflow-scrolling: touch; }
+        .modal-body { -webkit-overflow-scrolling: touch; }
 
         /* HEADER & FLOATING SIDEBAR */
         .header-bar { padding: 15px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
@@ -39,7 +43,7 @@
         @keyframes pulse-border { 0% {box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);} 70% {box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);} 100% {box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);} }
 
         /* MODAL COMMON & 2-COLUMN LAYOUT */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; -webkit-overflow-scrolling: touch; }
         .modal-content { background: var(--bg-card); width: 95%; max-width: 500px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -449,7 +453,12 @@
 <script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
 
 <script>
-    // --- V77: FIX YOUGLISH FIREWALL BLOCK & 404 CỤM TỪ ---
+    // --- V78: iOS SAFARI COMPATIBILITY FIX ---
+    // Wrap everything to prevent iOS script crash
+    window.onerror = function(msg, url, line, col, error) {
+        console.error('Global error:', msg, 'at', line, ':', col);
+        return false;
+    };
 
     let ygWidget;
     function onYouglishAPIReady() {
@@ -531,9 +540,11 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
     // --- GLOBAL VARIABLES ---
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     let globalStream=null, mediaRecorder, audioChunks=[], recognition, allLessons=[], isRecording=false, currentUtterance=null, currentSentencesData=[];
-    let isDictationMode=false; const synth=window.speechSynthesis; 
+    let isDictationMode=false; const synth=window.speechSynthesis || null; 
     let availableVoices=[]; let currentLiveText = ""; 
+    let iosVoiceRetries = 0;
     let isPlaylistPlaying = false, playlistIndex = 0, repeatCount = 0, maxRepeats = 3; 
     let zenIndex = 0; let currentLessonId = null; 
     let globalVocabList = []; 
@@ -541,19 +552,28 @@
     
     // --- VOICE SETUP ---
     function loadVoices() { 
-        let rawVoices = synth.getVoices();
-        availableVoices = rawVoices.filter(v => v.lang.startsWith('en'));
-        const select = document.getElementById('voice-select'); select.innerHTML = ''; 
-        if(availableVoices.length === 0) {
-            const op = document.createElement('option'); op.text = "Không tìm thấy giọng Anh"; select.add(op);
-        } else {
-            availableVoices.forEach((v, index) => { const op = document.createElement('option'); op.value = index; op.text = `${v.name} (${v.lang})`; select.add(op); });
-            const savedVoiceName = localStorage.getItem('selected_voice_name');
-            if(savedVoiceName){ const idx = availableVoices.findIndex(v => v.name === savedVoiceName); if(idx !== -1) select.value = idx; }
-            document.getElementById('btn-activate-voice').style.display='none'; 
-        }
+        if(!synth) { console.warn('SpeechSynthesis not available'); return; }
+        try {
+            let rawVoices = synth.getVoices();
+            // iOS Safari: voices may not be ready immediately, retry up to 10 times
+            if (rawVoices.length === 0 && iosVoiceRetries < 10) {
+                iosVoiceRetries++;
+                setTimeout(loadVoices, 300);
+                return;
+            }
+            availableVoices = rawVoices.filter(v => v.lang.startsWith('en'));
+            const select = document.getElementById('voice-select'); select.innerHTML = ''; 
+            if(availableVoices.length === 0) {
+                const op = document.createElement('option'); op.text = "Không tìm thấy giọng Anh"; select.add(op);
+            } else {
+                availableVoices.forEach((v, index) => { const op = document.createElement('option'); op.value = index; op.text = `${v.name} (${v.lang})`; select.add(op); });
+                const savedVoiceName = localStorage.getItem('selected_voice_name');
+                if(savedVoiceName){ const idx = availableVoices.findIndex(v => v.name === savedVoiceName); if(idx !== -1) select.value = idx; }
+                document.getElementById('btn-activate-voice').style.display='none'; 
+            }
+        } catch(e) { console.error('loadVoices error:', e); }
     }
-    loadVoices(); if(synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+    loadVoices(); if(synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
     function saveVoicePreference() { const select = document.getElementById('voice-select'); const idx = select.value; if(availableVoices[idx]) localStorage.setItem('selected_voice_name', availableVoices[idx].name); }
     function activateVoice() { if(synth.speaking) synth.cancel(); const u = new SpeechSynthesisUtterance(" "); u.volume = 0; synth.speak(u); document.getElementById('btn-activate-voice').style.display='none'; }
 
@@ -590,20 +610,24 @@
     const tooltip = document.getElementById('selection-tooltip');
     
     function handleSelection(e) {
-        // Đặt timeout nhẹ để hệ điều hành hoàn tất việc quét khối bộ chọn
+        // iOS Safari needs longer timeout for selection to be ready
+        const delay = isIOS ? 200 : 50;
         setTimeout(() => {
-            const selection = window.getSelection(); const text = selection.toString().trim();
-            if (text.length > 0 && e.target.closest('.text-display')) {
-                const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
-                tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-                tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
-            }
-        }, 50);
+            try {
+                const selection = window.getSelection(); const text = selection.toString().trim();
+                if (text.length > 0 && e.target.closest('.text-display')) {
+                    const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
+                    tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                    tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
+                }
+            } catch(err) { /* selection might not be available */ }
+        }, delay);
     }
     
     document.addEventListener('mouseup', handleSelection);
     document.addEventListener('touchend', handleSelection);
     document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
+    document.addEventListener('touchstart', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
     
     document.addEventListener('click', (e) => {
         let noteNode = e.target.closest('.has-note');
@@ -1509,16 +1533,27 @@
     }
     
     // --- RECORDING CORE ---
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     
-    async function initMicrophone(){if(globalStream)return globalStream;try{globalStream=await navigator.mediaDevices.getUserMedia({audio:true});return globalStream}catch(e){alert("Lỗi Mic: "+e.message);return null}}
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; 
+    async function initMicrophone(){
+        if(globalStream) return globalStream;
+        try {
+            globalStream = await navigator.mediaDevices.getUserMedia({audio:true});
+            return globalStream;
+        } catch(e) {
+            alert("Lỗi Mic: " + e.message);
+            return null;
+        }
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; 
     let accumulatedTranscript = ""; 
     let silenceTimer = null, silenceCountdown = null, silenceSeconds = 0;
     const SILENCE_TIMEOUT = 2;
     // Lưu context recording hiện tại để auto-stop dùng
     let recContext = { btn: null, tgt: '', res: null, btnId: '' };
-    if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = !isIOS; recognition.interimResults = true; }
+    // iOS Safari: Wrap SpeechRecognition init in try-catch to prevent script crash
+    try {
+        if(SpeechRecognition){ recognition = new SpeechRecognition(); recognition.lang = 'en-US'; recognition.continuous = !isIOS; recognition.interimResults = true; }
+    } catch(e) { console.warn('SpeechRecognition init failed (iOS?):', e); recognition = null; }
 
     function clearSilenceTimers() {
         if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
