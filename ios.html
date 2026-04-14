@@ -589,14 +589,20 @@
     // --- SELECTION, HIGHLIGHT & INLINE NOTES ---
     const tooltip = document.getElementById('selection-tooltip');
     
-    document.addEventListener('mouseup', (e) => {
-        const selection = window.getSelection(); const text = selection.toString().trim();
-        if (text.length > 0 && e.target.closest('.text-display')) {
-            const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
-            tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-            tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
-        } 
-    });
+    function handleSelection(e) {
+        // Đặt timeout nhẹ để hệ điều hành hoàn tất việc quét khối bộ chọn
+        setTimeout(() => {
+            const selection = window.getSelection(); const text = selection.toString().trim();
+            if (text.length > 0 && e.target.closest('.text-display')) {
+                const range = selection.getRangeAt(0); const rect = range.getBoundingClientRect();
+                tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                tooltip.style.top = `${rect.top + window.scrollY - 45}px`; tooltip.style.display = 'flex';
+            }
+        }, 50);
+    }
+    
+    document.addEventListener('mouseup', handleSelection);
+    document.addEventListener('touchend', handleSelection);
     document.addEventListener('mousedown', (e) => { if (!e.target.closest('#selection-tooltip')) { tooltip.style.display = 'none'; } });
     
     document.addEventListener('click', (e) => {
