@@ -1089,22 +1089,130 @@
         document.getElementById('fb-playlist').classList.add('active'); document.getElementById('fb-playlist').innerHTML = '⏹️'; playNextInQueue();
     }
     function stopPlaylist() {
-        isPlaylistPlaying = false; synth.cancel();
+        isPlaylistPlaying = false; synth.cancel(); clearKaraoke();
         document.getElementById('btn-playlist').classList.remove('active'); document.getElementById('btn-playlist').innerHTML = '🎧 Nghe thụ động';
         document.getElementById('fb-playlist').classList.remove('active'); document.getElementById('fb-playlist').innerHTML = '🎧';
         document.querySelectorAll('.sentence-row').forEach(r => r.classList.remove('playing'));
     }
     function playNextInQueue() {
-        if (!isPlaylistPlaying) return; if (playlistIndex >= currentSentencesData.length) { stopPlaylist(); return; }
-        const rows = document.querySelectorAll('.sentence-row'); rows.forEach(r => r.classList.remove('playing'));
-        if(rows[playlistIndex]) { rows[playlistIndex].classList.add('playing'); rows[playlistIndex].scrollIntoView({behavior: "smooth", block: "center"}); }
-        const u = new SpeechSynthesisUtterance(getSpokenText(currentSentencesData[playlistIndex])); u.lang = 'en-US'; u.rate = parseFloat(currentSpeed); 
-        if (availableVoices[document.getElementById('voice-select').value]) { u.voice = availableVoices[document.getElementById('voice-select').value]; }
+        if (!isPlaylistPlaying) return; 
+        if (playlistIndex >= currentSentencesData.length) { stopPlaylist(); return; }
+        
+        clearKaraoke();
+        const rows = document.querySelectorAll('.sentence-row'); 
+        rows.forEach(r => r.classList.remove('playing'));
+        
+        const row = rows[playlistIndex];
+        if(row) { row.classList.add('playing'); row.scrollIntoView({behavior: "smooth", block: "center"}); }
+        
+        const displays = document.querySelectorAll('.text-display');
+        const display = displays[playlistIndex];
+        const wordSpans = display ? display.querySelectorAll('.word-span') : [];
+        
+        const cleanTxt = getSpokenText(currentSentencesData[playlistIndex]);
+        const u = new SpeechSynthesisUtterance(cleanTxt); 
+        u.lang = 'en-US'; u.rate = parseFloat(currentSpeed); 
+        if (availableVoices[document.getElementById('voice-select').value]) { 
+            u.voice = availableVoices[document.getElementById('voice-select').value]; 
+        }
+        
+        // --- KARAOKE cho Playlist ---
+        let usedBoundary = false;
+        let fallbackTimer = null;
+        
+        function highlightWordPL(index) {
+            wordSpans.forEach(s => s.classList.remove('word-karaoke-active'));
+            for (let i = 0; i < index && i < wordSpans.length; i++) {
+                wordSpans[i].classList.add('word-karaoke-done');
+            }
+            if (index >= 0 && index < wordSpans.length) {
+                wordSpans[index].classList.add('word-karaoke-active');
+            }
+        }
+        
+        function finishKaraokePL() {
+            wordSpans.forEach(s => {
+                s.classList.remove('word-karaoke-active');
+                s.classList.add('word-karaoke-done');
+            });
+        }
+        
+        function resetKaraokePL() {
+            wordSpans.forEach(s => {
+                s.classList.remove('word-karaoke-active', 'word-karaoke-done');
+            });
+        }
+        
+        if (wordSpans.length > 0) {
+            u.onboundary = function(e) {
+                if (e.name !== 'word') return;
+                usedBoundary = true;
+                if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+                const beforeText = cleanTxt.substring(0, e.charIndex);
+                const wordIndex = beforeText.trim() ? beforeText.trim().split(/\s+/).length : 0;
+                setTimeout(() => highlightWordPL(wordIndex), 100);
+            };
+        }
+        
         u.onend = function() {
+            if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
             if (!isPlaylistPlaying) return;
-            if (repeatCount < maxRepeats - 1) { repeatCount++; setTimeout(() => { if(isPlaylistPlaying) synth.speak(u); }, 500); } 
-            else { repeatCount = 0; playlistIndex++; setTimeout(playNextInQueue, 1000); }
-        }; synth.speak(u);
+            
+            finishKaraokePL();
+            
+            if (repeatCount < maxRepeats - 1) { 
+                repeatCount++; 
+                setTimeout(() => { 
+                    if(isPlaylistPlaying) {
+                        resetKaraokePL(); // Reset karaoke cho lần repeat tiếp
+                        usedBoundary = false;
+                        fallbackTimer = null;
+                        // Re-setup fallback cho lần repeat
+                        if (wordSpans.length > 0) {
+                            fallbackTimer = setTimeout(() => {
+                                if (usedBoundary) return;
+                                const wps = 2.5 * parseFloat(currentSpeed);
+                                const wordDuration = 1000 / wps;
+                                let k = 0;
+                                function stepRepeat() {
+                                    if (k >= wordSpans.length || !synth.speaking || !isPlaylistPlaying) { finishKaraokePL(); return; }
+                                    highlightWordPL(k); k++;
+                                    setTimeout(stepRepeat, wordDuration);
+                                }
+                                stepRepeat();
+                            }, 300);
+                        }
+                        synth.speak(u); 
+                    }
+                }, 500); 
+            } else { 
+                setTimeout(() => {
+                    resetKaraokePL();
+                    if (row) row.classList.remove('playing');
+                }, 800);
+                repeatCount = 0; 
+                playlistIndex++; 
+                setTimeout(playNextInQueue, 1200); 
+            }
+        }; 
+        
+        // Fallback timing nếu browser không hỗ trợ onboundary
+        if (wordSpans.length > 0) {
+            fallbackTimer = setTimeout(() => {
+                if (usedBoundary) return;
+                const wps = 2.5 * parseFloat(currentSpeed);
+                const wordDuration = 1000 / wps;
+                let i = 0;
+                function step() {
+                    if (i >= wordSpans.length || !synth.speaking || !isPlaylistPlaying) { finishKaraokePL(); return; }
+                    highlightWordPL(i); i++;
+                    setTimeout(step, wordDuration);
+                }
+                step();
+            }, 300);
+        }
+        
+        synth.speak(u);
     }
 
     // --- API STRUCTURE ---
