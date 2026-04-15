@@ -135,6 +135,73 @@
         .zen-text.shadow-mode .word-span, .zen-text.shadow-mode .note-suffix, .zen-text.shadow-mode .note-tag, .zen-text.shadow-mode .note-sep { filter: blur(10px); transition: filter 0.4s ease; }
         .zen-text.shadow-mode.revealed .word-span, .zen-text.shadow-mode.revealed .note-suffix, .zen-text.shadow-mode.revealed .note-tag, .zen-text.shadow-mode.revealed .note-sep { filter: blur(0); }
 
+        /* RESPONSIVE: Tablet */
+        @media (max-width: 768px) {
+            #zenModal { padding: 15px; }
+            .zen-text { font-size: 26px; line-height: 1.4; margin-bottom: 20px; }
+            .zen-translation { font-size: 16px; margin-bottom: 18px; }
+            .zen-btn { width: 50px; height: 50px; font-size: 20px; }
+            .zen-btn-speak { width: 65px; height: 65px; font-size: 28px; }
+            .zen-btn-mic { width: 65px; height: 65px; font-size: 28px; }
+            .zen-controls { gap: 15px; margin-bottom: 20px; }
+            .zen-options { gap: 8px; }
+            .zen-check-label { font-size: 13px; padding: 4px 8px; }
+            .zen-feedback { font-size: 16px; padding: 12px; width: 95%; }
+            .zen-close { font-size: 32px; }
+            .zen-header { top: 10px; right: 15px; }
+            .zen-progress-text { font-size: 13px; }
+            .zen-shadow-hint { font-size: 12px; }
+        }
+
+        /* RESPONSIVE: Phone */
+        @media (max-width: 480px) {
+            #zenModal { padding: 10px; padding-top: 50px; justify-content: flex-start; }
+            .zen-content { justify-content: flex-start; padding-top: 10px; }
+            .zen-text { font-size: 20px; line-height: 1.4; margin-bottom: 12px; padding: 0 5px; }
+            .zen-translation { font-size: 14px; margin-bottom: 12px; }
+            .zen-btn { width: 44px; height: 44px; font-size: 18px; }
+            .zen-btn-speak { width: 56px; height: 56px; font-size: 24px; }
+            .zen-btn-mic { width: 56px; height: 56px; font-size: 24px; }
+            .zen-controls { gap: 12px; margin-bottom: 15px; }
+            .zen-options { gap: 6px; margin-bottom: 12px; }
+            .zen-check-label { font-size: 11px; padding: 3px 7px; gap: 3px; }
+            .zen-feedback { font-size: 14px; padding: 10px; width: 100%; min-height: 50px; }
+            .zen-close { font-size: 28px; }
+            .zen-header { top: 8px; right: 10px; }
+            .zen-progress { margin-bottom: 10px; }
+            .zen-progress-text { font-size: 12px; }
+            .zen-shadow-hint { font-size: 11px; margin-top: -8px; margin-bottom: 10px; }
+
+            /* Flashcard responsive */
+            .flashcard-container { height: 320px; }
+            .fc-word { font-size: 28px; margin-bottom: 12px; }
+            .fc-meaning { font-size: 20px; }
+            .fc-nav-arrow { width: 38px; height: 38px; font-size: 18px; }
+
+            /* General mobile fixes */
+            .header-bar { padding: 10px; gap: 6px; }
+            .header-btn { padding: 6px 10px; font-size: 16px; }
+            .float-sidebar { right: 8px; gap: 8px; }
+            .float-btn { width: 42px; height: 42px; font-size: 18px; }
+            .float-btn::after { display: none; }
+            .modal-content { width: 98%; max-height: 95vh; }
+            .sentence-row { padding: 10px 12px; }
+            .text-display { font-size: 16px; }
+            .btn-action { padding: 6px 10px; font-size: 12px; min-width: 36px; min-height: 36px; }
+        }
+
+        /* RESPONSIVE: Small phone */
+        @media (max-width: 360px) {
+            .zen-text { font-size: 18px; }
+            .zen-btn { width: 40px; height: 40px; font-size: 16px; }
+            .zen-btn-speak { width: 50px; height: 50px; font-size: 22px; }
+            .zen-btn-mic { width: 50px; height: 50px; font-size: 22px; }
+            .zen-controls { gap: 10px; }
+            .zen-check-label { font-size: 10px; }
+            .flashcard-container { height: 280px; }
+            .fc-word { font-size: 24px; }
+        }
+
         /* TỪ ĐIỂN & SYNONYMS */
         .dict-search-box { display: flex; gap: 5px; margin-bottom: 15px; }
         .dict-word { font-size: 28px; font-weight: bold; color: var(--highlight); margin-bottom: 5px; }
