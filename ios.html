@@ -860,7 +860,7 @@
 
             const j = await r.json(); const d = j[0]; 
             const ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); 
-            const au = d.phonetics.find(p => p.audio)?.audio || "";
+            const _auEntry = d.phonetics.find(p => p.audio); const au = (_auEntry && _auEntry.audio) ? _auEntry.audio : "";
             let de = "No def", ex = "", synonyms = [], antonyms = [];
             
             if(d.meanings[0]) { 
@@ -1297,7 +1297,7 @@
             }
             
             let d = null, de = "No def", ex = "", ph = "", au = ""; let synonyms = [], antonyms = [];
-            const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); au = d.phonetics.find(p => p.audio)?.audio || ""; 
+            const j = await r.json(); d = j[0]; ph = d.phonetic || (d.phonetics.find(p => p.text) ? d.phonetics.find(p => p.text).text : ""); const _auEntry2 = d.phonetics.find(p => p.audio); au = (_auEntry2 && _auEntry2.audio) ? _auEntry2.audio : ""; 
             if(d.meanings[0]) { de = d.meanings[0].definitions[0].definition; for(let m of d.meanings) { if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms); if(m.antonyms && m.antonyms.length > 0) antonyms.push(...m.antonyms); for(let df of m.definitions) { if(df.example && !ex) ex = df.example; if(df.synonyms && df.synonyms.length > 0) synonyms.push(...df.synonyms); if(df.antonyms && df.antonyms.length > 0) antonyms.push(...df.antonyms); } } } 
             synonyms = [...new Set(synonyms)].slice(0, 8); antonyms = [...new Set(antonyms)].slice(0, 8);
             let synHtml = synonyms.length > 0 ? `<div class="relation-title">🔗 Đồng nghĩa:</div><div class="tag-container">${synonyms.map(s => `<span class="rel-tag tag-syn" onclick="viewVocabDetail('${s}')">${s}</span>`).join('')}</div>` : '';
@@ -1537,7 +1537,8 @@
         if (!raw) return alert("Vui lòng nhập nội dung trước!");
 
         // Tách theo .!? + khoảng trắng (giúp user paste 1 đoạn dài)
-        const sentences = raw.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 0);
+        // Không dùng lookbehind (?<=) vì iOS Safari < 16.4 không hỗ trợ → crash toàn bộ JS
+        const sentences = raw.replace(/([.!?])\s+/g, '$1\n').split('\n').map(s => s.trim()).filter(s => s.length > 0);
         if (sentences.length <= 1) {
             alert("Không thể tách thêm. Hãy thêm dấu .!? giữa các câu.");
             return;
