@@ -644,7 +644,7 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at 50% 0%, rgba(41,128,185,0.08) 0%, var(--bg-body) 70%);
+            background: radial-gradient(ellipse at 50% 0%, rgba(41, 128, 185, 0.08) 0%, var(--bg-body) 70%);
             border-radius: 8px;
             position: relative;
             overflow: hidden;
@@ -657,13 +657,13 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at 30% 20%, rgba(142,68,173,0.04) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(41,128,185,0.04) 0%, transparent 50%);
+            background: radial-gradient(circle at 30% 20%, rgba(142, 68, 173, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(41, 128, 185, 0.04) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
         }
 
-        #tp-flashcard-view > * {
+        #tp-flashcard-view>* {
             position: relative;
             z-index: 1;
         }
@@ -676,18 +676,18 @@
             width: 100%;
             max-width: 520px;
             padding: 10px 16px;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             margin-bottom: 12px;
         }
 
         body.dark-mode .tp-fc-toolbar {
-            background: rgba(30,30,30,0.7);
-            border-color: rgba(255,255,255,0.08);
+            background: rgba(30, 30, 30, 0.7);
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .tp-fc-toolbar-left {
@@ -721,12 +721,12 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(243,156,18,0.3);
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
         }
 
         .tp-fc-btn-shuffle:hover {
             transform: scale(1.05);
-            box-shadow: 0 3px 12px rgba(243,156,18,0.4);
+            box-shadow: 0 3px 12px rgba(243, 156, 18, 0.4);
         }
 
         .tp-fc-btn-shuffle:active {
@@ -769,7 +769,7 @@
         .tp-fc-filter-row select:focus {
             outline: none;
             border-color: var(--highlight);
-            box-shadow: 0 0 0 3px rgba(41,128,185,0.1);
+            box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
         }
 
         /* Progress */
@@ -789,14 +789,21 @@
             background: linear-gradient(90deg, #8e44ad, #3498db, #27ae60);
             background-size: 200% 100%;
             border-radius: 5px;
-            transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
-            box-shadow: 0 0 8px rgba(142,68,173,0.4);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(142, 68, 173, 0.4);
             animation: tp-fc-shimmer 3s ease-in-out infinite;
         }
 
         @keyframes tp-fc-shimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         /* Card area */
@@ -814,17 +821,17 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(0,0,0,0.08);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             color: var(--text-sub);
             width: 44px;
             height: 44px;
             border-radius: 50%;
             font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
             z-index: 10;
             transition: all 0.25s;
             display: flex;
@@ -833,8 +840,8 @@
         }
 
         body.dark-mode .tp-fc-nav {
-            background: rgba(30,30,30,0.8);
-            border-color: rgba(255,255,255,0.1);
+            background: rgba(30, 30, 30, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .tp-fc-nav:hover {
@@ -842,15 +849,20 @@
             color: white;
             border-color: var(--highlight);
             transform: translateY(-50%) scale(1.12);
-            box-shadow: 0 4px 16px rgba(41,128,185,0.3);
+            box-shadow: 0 4px 16px rgba(41, 128, 185, 0.3);
         }
 
         .tp-fc-nav:active {
             transform: translateY(-50%) scale(0.92);
         }
 
-        .tp-fc-nav.left { left: 0; }
-        .tp-fc-nav.right { right: 0; }
+        .tp-fc-nav.left {
+            left: 0;
+        }
+
+        .tp-fc-nav.right {
+            right: 0;
+        }
 
         /* Card container */
         .tp-fc-card-container {
@@ -892,25 +904,27 @@
             scrollbar-width: none;
         }
 
-        .tp-fc-face::-webkit-scrollbar { display: none; }
+        .tp-fc-face::-webkit-scrollbar {
+            display: none;
+        }
 
         /* Front face */
         .tp-fc-front {
             background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-body) 100%);
-            border: 2px solid rgba(142,68,173,0.35);
-            box-shadow: 0 8px 32px rgba(142,68,173,0.15), 0 2px 8px rgba(0,0,0,0.06),
-                        0 0 0 1px rgba(52,152,219,0.15),
-                        inset 0 1px 0 rgba(255,255,255,0.5);
+            border: 2px solid rgba(142, 68, 173, 0.35);
+            box-shadow: 0 8px 32px rgba(142, 68, 173, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(52, 152, 219, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         /* Back face */
         .tp-fc-back {
             transform: rotateY(180deg);
             background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-body) 100%);
-            border: 2px solid rgba(39,174,96,0.35);
-            box-shadow: 0 8px 32px rgba(39,174,96,0.15), 0 2px 8px rgba(0,0,0,0.06),
-                        0 0 0 1px rgba(41,128,185,0.15),
-                        inset 0 1px 0 rgba(255,255,255,0.5);
+            border: 2px solid rgba(39, 174, 96, 0.35);
+            box-shadow: 0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(41, 128, 185, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
             justify-content: flex-start;
             padding-top: 20px;
         }
@@ -954,7 +968,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s;
-            box-shadow: 0 3px 12px rgba(41,128,185,0.3);
+            box-shadow: 0 3px 12px rgba(41, 128, 185, 0.3);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -962,7 +976,7 @@
 
         .tp-fc-speak-btn:hover {
             transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 5px 18px rgba(41,128,185,0.4);
+            box-shadow: 0 5px 18px rgba(41, 128, 185, 0.4);
         }
 
         .tp-fc-speak-btn:active {
@@ -983,8 +997,15 @@
         }
 
         @keyframes tp-fc-pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
 
         /* Back content */
@@ -1022,7 +1043,7 @@
         }
 
         .tp-fc-example {
-            background: rgba(243,156,18,0.06);
+            background: rgba(243, 156, 18, 0.06);
             border-left: 3px solid var(--warning);
             padding: 12px 14px;
             border-radius: 0 10px 10px 0;
@@ -1034,7 +1055,7 @@
         }
 
         body.dark-mode .tp-fc-example {
-            background: rgba(243,156,18,0.08);
+            background: rgba(243, 156, 18, 0.08);
         }
 
         .tp-fc-example .ex-label {
@@ -1055,7 +1076,7 @@
 
         .tp-fc-example .ex-speak {
             background: none;
-            border: 1px solid rgba(243,156,18,0.3);
+            border: 1px solid rgba(243, 156, 18, 0.3);
             color: var(--warning);
             padding: 4px 10px;
             border-radius: 15px;
@@ -1086,7 +1107,7 @@
             color: white;
             font-weight: 600;
             letter-spacing: 0.3px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .tp-fc-source {
@@ -1122,7 +1143,7 @@
             border-radius: 4px;
             font-family: inherit;
             font-size: 11px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         }
 
         .tp-fc-exit-btn {
@@ -1146,8 +1167,15 @@
 
         /* Card slide animation */
         @keyframes tp-fc-slide-in {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .tp-fc-card-container.animate .tp-fc-card {
@@ -2714,7 +2742,8 @@
                 <label class="zen-check-label"><input type="checkbox" id="zen-automic"> 🎙️ Tự động thu âm</label>
                 <label class="zen-check-label"><input type="checkbox" id="zen-shadow" onchange="updateZenUI()"> 👁️ Ẩn
                     text</label>
-                <label class="zen-check-label"><input type="checkbox" id="zen-show-vi" checked onchange="updateZenUI()"> 🌐 Dịch</label>
+                <label class="zen-check-label"><input type="checkbox" id="zen-show-vi" checked onchange="updateZenUI()">
+                    🌐 Dịch</label>
             </div>
             <div id="zen-feedback" class="zen-feedback">
                 <div id="zen-result-text"></div>
@@ -2829,46 +2858,47 @@
             </div>
             <div class="modal-body">
                 <div id="tp-normal-view" style="display:flex; width:100%; height:100%; gap:15px;">
-                <div class="list-wrapper">
-                    <input type="text" id="topic-search" placeholder="🔍 Tìm cụm từ..." oninput="filterTopicPhrases()"
-                        style="margin-bottom:8px;">
-                    <select id="topic-filter" onchange="filterTopicPhrases()"
-                        style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); margin-bottom:10px; font-size:13px; background:var(--bg-card); color:var(--text-main);">
-                        <option value="">📁 Tất cả chủ đề</option>
-                    </select>
-                    <button class="btn btn-add" style="margin-bottom:10px; background:#8e44ad;" onclick="startTopicFlashcards()">📇 Ôn tập Flashcard</button>
-                    <div id="topic-phrase-list" style="flex:1; overflow-y:auto;"></div>
-                    <div id="topic-loader" class="loader" style="display:none;"></div>
-                </div>
-                <div class="editor-wrapper" id="topic-right-panel">
-                    <div id="topic-form-area">
-                        <h4 style="margin-top:0; color:var(--highlight); font-size:16px;">➕ Thêm Cụm Từ Mới</h4>
-                        <input type="hidden" id="topic-edit-id">
-                        <div class="form-group"><input type="text" id="inp-phrase"
-                                placeholder="Cụm từ tiếng Anh (VD: make a reservation)..."></div>
-                        <div class="form-group"><input type="text" id="inp-phrase-vi"
-                                placeholder="Nghĩa tiếng Việt (VD: đặt chỗ, đặt bàn)..."></div>
-                        <div class="form-group">
-                            <div class="topic-chips-label">Chọn chủ đề (có thể chọn nhiều):</div>
-                            <div id="topic-chips-container" class="topic-chips"></div>
-                        </div>
-                        <div id="custom-topic-row" style="display:none; margin-bottom:10px;">
-                            <div style="display:flex; gap:6px;"><input type="text" id="inp-custom-topic"
-                                    placeholder="Nhập tên chủ đề mới..." style="flex:1;"><button class="btn btn-add"
-                                    onclick="confirmAddCustomTopic()"
-                                    style="width:auto; padding:8px 14px; margin:0;">➕</button></div>
-                        </div>
-                        <div class="form-group"><textarea id="inp-phrase-example" placeholder="Câu ví dụ (tùy chọn)..."
-                                style="height:60px;"></textarea></div>
-                        <input type="hidden" id="inp-phrase-source" value="Tự thêm">
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-add" id="btn-save-phrase" onclick="saveTopicPhraseAPI()"
-                                style="flex:1;">💾 Lưu cụm từ</button>
-                            <button class="btn btn-cancel" id="btn-cancel-phrase" onclick="resetPhraseForm()"
-                                style="flex:1; display:none;">❌ Hủy sửa</button>
+                    <div class="list-wrapper">
+                        <input type="text" id="topic-search" placeholder="🔍 Tìm cụm từ..."
+                            oninput="filterTopicPhrases()" style="margin-bottom:8px;">
+                        <select id="topic-filter" onchange="filterTopicPhrases()"
+                            style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border); margin-bottom:10px; font-size:13px; background:var(--bg-card); color:var(--text-main);">
+                            <option value="">📁 Tất cả chủ đề</option>
+                        </select>
+                        <button class="btn btn-add" style="margin-bottom:10px; background:#8e44ad;"
+                            onclick="startTopicFlashcards()">📇 Ôn tập Flashcard</button>
+                        <div id="topic-phrase-list" style="flex:1; overflow-y:auto;"></div>
+                        <div id="topic-loader" class="loader" style="display:none;"></div>
+                    </div>
+                    <div class="editor-wrapper" id="topic-right-panel">
+                        <div id="topic-form-area">
+                            <h4 style="margin-top:0; color:var(--highlight); font-size:16px;">➕ Thêm Cụm Từ Mới</h4>
+                            <input type="hidden" id="topic-edit-id">
+                            <div class="form-group"><input type="text" id="inp-phrase"
+                                    placeholder="Cụm từ tiếng Anh (VD: make a reservation)..."></div>
+                            <div class="form-group"><input type="text" id="inp-phrase-vi"
+                                    placeholder="Nghĩa tiếng Việt (VD: đặt chỗ, đặt bàn)..."></div>
+                            <div class="form-group">
+                                <div class="topic-chips-label">Chọn chủ đề (có thể chọn nhiều):</div>
+                                <div id="topic-chips-container" class="topic-chips"></div>
+                            </div>
+                            <div id="custom-topic-row" style="display:none; margin-bottom:10px;">
+                                <div style="display:flex; gap:6px;"><input type="text" id="inp-custom-topic"
+                                        placeholder="Nhập tên chủ đề mới..." style="flex:1;"><button class="btn btn-add"
+                                        onclick="confirmAddCustomTopic()"
+                                        style="width:auto; padding:8px 14px; margin:0;">➕</button></div>
+                            </div>
+                            <div class="form-group"><textarea id="inp-phrase-example"
+                                    placeholder="Câu ví dụ (tùy chọn)..." style="height:60px;"></textarea></div>
+                            <input type="hidden" id="inp-phrase-source" value="Tự thêm">
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-add" id="btn-save-phrase" onclick="saveTopicPhraseAPI()"
+                                    style="flex:1;">💾 Lưu cụm từ</button>
+                                <button class="btn btn-cancel" id="btn-cancel-phrase" onclick="resetPhraseForm()"
+                                    style="flex:1; display:none;">❌ Hủy sửa</button>
+                            </div>
                         </div>
                     </div>
-                </div>
                 </div>
 
                 <div id="tp-flashcard-view">
@@ -2877,7 +2907,8 @@
                             <span class="tp-fc-toolbar-title">📇 Flashcard</span>
                         </div>
                         <div class="tp-fc-toolbar-right">
-                            <select id="tp-fc-topic-filter" onchange="applyTopicFlashcardFilter()" style="padding:5px 10px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-size:12px; max-width:150px;">
+                            <select id="tp-fc-topic-filter" onchange="applyTopicFlashcardFilter()"
+                                style="padding:5px 10px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-size:12px; max-width:150px;">
                                 <option value="">📁 Tất cả</option>
                             </select>
                             <button class="tp-fc-btn-shuffle" onclick="shuffleTopicFlashcards()">🔀 Trộn</button>
@@ -3202,7 +3233,7 @@
         }
 
         // --- GOOGLE SHEETS API URL ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbyshjITJz-pb1rJqUMru9Ts-9DgxCKniguIhrX_Xkw9YiaU1ZjGgoWZSQR9k16DWpsP/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxUtYpqImFpfoNHiUxRPCReb3XnVwMXE-x_-4ZWcYtElilyD4nEoaYJBEu1ZiQidTj6/exec";
 
         // --- AI API KEYS (Gemini + ChatGPT Fallback) ---
         let GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || 'AIzaSyCJY38kGHUxSf374Fhs-XvWjIL2exX_ibk';
@@ -4329,11 +4360,13 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
             if (!confirm("Xóa cấu trúc này?")) return; document.getElementById('structure-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>';
             try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'del_structure', id: id }) }); loadStructuresFromAPI(); } catch (e) { alert("Lỗi xóa: " + e); }
         }
+        let structRetry = 0;
         async function loadStructuresFromAPI() {
             const c = document.getElementById('structure-list'), l = document.getElementById('struct-loader'); c.innerHTML = ''; l.style.display = 'block';
             try {
-                const r = await fetch(API_URL + "?action=get_structures"); const j = await r.json(); l.style.display = 'none';
+                const r = await fetch(API_URL + "?action=get_structures&t=" + Date.now()); const j = await r.json(); l.style.display = 'none';
                 if (j.status === 'success' && j.data.length > 0) {
+                    structRetry = 0;
                     j.data.forEach(item => {
                         const d = document.createElement('div'); d.className = 'list-item';
                         let exHtml = item.examples ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); color: var(--text-sub); font-size: 13px; font-style: italic; white-space: pre-wrap;">📝 ${item.examples}</div>` : '';
@@ -4438,14 +4471,18 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
         }
 
         // --- TOPIC PHRASES: API CRUD ---
+        let tpRetry = 0;
         async function loadTopicPhrasesFromAPI() {
             const c = document.getElementById('topic-phrase-list'), l = document.getElementById('topic-loader');
             c.innerHTML = ''; l.style.display = 'block';
             try {
-                const r = await fetch(API_URL + "?action=get_topic_phrases"); const j = await r.json(); l.style.display = 'none';
-                if (j.status === 'success') { globalTopicPhrases = j.data || []; renderTopicPhraseList(globalTopicPhrases); }
+                const r = await fetch(API_URL + "?action=get_topic_phrases&t=" + Date.now()); const j = await r.json(); l.style.display = 'none';
+                if (j.status === 'success') { tpRetry = 0; globalTopicPhrases = j.data || []; renderTopicPhraseList(globalTopicPhrases); }
                 else { c.innerHTML = '<div style="text-align:center; color:var(--text-sub);">Chưa có cụm từ nào.</div>'; }
-            } catch (e) { l.style.display = 'none'; c.innerHTML = '<div style="color:red; text-align:center;">Lỗi tải dữ liệu.</div>'; }
+            } catch (e) {
+                if (tpRetry < 2) { tpRetry++; setTimeout(loadTopicPhrasesFromAPI, 1000); return; }
+                l.style.display = 'none'; c.innerHTML = '<div style="color:red; text-align:center;">Lỗi tải dữ liệu. Thử refresh lại trang.</div>';
+            }
         }
 
         async function saveTopicPhraseAPI() {
@@ -4467,11 +4504,15 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
                 const action = editId ? 'edit_topic_phrase' : 'add_topic_phrase';
                 const payload = { action, phrase, meaningVi, topic, example, source };
                 if (editId) payload.id = editId;
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const j = await r.json();
+                if (j.status !== 'success') {
+                    throw new Error(j.message || 'Lỗi không xác định từ máy chủ');
+                }
                 resetPhraseForm();
                 renderTopicOptions();
                 loadTopicPhrasesFromAPI();
-            } catch (e) { alert("Lỗi lưu: " + e); } finally { btn.innerText = origText; }
+            } catch (e) { alert("Lỗi lưu: " + e.message || e); btn.innerText = origText; }
         }
 
         async function deleteTopicPhraseAPI(id) {
@@ -4563,7 +4604,10 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
             </div>`;
             phraseDetailModalEl.style.display = 'flex';
         }
-        function closePhraseDetailModal() { phraseDetailModalEl.style.display = 'none'; }
+        function closePhraseDetailModal() {
+            const el = document.getElementById('phraseDetailModal');
+            if (el) el.style.display = 'none';
+        }
 
         function startEditPhrase(id) {
             const p = globalTopicPhrases.find(x => x.id === id);
@@ -4778,12 +4822,14 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
         }
         async function removeVocabAPI(word) { if (!confirm(`Xóa từ "${word}"?`)) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang xóa...</div>'; try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'del_vocab', word: word }) }); loadVocabFromAPI(); } catch (e) { alert("Lỗi xóa: " + e); } }
         async function editVocabAPI(oldWord) { const newWord = prompt("Sửa từ:", oldWord); if (!newWord || newWord === oldWord) return; document.getElementById('vocab-list').innerHTML = '<div style="text-align:center">Đang cập nhật...</div>'; try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'edit_vocab', oldWord: oldWord, newWord: newWord }) }); loadVocabFromAPI(); } catch (e) { alert("Lỗi sửa: " + e); } }
+        let vocabRetry = 0;
         async function loadVocabFromAPI() {
             const c = document.getElementById('vocab-list'), l = document.getElementById('vocab-loader'); c.innerHTML = ''; l.style.display = 'block';
             document.getElementById('vocab-detail-content').innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top: 50px; font-size: 16px;">👈 Bấm vào một từ bên trái để xem chi tiết.</div>`;
             try {
-                const r = await fetch(API_URL + "?action=get_vocab"); const j = await r.json(); l.style.display = 'none';
+                const r = await fetch(API_URL + "?action=get_vocab&t=" + Date.now()); const j = await r.json(); l.style.display = 'none';
                 if (j.status === 'success' && j.data.length > 0) {
+                    vocabRetry = 0;
                     globalVocabList = j.data;
                     j.data.forEach(w => { const d = document.createElement('div'); d.className = 'vocab-item'; d.innerHTML = `<span class="vocab-word" onclick="viewVocabDetail('${w}')" style="cursor:pointer; color:var(--highlight); font-size:18px; font-weight:bold;">${w}</span><div><button class="btn-sm" style="background:var(--highlight)" onclick="speak('${w}')">🔊</button><button class="btn-sm btn-edit" onclick="editVocabAPI('${w}')">✏️</button><button class="btn-sm btn-del" onclick="removeVocabAPI('${w}')">🗑️</button></div>`; c.appendChild(d); });
                 } else { globalVocabList = []; c.innerHTML = '<div style="text-align:center;">Sổ tay trống.</div>'; }
@@ -5196,7 +5242,7 @@ Return ONLY the raw JSON array. No markdown, no explanation, no extra text.`;
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-                const r = await fetch(API_URL, {
+                const r = await fetch(API_URL + "?t=" + Date.now(), {
                     method: 'GET',
                     redirect: 'follow',
                     signal: controller.signal
